@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Name in Lights — Fictitious Companies</title>
+<style>
+  :root { --dark:#1A1A2E; --accent:#0F3460; --yellow:#FFD166; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:Arial,sans-serif; background:#EDEEF2; color:#1A1A2E; }
+  .header{ background:var(--dark); padding:26px 40px 18px; }
+  .header h1{ color:#fff; font-size:21px; font-weight:700; }
+  .header p{ color:var(--yellow); font-size:11.5px; margin-top:5px; line-height:1.7; }
+  .controls{ background:var(--accent); padding:12px 40px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .controls input{ flex:1; min-width:200px; padding:8px 14px; border-radius:6px; border:none; font-size:13px; outline:none; }
+  .controls select{ padding:8px 14px; border-radius:6px; border:none; font-size:13px; background:#fff; cursor:pointer; }
+  .count{ color:rgba(255,255,255,.8); font-size:12px; margin-left:auto; white-space:nowrap; }
+  .list-wrap{ padding:24px 40px; display:flex; flex-direction:column; gap:0; }
+  .col-header{ display:flex; align-items:center; gap:14px; padding:6px 18px 8px; position:sticky; top:0; background:#F9FAFB; z-index:10; border-bottom:2px solid #E5E7EB; margin-bottom:6px; }
+  .col-header span{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#9CA3AF; }
+  .col-h-num{ width:28px; flex-shrink:0; text-align:right; }
+  .col-h-dot{ display:none; }
+  .col-h-name{ flex:1; min-width:0; }
+  .col-h-owner{ width:180px; flex-shrink:0; }
+  .col-h-cat{ width:160px; flex-shrink:0; }
+  .col-h-type{ width:190px; flex-shrink:0; }
+  .list{ display:flex; flex-direction:column; gap:6px; }
+  .row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; transition:box-shadow .12s; cursor:pointer; }
+  .row:hover{ box-shadow:0 3px 14px rgba(0,0,0,.11); }
+  .row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
+  .cat-dot{ display:none; }
+  .row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .row-owner{ font-size:12px; color:#6B7280; width:180px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .row-cat{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:160px; flex-shrink:0; box-sizing:border-box; }
+  .row-type{ font-size:11px; color:#9CA3AF; width:190px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  /* ── Modal ── */
+  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{ background:#fff; border-radius:16px; width:100%; max-width:780px; max-height:90vh; overflow-y:auto; padding:32px; position:relative; }
+  .modal-close{ position:absolute; top:16px; right:18px; background:none; border:none; font-size:22px; cursor:pointer; color:#6B7280; }
+  .modal-close:hover{ color:#111; }
+  .modal-title{ font-size:22px; font-weight:800; margin-bottom:4px; }
+  .modal-sub{ font-size:12px; color:#6B7280; margin-bottom:20px; }
+  .photo-row{ display:block; margin-bottom:20px; }
+  .photo-slot{ border-radius:10px; overflow:hidden; background:#F3F4F6; }
+  .headshot-slot{ width:100%; height:340px; }
+  .photo-slot.headshot-slot{ aspect-ratio:3/4; }
+  .photo-slot.biz-slot{ aspect-ratio:16/9; }
+  .photo-loading{ display:flex; align-items:center; justify-content:center; height:100%; min-height:120px; font-size:12px; color:#9CA3AF; }
+  .logo-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .logo-label{ font-size:10px; color:#9CA3AF; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+  .logo-wrap{ background:#F9FAFB; border-radius:8px; padding:12px; }
+  .modal-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .modal-actions button{ padding:8px 18px; border-radius:6px; border:none; font-size:12px; cursor:pointer; font-weight:600; }
+  .btn-dl-h{ background:#1A1A2E; color:#fff; }
+  .btn-dl-v{ background:#0F3460; color:#fff; }
+  .btn-close2{ background:#F3F4F6; color:#374151; }
+  .modal-actions button:hover{ opacity:.85; }
+  .no-results{ text-align:center; padding:60px 20px; color:#9CA3AF; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>&#9733; Name in Lights — Fictitious Companies</h1>
+  <p>143 Intuit employee-owned businesses &nbsp;|&nbsp; Click any row to view logos &amp; profile &nbsp;|&nbsp; <a href="https://intuitcorp.quickbase.com/nav/app/bbqsxypz5/action/appoverview" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;">View NIL Database ↗</a></p>
+</div>
+<div class="controls">
+  <input type="text" id="search" placeholder="Search companies, owners, or categories…" oninput="renderList()">
+  <select id="catFilter" onchange="renderList()">
+    <option value="">All Categories</option>
+  </select>
+  <span class="count" id="count"></span>
+</div>
+<div class="list-wrap">
+  <div class="col-header">
+    <span class="col-h-num">#</span>
+    <span class="col-h-dot"></span>
+    <span class="col-h-name">Company</span>
+    <span class="col-h-owner">Owner</span>
+    <span class="col-h-cat">Category</span>
+    <span class="col-h-type">Type</span>
+  </div>
+  <div class="list" id="list"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-sub" id="m-sub"></div>
+    <div class="photo-row">
+      <div class="photo-slot headshot-slot" id="m-headshot"><div class="photo-loading">Loading…</div></div>
+    </div>
+    <div class="logo-cols">
+      <div class="logo-wrap"><div class="logo-label">Horizontal</div><div id="m-hlogo"></div></div>
+      <div class="logo-wrap"><div class="logo-label">Vertical</div><div id="m-vlogo"></div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-dl-h" onclick="dlModal('h')">&#8595; Download Horizontal</button>
+      <button class="btn-dl-v" onclick="dlModal('v')">&#8595; Download Vertical</button>
+      <button class="btn-dl-h" onclick="dlHeadshot()">&#8595; Download Headshot</button>
+      <button class="btn-close2" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const companies = [
+  {"name":"Patikan Advisory Group","owner":"Aaron Patikan","category":"Professional Services","type":"Management Consulting","gender":"male"},
+  {"name":"Draper Legal Partners","owner":"Adriene Draper","category":"Professional Services","type":"Legal Services","gender":"female"},
+  {"name":"Howland HR Solutions","owner":"Aggie Howland","category":"Professional Services","type":"Human Resources","gender":"female"},
+  {"name":"Woodbeck Accounting","owner":"Adam Woodbeck","category":"Professional Services","type":"Accounting & Tax","gender":"male"},
+  {"name":"Ganz Strategy Consultants","owner":"Alison Ganz","category":"Professional Services","type":"Business Strategy","gender":"female"},
+  {"name":"Cotton Communications","owner":"Alexis Cotton","category":"Professional Services","type":"Public Relations","gender":"female"},
+  {"name":"Bhandari Research Group","owner":"Anita Bhandari","category":"Professional Services","type":"Market Research","gender":"female"},
+  {"name":"Larsen Business Advisors","owner":"Anders Larsen","category":"Professional Services","type":"Business Advisory","gender":"male"},
+  {"name":"Vu Digital Works","owner":"Ace Vu","category":"Technology","type":"Software Development","gender":"male"},
+  {"name":"Bhargava Cloud Systems","owner":"Aditi Bhargava","category":"Technology","type":"Cloud Infrastructure","gender":"female"},
+  {"name":"Eftekhari Cybersecurity","owner":"Amir Eftekhari","category":"Technology","type":"Cybersecurity","gender":"male"},
+  {"name":"Kaushik Analytics Inc.","owner":"Ashutosh Kaushik","category":"Technology","type":"Data Analytics","gender":"male"},
+  {"name":"Bapat AI Solutions","owner":"Alok Bapat","category":"Technology","type":"Artificial Intelligence","gender":"male"},
+  {"name":"Gaurishankar Networks","owner":"Avinash Gaurishankar","category":"Technology","type":"Telecommunications","gender":"male"},
+  {"name":"Mirhosseini Tech Platforms","owner":"Ardavan Mirhosseini","category":"Technology","type":"SaaS / Platform Services","gender":"male"},
+  {"name":"Nabi Robotics Corp.","owner":"Ayaz Nabi","category":"Technology","type":"Robotics & Automation","gender":"male"},
+  {"name":"Carpenter Construction Co.","owner":"Amethyst Carpenter","category":"Construction","type":"General Contracting","gender":"female"},
+  {"name":"Witt Excavation & Grading","owner":"Calvin Witt","category":"Construction","type":"Excavation & Grading","gender":"male"},
+  {"name":"Apodaca Civil Engineering","owner":"Carter Apodaca","category":"Construction","type":"Civil Engineering","gender":"male"},
+  {"name":"Murphy General Contracting","owner":"Chris Murphy","category":"Construction","type":"Commercial Construction","gender":"male"},
+  {"name":"Vanwari Roofing Solutions","owner":"Bacho Vanwari","category":"Construction","type":"Roofing Contractor","gender":"male"},
+  {"name":"Hart Masonry Inc.","owner":"Bennett Hart","category":"Construction","type":"Specialty Trades / Masonry","gender":"male"},
+  {"name":"Keystone Construction","owner":"Clark Fulton","category":"Construction","type":"General Contracting","gender":"male"},
+  {"name":"Magnolia Landscaping","owner":"Daniele Griffith","category":"Construction","type":"Landscaping & Grounds","gender":"female"},
+  {"name":"Spark Construction & Solar","owner":"Austin Pettus","category":"Construction","type":"Construction & Solar Install","gender":"male"},
+  {"name":"Horizon Construction","owner":"Chris Pepper","category":"Construction","type":"Residential Construction","gender":"male"},
+  {"name":"Suggs Structural Engineering","owner":"Brady Suggs","category":"Construction-Entities","type":"Structural Engineering","gender":"male"},
+  {"name":"Reynolds Architecture Group","owner":"Brandon Reynolds","category":"Construction-Entities","type":"Architecture Firm","gender":"male"},
+  {"name":"Tierney Property Management","owner":"Bryn Tierney","category":"Construction-Entities","type":"Property Management","gender":"female"},
+  {"name":"Chan Plumbing & Utilities","owner":"Carly Chan","category":"Construction-Entities","type":"Plumbing Contractor","gender":"female"},
+  {"name":"Myers HVAC & Mechanical","owner":"Caitlin Myers","category":"Construction-Entities","type":"HVAC / Mechanical","gender":"female"},
+  {"name":"Soares Demolition Services","owner":"Camila Soares","category":"Construction-Entities","type":"Demolition & Site Clearing","gender":"female"},
+  {"name":"Chippendale Home Goods","owner":"Amanda Chippendale","category":"Retail & Product","type":"Home Furnishings","gender":"female"},
+  {"name":"Brinnand Sporting Goods","owner":"AJ Brinnand","category":"Retail & Product","type":"Sporting Goods","gender":"male"},
+  {"name":"Okawa Apparel Co.","owner":"Adilson Okawa","category":"Retail & Product","type":"Clothing & Accessories","gender":"male"},
+  {"name":"Heim Design Studio","owner":"Ailina Heim","category":"Retail & Product","type":"Interior Design Retail","gender":"female"},
+  {"name":"Goods Hardware Supply","owner":"Aladrian Goods","category":"Retail & Product","type":"Hardware & Tools","gender":"male"},
+  {"name":"Seto Organic Market","owner":"Alison Seto","category":"Retail & Product","type":"Health & Wellness Products","gender":"female"},
+  {"name":"Truttmann Toy Company","owner":"Alayna Truttmann","category":"Retail & Product","type":"Toy Manufacturing","gender":"female"},
+  {"name":"Cerone Floral Boutique","owner":"Samantha Cerone","category":"Retail - Brick & Mortar","type":"Floral Shop","gender":"female"},
+  {"name":"Burke Pet Supply","owner":"Cathy Burke","category":"Retail - Brick & Mortar","type":"Pet Store","gender":"female"},
+  {"name":"Vieira Book & Gift Shop","owner":"Celine Vieira","category":"Retail - Brick & Mortar","type":"Bookstore & Gifts","gender":"female"},
+  {"name":"Daggs Shoe Boutique","owner":"Charisse Daggs","category":"Retail - Brick & Mortar","type":"Footwear Retail","gender":"female"},
+  {"name":"Pable Furniture Gallery","owner":"Charudatta Pable","category":"Retail - Brick & Mortar","type":"Furniture Store","gender":"male"},
+  {"name":"Desai Specialty Grocery","owner":"Chetan Desai","category":"Retail - Brick & Mortar","type":"Specialty Grocery","gender":"male"},
+  {"name":"Verma Medical Partners","owner":"Ami Verma","category":"Healthcare","type":"Primary Care Practice","gender":"female"},
+  {"name":"Holderness Dental Clinics","owner":"Ashley Holderness","category":"Healthcare","type":"Dental Services","gender":"female"},
+  {"name":"Gosewisch Wellness Center","owner":"Autumn Gosewisch","category":"Healthcare","type":"Behavioral Health","gender":"female"},
+  {"name":"Jones Physical Therapy","owner":"Ashlee Jones","category":"Healthcare","type":"Rehabilitation Services","gender":"female"},
+  {"name":"Harvey Diagnostics Inc.","owner":"Ashton Harvey","category":"Healthcare","type":"Laboratory & Diagnostics","gender":"male"},
+  {"name":"Carpio Pediatric Care","owner":"Aliza Carpio","category":"Healthcare","type":"Pediatric Medicine","gender":"female"},
+  {"name":"Brauer Craft Brewery","owner":"April Brauer","category":"Food & Beverage","type":"Craft Brewery","gender":"female"},
+  {"name":"Daron Specialty Foods","owner":"Brooklyn Daron","category":"Food & Beverage","type":"Specialty Food Production","gender":"female"},
+  {"name":"Johnson Cafe Group","owner":"Bruce Johnson","category":"Food & Beverage","type":"Restaurant / Cafe Chain","gender":"male"},
+  {"name":"Chadha Bakery Inc.","owner":"Bobleen Chadha","category":"Food & Beverage","type":"Commercial Bakery","gender":"female"},
+  {"name":"Bunzel Catering","owner":"Breeana Bunzel","category":"Food & Beverage","type":"Catering Services","gender":"female"},
+  {"name":"Khoo Investment Advisory","owner":"Ben Khoo","category":"Financial Services","type":"Investment Advisory","gender":"male"},
+  {"name":"Kroshus Lending Partners","owner":"Brad Kroshus","category":"Financial Services","type":"Mortgage & Lending","gender":"male"},
+  {"name":"Knight Insurance Group","owner":"Barbara Knight","category":"Financial Services","type":"Insurance Brokerage","gender":"female"},
+  {"name":"Robison Financial Group","owner":"Brenda Robison","category":"Financial Services","type":"Financial Planning","gender":"female"},
+  {"name":"Ben Atia Wealth Management","owner":"Brahim Ben Atia","category":"Financial Services","type":"Wealth Management","gender":"male"},
+  {"name":"Beasley & Howe Financials","owner":"Adam Beasley / Carol Howe","category":"Accounting Firm","type":"CPA Partnership","gender":"female"},
+  {"name":"Corrao Tax Advisors","owner":"Cody Corrao","category":"Accounting Firm","type":"Tax Advisory","gender":"male"},
+  {"name":"Salinas CPA Group","owner":"Cody Salinas","category":"Accounting Firm","type":"CPA Practice","gender":"male"},
+  {"name":"Grist Accounting Partners","owner":"Colleen Grist","category":"Accounting Firm","type":"Accounting Partners","gender":"female"},
+  {"name":"Collins Financial Audit Group","owner":"Carmen Collins","category":"Accounting Firm","type":"Audit & Assurance","gender":"female"},
+  {"name":"Arvizu & Associates","owner":"Carmen Arvizu","category":"Accounting Firm","type":"Accounting Associates","gender":"female"},
+  {"name":"Shmukler Freight LLC","owner":"Boris Shmukler","category":"Transportation & Logistics","type":"Freight Brokerage","gender":"male"},
+  {"name":"Denney Delivery Co.","owner":"Brett Denney","category":"Transportation & Logistics","type":"Last-Mile Delivery","gender":"male"},
+  {"name":"Sterling Fleet Services","owner":"Brian Sterling","category":"Transportation & Logistics","type":"Fleet Management","gender":"male"},
+  {"name":"Iuliano Learning Center","owner":"Blase Iuliano","category":"Education","type":"K-12 Tutoring & Enrichment","gender":"male"},
+  {"name":"Mitchell Workforce Training","owner":"Ben Mitchell","category":"Education","type":"Vocational / Skills Training","gender":"male"},
+  {"name":"Tinnirello Photography Studio","owner":"Afrodite Tinnirello","category":"Photography & Creative Media","type":"Portrait Photography","gender":"female"},
+  {"name":"Dillon Creative Media","owner":"Alexandria Dillon","category":"Photography & Creative Media","type":"Commercial Photography","gender":"female"},
+  {"name":"Pinney Portrait Studio","owner":"Alyson Pinney","category":"Photography & Creative Media","type":"Wedding Photography","gender":"female"},
+  {"name":"Benedict Photography","owner":"Andy Benedict","category":"Photography & Creative Media","type":"Event Photography","gender":"male"},
+  {"name":"Rodriguez Photography Group","owner":"Antonio Rodriguez","category":"Photography & Creative Media","type":"Photography Agency","gender":"male"},
+  {"name":"Brennan Art Gallery","owner":"Annie Brennan","category":"Arts & Galleries","type":"Fine Art Gallery","gender":"female"},
+  {"name":"Roberts Fine Arts Studio","owner":"Anna Roberts","category":"Arts & Galleries","type":"Art Studio & Classes","gender":"female"},
+  {"name":"Leon Art Collective","owner":"Angela Leon","category":"Arts & Galleries","type":"Contemporary Art Gallery","gender":"female"},
+  {"name":"Marshall Gallery & Exhibition","owner":"Angela S Marshall","category":"Arts & Galleries","type":"Gallery & Exhibition Space","gender":"female"},
+  {"name":"Grogan Arts Foundation","owner":"Anthony Grogan","category":"Arts & Galleries","type":"Arts Organization","gender":"male"},
+  {"name":"Mavy's Design","owner":"Mavy Moreno","category":"Arts & Galleries","type":"Design Studio","gender":"female"},
+  {"name":"Birchett Auto Repair","owner":"Andy Birchett","category":"Automotive","type":"Auto Repair Shop","gender":"male"},
+  {"name":"Hoobing Auto Body","owner":"Andy Hoobing","category":"Automotive","type":"Collision & Body Work","gender":"male"},
+  {"name":"Leung Auto Detailing","owner":"Angela Leung","category":"Automotive","type":"Detailing Studio","gender":"female"},
+  {"name":"Browne Tire & Service Center","owner":"Angela Browne","category":"Automotive","type":"Tire & Service Center","gender":"female"},
+  {"name":"Kanumuru Motor Group","owner":"Aravind Kanumuru","category":"Automotive","type":"Auto Dealership","gender":"male"},
+  {"name":"Kleinsorge Home Cleaning","owner":"Angie Kleinsorge","category":"Home Services","type":"Residential Cleaning","gender":"female"},
+  {"name":"Ali Pest Control","owner":"Anika Ali","category":"Home Services","type":"Pest Control Services","gender":"female"},
+  {"name":"McCormick Electrical","owner":"Anna McCormick","category":"Home Services","type":"Electrical Contractor","gender":"female"},
+  {"name":"Johnson Home Solutions","owner":"Allison Johnson","category":"Home Services","type":"General Home Services","gender":"female"},
+  {"name":"Robert Moving & Storage","owner":"Angie Robert","category":"Home Services","type":"Moving & Storage","gender":"female"},
+  {"name":"Seurat Salon & Spa","owner":"Anne-Lise Seurat","category":"Beauty & Wellness","type":"Full-Service Salon & Spa","gender":"female"},
+  {"name":"Yasseldyk Nail Studio","owner":"Annette Yasseldyk","category":"Beauty & Wellness","type":"Nail Salon","gender":"female"},
+  {"name":"Trinidad Beauty Bar","owner":"Alysa Trinidad","category":"Beauty & Wellness","type":"Beauty Bar","gender":"female"},
+  {"name":"Lewis Barbershop","owner":"Ade Lewis","category":"Beauty & Wellness","type":"Barbershop","gender":"male"},
+  {"name":"Davis Hair Studio","owner":"Alex Davis","category":"Beauty & Wellness","type":"Hair Salon","gender":"male"},
+  {"name":"Li Fitness Studio","owner":"Alex Li","category":"Fitness & Recreation","type":"Gym & Fitness Center","gender":"male"},
+  {"name":"Rudd Personal Training","owner":"Alexander M Rudd","category":"Fitness & Recreation","type":"Personal Training","gender":"male"},
+  {"name":"Rakotoarivony Yoga","owner":"Allan Rakotoarivony","category":"Fitness & Recreation","type":"Yoga & Pilates Studio","gender":"male"},
+  {"name":"Tajammul Sports Academy","owner":"Ahsan Tajammul","category":"Fitness & Recreation","type":"Sports Training & Coaching","gender":"male"},
+  {"name":"Muresan Athletic Club","owner":"Adela-Lia Muresan","category":"Fitness & Recreation","type":"Athletic Club & Recreation","gender":"female"},
+  {"name":"Odebode Boutique Inn","owner":"Adedolapo Odebode","category":"Hospitality & Travel","type":"Boutique Hotel / Inn","gender":"male"},
+  {"name":"Holly Travel Group","owner":"Chris Holly","category":"Hospitality & Travel","type":"Travel Agency","gender":"male"},
+  {"name":"Niemi Tour Co.","owner":"Christian Niemi","category":"Hospitality & Travel","type":"Tour Operator","gender":"male"},
+  {"name":"Huang Event Venue","owner":"Clarence Huang","category":"Hospitality & Travel","type":"Event Venue & Banquet Hall","gender":"male"},
+  {"name":"Co Travel Concierge","owner":"Claudine Co","category":"Hospitality & Travel","type":"Luxury Travel Concierge","gender":"female"},
+  {"name":"Baker Realty Group","owner":"Craig Baker","category":"Real Estate","type":"Residential Real Estate","gender":"male"},
+  {"name":"Goldberg Commercial Properties","owner":"Craig Goldberg","category":"Real Estate","type":"Commercial Real Estate","gender":"male"},
+  {"name":"DeMoro Property Group","owner":"Collette DeMoro","category":"Real Estate","type":"Property Management","gender":"female"},
+  {"name":"Sandlin Realty Partners","owner":"Courtney Sandlin","category":"Real Estate","type":"Real Estate Brokerage","gender":"female"},
+  {"name":"Bullock Property Inspection","owner":"Corey Bullock","category":"Real Estate","type":"Home Inspection Services","gender":"male"},
+  {"name":"Hargro Community Foundation","owner":"Ebony Hargro","category":"Nonprofit / Social Services","type":"Community Foundation","gender":"female"},
+  {"name":"French Advocacy Group","owner":"Eleanor French","category":"Nonprofit / Social Services","type":"Advocacy Organization","gender":"female"},
+  {"name":"Nnama Social Services","owner":"Emeka Nnama","category":"Nonprofit / Social Services","type":"Social Services Agency","gender":"male"},
+  {"name":"Hopkins Community Center","owner":"Emily Hopkins","category":"Nonprofit / Social Services","type":"Community Center","gender":"female"},
+  {"name":"Bulloch Education Fund","owner":"Elaine Bulloch","category":"Nonprofit / Social Services","type":"Education Nonprofit","gender":"female"},
+  {"name":"Twitty Childcare Center","owner":"Corey Twitty","category":"Childcare & Family Services","type":"Daycare Center","gender":"male"},
+  {"name":"Aikman Family Learning","owner":"Cory Aikman","category":"Childcare & Family Services","type":"After-School Program","gender":"male"},
+  {"name":"Lozano Child Development","owner":"Cynthia Lozano","category":"Childcare & Family Services","type":"Child Development Center","gender":"female"},
+  {"name":"Ng Family Services","owner":"Doris Ng","category":"Childcare & Family Services","type":"Family Counseling & Support","gender":"female"},
+  {"name":"Saunders Early Learning","owner":"Denise Saunders","category":"Childcare & Family Services","type":"Early Childhood Education","gender":"female"},
+  {"name":"Hartin Family Farm","owner":"Daina Hartin","category":"Agriculture & Farming","type":"Family Farm","gender":"female"},
+  {"name":"Maffett Organic Nursery","owner":"Dalton Maffett","category":"Agriculture & Farming","type":"Plant Nursery","gender":"male"},
+  {"name":"Brennen Crop Farm","owner":"Damon Brennen","category":"Agriculture & Farming","type":"Crop Farming","gender":"male"},
+  {"name":"Cheng Specialty Produce","owner":"Dan Cheng","category":"Agriculture & Farming","type":"Specialty Produce Farm","gender":"male"},
+  {"name":"Garr Farm & Ranch","owner":"David Garr","category":"Agriculture & Farming","type":"Livestock Ranch","gender":"male"},
+  {"name":"Hine Pet Grooming","owner":"Erin Hine","category":"Pet Services","type":"Pet Grooming Studio","gender":"female"},
+  {"name":"Xu Pet Boarding","owner":"Elaine Xu","category":"Pet Services","type":"Pet Boarding & Daycare","gender":"female"},
+  {"name":"Wang Veterinary Clinic","owner":"Emily Wang","category":"Pet Services","type":"Veterinary Clinic","gender":"female"},
+  {"name":"Tang Pet Supply Co.","owner":"Eddy Tang","category":"Pet Services","type":"Pet Supply Store","gender":"male"},
+  {"name":"Rogge Animal Hospital","owner":"Elisa Rogge","category":"Pet Services","type":"Animal Hospital","gender":"female"},
+  {"name":"North Event Productions","owner":"Emily North","category":"Entertainment & Events","type":"Event Production Company","gender":"female"},
+  {"name":"Pelosi Entertainment Group","owner":"Emily Pelosi","category":"Entertainment & Events","type":"Entertainment Agency","gender":"female"},
+  {"name":"Spencer DJ & Sound","owner":"Emily Spencer","category":"Entertainment & Events","type":"DJ & Entertainment Services","gender":"female"},
+  {"name":"Siong Event Planning","owner":"Ene Siong","category":"Entertainment & Events","type":"Event Planning","gender":"male"},
+  {"name":"Berland Escape Rooms","owner":"Eric Berland","category":"Entertainment & Events","type":"Escape Room & Entertainment","gender":"male"},
+  {"name":"Phillips Video Productions","owner":"Eric Phillips","category":"Video Production & Media","type":"Video Production","gender":"male"},
+  {"name":"Pruvost Media Group","owner":"Eric Pruvost","category":"Video Production & Media","type":"Media Production","gender":"male"},
+  {"name":"Wong Creative Studio","owner":"Eric Wong","category":"Video Production & Media","type":"Creative Studio","gender":"male"},
+  {"name":"Santoni Film Co.","owner":"Erica Santoni","category":"Video Production & Media","type":"Film & Video Company","gender":"female"},
+  {"name":"Tjader Digital Media","owner":"Erica Tjader","category":"Video Production & Media","type":"Digital Media Production","gender":"female"}
+];
+
+const catColors = {
+  "Professional Services":{bg:"#1B4F72",light:"#EDF2FB",text:"#1B4F72"},
+  "Technology":{bg:"#0E6655",light:"#E8F8F5",text:"#0E6655"},
+  "Construction":{bg:"#7D6608",light:"#FEF9E7",text:"#7D6608"},
+  "Construction-Entities":{bg:"#784212",light:"#FFF3E0",text:"#784212"},
+  "Retail & Product":{bg:"#922B21",light:"#F9EBEA",text:"#922B21"},
+  "Retail - Brick & Mortar":{bg:"#C0392B",light:"#FDEDEC",text:"#C0392B"},
+  "Healthcare":{bg:"#1A5276",light:"#EBF5FB",text:"#1A5276"},
+  "Food & Beverage":{bg:"#1E8449",light:"#F0FFF4",text:"#1E8449"},
+  "Financial Services":{bg:"#6C3483",light:"#F4ECF7",text:"#6C3483"},
+  "Accounting Firm":{bg:"#1A237E",light:"#E8EAF6",text:"#1A237E"},
+  "Transportation & Logistics":{bg:"#880E4F",light:"#FDF2F8",text:"#880E4F"},
+  "Education":{bg:"#E65100",light:"#FFF3E0",text:"#E65100"},
+  "Photography & Creative Media":{bg:"#BF360C",light:"#FBE9E7",text:"#BF360C"},
+  "Arts & Galleries":{bg:"#6A1B9A",light:"#F3E5F5",text:"#6A1B9A"},
+  "Automotive":{bg:"#0D47A1",light:"#E3F2FD",text:"#0D47A1"},
+  "Home Services":{bg:"#1B5E20",light:"#E8F5E9",text:"#1B5E20"},
+  "Beauty & Wellness":{bg:"#AD1457",light:"#FCE4EC",text:"#AD1457"},
+  "Fitness & Recreation":{bg:"#006064",light:"#E0F7FA",text:"#006064"},
+  "Hospitality & Travel":{bg:"#4A148C",light:"#EDE7F6",text:"#4A148C"},
+  "Real Estate":{bg:"#283593",light:"#E8EAF6",text:"#283593"},
+  "Nonprofit / Social Services":{bg:"#004D40",light:"#E0F2F1",text:"#004D40"},
+  "Childcare & Family Services":{bg:"#BF360C",light:"#FBE9E7",text:"#BF360C"},
+  "Agriculture & Farming":{bg:"#33691E",light:"#F1F8E9",text:"#33691E"},
+  "Pet Services":{bg:"#4E342E",light:"#EFEBE9",text:"#4E342E"},
+  "Entertainment & Events":{bg:"#880E4F",light:"#FCE4EC",text:"#880E4F"},
+  "Video Production & Media":{bg:"#1A237E",light:"#E8EAF6",text:"#1A237E"}
+};
+
+const palette=['#1B4F72','#117A65','#7D5A0A','#6D1A1A','#4A235A','#1F618D','#0B6653','#196F3D','#C0560A','#943126','#76448A','#1C3A5F','#14806B','#1D8349','#8A7009','#6B2D1A','#154360','#6B3383','#2271A3','#1C7A42','#B8620C','#8E2320','#182431','#A08B0A','#0A6B4A','#2574A6','#7B231C','#185F39','#9A3E00','#2B3D56'];
+
+function nameHash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h)+s.charCodeAt(i)|0;return Math.abs(h);}
+function logoColor(name){return palette[nameHash(name)%palette.length];}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function wrapText(text,max){const words=text.split(' '),lines=[];let cur='';words.forEach(w=>{if((cur+(cur?' ':'')+w).length<=max){cur+=(cur?' ':'')+w;}else{if(cur)lines.push(cur);cur=w;}});if(cur)lines.push(cur);return lines;}
+function hFontSize(name){const lines=wrapText(name,16);const longest=Math.max(...lines.map(l=>l.length));const fs=Math.floor(380/(longest*0.72));return Math.min(Math.max(fs,11),30);}
+
+// ── HORIZONTAL SVG (4 styles) ──────────────────────────────────────────────
+function makeHorizSVG(c){
+  const color=logoColor(c.name),v=nameHash(c.name)%4,W=420;
+  const typeS=esc((c.type.length>40?c.type.slice(0,39)+'…':c.type).toUpperCase());
+  const lines=wrapText(c.name,16),l1=esc(lines[0]||''),l2=esc(lines[1]||'');
+  const fs=hFontSize(c.name),lh=fs+7,hasL2=!!l2;
+  const nameY1=hasL2?36:46,nameY2=nameY1+lh,typeY=(hasL2?nameY2:nameY1)+22,H=typeY+22;
+  if(v===0)return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/><rect x="0" y="12" width="4" height="${H-24}" rx="2" fill="${color}"/><text x="20" y="${nameY1}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#111827" letter-spacing="-0.5">${l1}</text>${hasL2?`<text x="20" y="${nameY2}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#111827" letter-spacing="-0.5">${l2}</text>`:''}<text x="20" y="${typeY}" font-family="Arial,sans-serif" font-size="9" fill="${color}" letter-spacing="2.5">${typeS}</text></svg>`;
+  if(v===1){const fsAC=Math.min(Math.floor(380/(lines[0].length*0.62)),20);const caps1=esc((lines[0]||'').toUpperCase()),caps2=lines[1]?esc(lines[1].toUpperCase()):'';const ruleY=(hasL2?nameY2:nameY1)+10,tY1=ruleY+20,H1=tY1+22;return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H1}" viewBox="0 0 ${W} ${H1}"><rect width="${W}" height="${H1}" fill="#fff"/><text x="20" y="${nameY1}" font-family="Arial,sans-serif" font-size="${fsAC}" font-weight="700" fill="#111827" letter-spacing="4">${caps1}</text>${caps2?`<text x="20" y="${nameY1+fsAC+9}" font-family="Arial,sans-serif" font-size="${fsAC}" font-weight="700" fill="#111827" letter-spacing="4">${caps2}</text>`:''}<line x1="20" y1="${ruleY}" x2="${W-20}" y2="${ruleY}" stroke="#E5E7EB" stroke-width="1"/><text x="20" y="${tY1}" font-family="Arial,sans-serif" font-size="9" fill="${color}" letter-spacing="2">${typeS}</text></svg>`;}
+  if(v===2)return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#111827"/><text x="20" y="${nameY1}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#fff" letter-spacing="-0.5">${l1}</text>${hasL2?`<text x="20" y="${nameY2}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#fff" letter-spacing="-0.5">${l2}</text>`:''}<text x="20" y="${typeY}" font-family="Arial,sans-serif" font-size="9" fill="${color}" letter-spacing="2.5">${typeS}</text></svg>`;
+  const words=c.name.split(' '),fw=esc(words[0]),rw=words.length>1?esc(' '+words.slice(1).join(' ')):'';
+  if(hasL2)return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/><text x="20" y="${nameY1}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="${color}" letter-spacing="-0.5">${l1}</text><text x="20" y="${nameY2}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#111827" letter-spacing="-0.5">${l2}</text><text x="20" y="${typeY}" font-family="Arial,sans-serif" font-size="9" fill="#9CA3AF" letter-spacing="2.5">${typeS}</text></svg>`;
+  return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/><text x="20" y="${nameY1}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" letter-spacing="-0.5"><tspan fill="${color}">${fw}</tspan><tspan fill="#111827">${rw}</tspan></text><text x="20" y="${typeY}" font-family="Arial,sans-serif" font-size="9" fill="#9CA3AF" letter-spacing="2.5">${typeS}</text></svg>`;
+}
+
+// ── VERTICAL SVG (4 styles) ────────────────────────────────────────────────
+function makeVertSVG(c){
+  const color=logoColor(c.name),v=nameHash(c.name)%4,W=260;
+  const lines=wrapText(c.name,12),lc=lines.length;
+  const fs=lc===1?30:lc===2?24:19,lh=fs+10;
+  const typeS=esc((c.type.length>24?c.type.slice(0,23)+'…':c.type).toUpperCase());
+  const sy=46+fs;
+  if(v===0){const ry=sy+(lc-1)*lh+18,ty=ry+20,h=ty+22;return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}"><rect width="${W}" height="${h}" fill="#fff"/>${lines.map((l,i)=>`<text x="${W/2}" y="${sy+i*lh}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#111827" text-anchor="middle" letter-spacing="-0.5">${esc(l)}</text>`).join('')}<rect x="${W/2-24}" y="${ry}" width="48" height="3" rx="1.5" fill="${color}"/><text x="${W/2}" y="${ty}" font-family="Arial,sans-serif" font-size="8.5" fill="${color}" text-anchor="middle" letter-spacing="2.5">${typeS}</text></svg>`;}
+  if(v===1){const fsAC=lc===1?22:lc===2?18:14,lhAC=fsAC+12,syAC=46+fsAC;const h=syAC+(lc-1)*lhAC+56;return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}"><rect width="${W}" height="${h}" fill="#fff"/>${lines.map((l,i)=>`<text x="${W/2}" y="${syAC+i*lhAC}" font-family="Arial,sans-serif" font-size="${fsAC}" font-weight="700" fill="#111827" text-anchor="middle" letter-spacing="3">${esc(l.toUpperCase())}</text>`).join('')}<circle cx="${W/2}" cy="${syAC+(lc-1)*lhAC+18}" r="3" fill="${color}"/><text x="${W/2}" y="${syAC+(lc-1)*lhAC+36}" font-family="Arial,sans-serif" font-size="8.5" fill="#9CA3AF" text-anchor="middle" letter-spacing="2">${typeS}</text></svg>`;}
+  if(v===2){const h=sy+(lc-1)*lh+52;return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}"><rect width="${W}" height="${h}" fill="#111827"/>${lines.map((l,i)=>`<text x="${W/2}" y="${sy+i*lh}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="-0.5">${esc(l)}</text>`).join('')}<text x="${W/2}" y="${sy+(lc-1)*lh+26}" font-family="Arial,sans-serif" font-size="8.5" fill="${color}" text-anchor="middle" letter-spacing="2.5">${typeS}</text></svg>`;}
+  const h=sy+(lc-1)*lh+52;
+  return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}"><rect width="${W}" height="${h}" fill="#fff"/>${lines.map((l,i)=>`<text x="${W/2}" y="${sy+i*lh}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="${i===0?color:'#111827'}" text-anchor="middle" letter-spacing="-0.5">${esc(l)}</text>`).join('')}<text x="${W/2}" y="${sy+(lc-1)*lh+26}" font-family="Arial,sans-serif" font-size="8.5" fill="#9CA3AF" text-anchor="middle" letter-spacing="2.5">${typeS}</text></svg>`;
+}
+
+// ── Business photo pools (curated Unsplash IDs — no API key) ──────────────
+const catPhotoPools={
+  "Professional Services":["1454165804606-c3d57bc86b40","1497366216548-37526070297c","1560472354-b33ff0c44a43","1552664730-d307ca884978","1521737604082-a4f21ccbff86"],
+  "Technology":["1498050108023-c5249f4df085","1518770660439-4636190af475","1550751827-4bd374c3f58b","1531297484001-80022131f5a1","1504384308090-c5d1a48e2b0b"],
+  "Construction":["1504307651254-35680f356dfd","1503387762-592deb58ef4e","1541888946425-d81bb19240f5","1562259949-e8e7290b3b07","1558618666-fcd25c85cd64"],
+  "Construction-Entities":["1486406686658-d37b43c11697","1503387762-592deb58ef4e","1497366216548-37526070297c","1472099645785-5658abf4ff4e","1560179707-f14e78e16921"],
+  "Retail & Product":["1441986300917-64674bd600d8","1472851294608-062f824d29cc","1556742049-0cfed4f6a45d","1567958451986-2de90aa996e9","1542744173-8e7e53415bb0"],
+  "Retail - Brick & Mortar":["1555529669-e69e7aa0ba9a","1441986300917-64674bd600d8","1481437156560-3205f6a55735","1534452203293-491d4f82e5eb","1555244162-cca949b641b4"],
+  "Healthcare":["1576091160550-2173dba999ef","1505751172876-fa1923c5c528","1519494026892-8cf60c5bc7c3","1551190822-a9333d879b1f","1559757148-5c58b7e9e2a3"],
+  "Food & Beverage":["1414235077428-338989a2e8c0","1504674900247-0877df9cc836","1476224203421-9ac39bcb3327","1493770348161-369560ae357d","1555244162-cca949b641b4"],
+  "Financial Services":["1554224155-6726b3ff8508","1563013544-824ae1b704d3","1526374965328-7f61d4dc18c5","1611974789855-9c60bd5ee4a0","1560472354-b33ff0c44a43"],
+  "Accounting Firm":["1454165804606-c3d57bc86b40","1507679799987-c73779587ccf","1563986768609-322da13575f3","1522202176988-66273c74cd1a","1498049574-a5ef5ccfeb6b"],
+  "Transportation & Logistics":["1519003722824-194d4f64be16","1601584280891-2780f20a00ae","1486074051793-522ed2b07386","1558618666-fcd25c85cd64","1592838564450-7d02e75e6be7"],
+  "Education":["1580582932707-520aed937b7b","1503676260728-1c00da094a0b","1524178232363-1fb2b075b655","1427504494785-3a9ca7044f45","1513128034602-1e83e16dfa3b"],
+  "Photography & Creative Media":["1542038374-ab25d2bfce5c","1522071901873-d7a56ad5e63e","1511871893393-82e39fe73279","1449495169669-b56e19aba34f","1434030216411-0b793f4b4173"],
+  "Arts & Galleries":["1561839426-2b14e8c4f93b","1578926288207-a90a103895db","1536924940846-41e6ac46f3a3","1549289272-3d42d0c3dfb2","1461773518188-b3e86f98d1e8"],
+  "Automotive":["1487754180451-c456f719a1fc","1503376780353-7e6692767b70","1493238792557-2c8edd9e3a42","1507003211169-0a1dd7228f2d","1555215695-3004980ad54e"],
+  "Home Services":["1558618047-3c8c76ca7d13","1581579438-d5b1b7a1bc41","1556909114-f6e7ad7d3136","1513694203-5c3f1f7c3b27","1484154155-84efb8d08e9d"],
+  "Beauty & Wellness":["1522337360788-8b13dee7a37e","1560066984-138daaa2adbb","1521590832167-7bcbfaa6381f","1470259078422-826894b933aa","1487412720507-e7ab37603c6f"],
+  "Fitness & Recreation":["1534438327276-14e5300c3a48","1517836357463-d25dfeac3438","1549060279-7e168fcee0c2","1571019613454-1cb2f99b2d8b","1540497077-85ade483e4f7"],
+  "Hospitality & Travel":["1520250497591-112f2f40a3f4","1551882547-ff40c63fe294","1496417321479-59ae7d3c6dc3","1504214208698-ea1916a55c8e","1530789253388-582c481c54b0"],
+  "Real Estate":["1560518883-ce09059eeffa","1512917774080-9991f1c4c750","1486325212027-8081e485255e","1558981806-ec527fa84c39","1523217582562-09d0def993a6"],
+  "Nonprofit / Social Services":["1469571486292-0ba58a3f068b","1559027615-cd4628902d4a","1488521787071-b710ef46e94d","1582213782179-e0d53f98f2ca","1519671482749-fd09be7ccebf"],
+  "Childcare & Family Services":["1516627145497-ae6968895b74","1476703993599-0035a21b18a8","1484820540004-14229fe36ca4","1536057614579-8f44c9e28a07","1567473165937-9f52c0c8e1b1"],
+  "Agriculture & Farming":["1500382017468-9049fed747ef","1464226184884-fa280b87c399","1530836369250-ef72a3f5cda8","1586771028669-5c4c452a4db4","1574943320219-cfe40e1c5c8d"],
+  "Pet Services":["1587300003388-59208cc962cb","1548199973-03cce0bbc87b","1522276498395-f8fec0b02b9b","1450778869180-41e5f0a2fe9e","1485489862995-27d7ba9e2bce"],
+  "Entertainment & Events":["1501281668745-f7f57925c3b4","1492684223066-81342ee5ff30","1540575467537-4f95400fc62b","1429962419283-ba2c33c97aec","1470229538611-16ba949d7519"],
+  "Video Production & Media":["1536240478700-b869ad10e2b9","1574717024653-f3e56f0ae895","1478720568477-152d9b92543e","1485846234645-a62644f84728","1464217578412-91bb5c7d4d21"]
+};
+
+function bizPhotoUrl(c){
+  const pool=catPhotoPools[c.category]||catPhotoPools["Professional Services"];
+  const id=pool[nameHash(c.name)%pool.length];
+  return`https://images.unsplash.com/photo-${id}?w=800&q=80&auto=format&fit=crop`;
+}
+
+// ── Headshot helpers ───────────────────────────────────────────────────────
+function ownerNat(c){
+  const name=c.owner.toLowerCase();
+  if(/moreno|garcia|martinez|rodriguez|salinas|lozano|arvizu|apodaca|carpio|trinidad|soares|cerone|vieira/.test(name))return'mx';
+  if(/bhandari|bhargava|kaushik|bapat|gaurishankar|nabi|desai|verma|chadha|kanumuru|tajammul|pable|ali/.test(name))return'in';
+  if(/eftekhari|mirhosseini|ben.atia/.test(name))return'tr';
+  if(/vu|chan|seto|okawa|leung|li|khoo|huang|ng|xu|wang|tang|cheng|wong|co/.test(name))return'br';
+  if(/nnama|odebode|lewis|rakotoarivony/.test(name))return'br';
+  const pool=['us','us','us','gb','au','ca','nz','ie'];
+  return pool[nameHash(c.owner)%pool.length];
+}
+
+const localHeadshots={
+  "Aaron Patikan":"individual/01_aaron_patikan.png",
+  "Adriene Draper":"individual/02_adriene_draper.png",
+  "Aggie Howland":"individual/03_aggie_howland.png",
+  "Adam Woodbeck":"individual/04_adam_woodbeck.png",
+  "Alison Ganz":"individual/05_alison_ganz.png",
+  "Alexis Cotton":"individual/06_alexis_cotton.png",
+  "Anita Bhandari":"individual/07_anita_bhandari.png",
+  "Anders Larsen":"individual/08_anders_larsen.png",
+  "Ace Vu":"individual/09_ace_vu.png",
+  "Aditi Bhargava":"individual/10_aditi_bhargava.png",
+  "Amir Eftekhari":"individual/11_blake_morgan.png",
+  "Ashutosh Kaushik":"individual/12_brittany_lee.png",
+  "Alok Bapat":"individual/13_chris_johnson.png",
+  "Avinash Gaurishankar":"individual/14_christine_park.png",
+  "Ardavan Mirhosseini":"individual/15_daniel_harper.png",
+  "Ayaz Nabi":"individual/16_diana_morales.png",
+  "Amethyst Carpenter":"individual/17_evan_phillips.png",
+  "Calvin Witt":"individual/18_faith_edwards.png",
+  "Carter Apodaca":"individual/19_farhan_ali.png",
+  "Chris Murphy":"individual/20_gabriella_rossi.png",
+  "Bacho Vanwari":"individual/21_bacho_vanwari.png",
+  "Bennett Hart":"individual/22_bennett_hart.png",
+  "Brady Suggs":"individual/23_brady_suggs.png",
+  "Brandon Reynolds":"individual/24_brandon_reynolds.png",
+  "Bryn Tierney":"individual/25_bryn_tierney.png",
+  "Carly Chan":"individual/26_carly_chan.png",
+  "Caitlin Myers":"individual/27_caitlin_myers.png",
+  "Camila Soares":"individual/28_camila_soares.png",
+  "Amanda Chippendale":"individual/29_amanda_chippendale.png",
+  "AJ Brinnand":"individual/30_aj_brinnand.png",
+  "Adilson Okawa":"individual/31_adilson_okawa.png",
+  "Ailina Heim":"individual/32_ailina_heim.png",
+  "Aladrian Goods":"individual/33_aladrian_goods.png",
+  "Alison Seto":"individual/34_alison_seto.png",
+  "Alayna Truttmann":"individual/35_alayna_truttmann.png",
+  "Samantha Cerone":"individual/36_samantha_cerone.png",
+  "Cathy Burke":"individual/37_cathy_burke.png",
+  "Celine Vieira":"individual/38_celine_vieira.png",
+  "Charisse Daggs":"individual/39_charisse_daggs.png",
+  "Charudatta Pable":"individual/40_charudatta_pable.png",
+  "Chetan Desai":"individual/41_chetan_desai.png",
+  "Ami Verma":"individual/42_ami_verma.png",
+  "Ashley Holderness":"individual/43_ashley_holderness.png",
+  "Autumn Gosewisch":"individual/44_autumn_gosewisch.png",
+  "Ashlee Jones":"individual/45_ashlee_jones.png",
+  "Ashton Harvey":"individual/46_ashton_harvey.png",
+  "Aliza Carpio":"individual/47_aliza_carpio.png",
+  "April Brauer":"individual/48_april_brauer.png",
+  "Brooklyn Daron":"individual/49_brooklyn_daron.png",
+  "Bruce Johnson":"individual/50_bruce_johnson.png",
+  "Bobleen Chadha":"individual/51_bobleen_chadha.png",
+  "Breeana Bunzel":"individual/52_breeana_bunzel.png",
+  "Ben Khoo":"individual/53_ben_khoo.png",
+  "Brad Kroshus":"individual/54_brad_kroshus.png",
+  "Barbara Knight":"individual/55_barbara_knight.png",
+  "Brenda Robison":"individual/56_brenda_robison.png",
+  "Brahim Ben Atia":"individual/57_brahim_ben_atia.png",
+  "Adam Beasley":"individual/58_adam_beasley.png",
+  "Carol Howe":"individual/59_carol_howe.png",
+  "Cody Corrao":"individual/60_cody_corrao.png",
+  "Cody Salinas":"individual/61_cody_salinas.png",
+  "Colleen Grist":"individual/62_colleen_grist.png",
+  "Carmen Collins":"individual/63_carmen_collins.png",
+  "Carmen Arvizu":"individual/64_carmen_arvizu.png",
+  "Boris Shmukler":"individual/65_boris_shmukler.png",
+  "Brett Denney":"individual/66_brett_denney.png",
+  "Brian Sterling":"individual/67_brian_sterling.png",
+  "Blase Iuliano":"individual/68_blase_iuliano.png",
+  "Ben Mitchell":"individual/69_ben_mitchell.png",
+  "Afrodite Tinnirello":"individual/70_afrodite_tinnirello.png",
+  "Alexandria Dillon":"individual/71_alexandria_dillon.png",
+  "Alyson Pinney":"individual/72_alyson_pinney.png",
+  "Andy Benedict":"individual/73_andy_benedict.png",
+  "Antonio Rodriguez":"individual/74_antonio_rodriguez.png",
+  "Annie Brennan":"individual/75_annie_brennan.png",
+  "Anna Roberts":"individual/76_anna_roberts.png",
+  "Angela Leon":"individual/77_angela_leon.png",
+  "Angela S Marshall":"individual/78_angela_s_marshall.png",
+  "Anthony Grogan":"individual/79_anthony_grogan.png",
+  "Mavy Moreno":"individual/80_mavy_moreno.png",
+  "Andy Birchett":"individual/081_andy_birchett.png",
+  "Andy Hoobing":"individual/082_andy_hoobing.png",
+  "Angela Leung":"individual/083_angela_leung.png",
+  "Angela Browne":"individual/084_angela_browne.png",
+  "Aravind Kanumuru":"individual/085_aravind_kanumuru.png",
+  "Angie Kleinsorge":"individual/086_angie_kleinsorge.png",
+  "Anika Ali":"individual/087_anika_ali.png",
+  "Anna McCormick":"individual/088_anna_mccormick.png",
+  "Allison Johnson":"individual/089_allison_johnson.png",
+  "Angie Robert":"individual/090_angie_robert.png",
+  "Anne-Lise Seurat":"individual/091_anne_lise_seurat.png",
+  "Annette Yasseldyk":"individual/092_annette_yasseldyk.png",
+  "Alysa Trinidad":"individual/093_alysa_trinidad.png",
+  "Ade Lewis":"individual/094_ade_lewis.png",
+  "Alex Davis":"individual/095_alex_davis.png",
+  "Alex Li":"individual/096_alex_li.png",
+  "Alexander M Rudd":"individual/097_alexander_m_rudd.png",
+  "Allan Rakotoarivony":"individual/098_allan_rakotoarivony.png",
+  "Ahsan Tajammul":"individual/099_ahsan_tajammul.png",
+  "Adela-Lia Muresan":"individual/100_adela_lia_muresan.png",
+  "Adedolapo Odebode":"individual/101_adedolapo_odebode.png",
+  "Chris Holly":"individual/102_chris_holly.png",
+  "Christian Niemi":"individual/103_christian_niemi.png",
+  "Clarence Huang":"individual/104_clarence_huang.png",
+  "Claudine Co":"individual/105_claudine_co.png",
+  "Craig Baker":"individual/106_craig_baker.png",
+  "Craig Goldberg":"individual/107_craig_goldberg.png",
+  "Collette DeMoro":"individual/108_collette_demoro.png",
+  "Courtney Sandlin":"individual/109_courtney_sandlin.png",
+  "Corey Bullock":"individual/110_corey_bullock.png",
+  "Ebony Hargro":"individual/111_ebony_hargro.png",
+  "Eleanor French":"individual/112_eleanor_french.png",
+  "Emeka Nnama":"individual/113_emeka_nnama.png",
+  "Emily Hopkins":"individual/114_emily_hopkins.png",
+  "Elaine Bulloch":"individual/115_elaine_bulloch.png",
+  "Corey Twitty":"individual/116_corey_twitty.png",
+  "Cory Aikman":"individual/117_cory_aikman.png",
+  "Cynthia Lozano":"individual/118_cynthia_lozano.png",
+  "Doris Ng":"individual/119_doris_ng.png",
+  "Denise Saunders":"individual/120_denise_saunders.png",
+  "Daina Hartin":"individual/121_daina_hartin.png",
+  "Dalton Maffett":"individual/122_dalton_maffett.png",
+  "Damon Brennen":"individual/123_damon_brennen.png",
+  "Dan Cheng":"individual/124_dan_cheng.png",
+  "David Garr":"individual/125_david_garr.png",
+  "Erin Hine":"individual/126_erin_hine.png",
+  "Elaine Xu":"individual/127_elaine_xu.png",
+  "Emily Wang":"individual/128_emily_wang.png",
+  "Eddy Tang":"individual/129_eddy_tang.png",
+  "Elisa Rogge":"individual/130_elisa_rogge.png",
+  "Emily North":"individual/131_emily_north.png",
+  "Emily Pelosi":"individual/132_emily_pelosi.png",
+  "Emily Spencer":"individual/133_emily_spencer.png",
+  "Ene Siong":"individual/134_ene_siong.png",
+  "Eric Berland":"individual/135_eric_berland.png",
+  "Clark Fulton":"individual/136_clark_fulton.png",
+  "Daniele Griffith":"individual/137_daniele_griffith.png",
+  "Austin Pettus":"individual/138_austin_pettus.png",
+  "Chris Pepper":"individual/139_chris_pepper.png",
+  "Eric Phillips":"individual/140_eric_phillips.png",
+  "Eric Pruvost":"individual/141_eric_pruvost.png",
+  "Eric Wong":"individual/142_eric_wong.png",
+  "Erica Santoni":"individual/143_erica_santoni.png",
+  "Erica Tjader":"individual/144_erica_tjader.png",
+};
+
+const headCache={};
+async function fetchHeadshot(c){
+  if(headCache[c.owner])return headCache[c.owner];
+  // Use local ChatGPT headshot if available
+  if(localHeadshots[c.owner]){
+    const result={img:localHeadshots[c.owner],src:'local'};
+    headCache[c.owner]=result;return result;
+  }
+  // Fall back to randomuser.me for remaining 4
+  const nat=ownerNat(c),g=c.gender==='female'?'female':'male',seed=encodeURIComponent(c.owner);
+  try{
+    const res=await fetch(`https://randomuser.me/api/?seed=${seed}&gender=${g}&nat=${nat}&results=1`);
+    const data=await res.json();
+    const p=data.results[0];
+    const result={img:p.picture.large,src:'https://randomuser.me'};
+    headCache[c.owner]=result;return result;
+  }catch(e){
+    const fallback={img:`https://randomuser.me/api/portraits/${g==='female'?'women':'men'}/${nameHash(c.owner)%99}.jpg`,src:'https://randomuser.me'};
+    headCache[c.owner]=fallback;return fallback;
+  }
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+let modalCompany=null;
+
+async function openModal(name){
+  modalCompany=companies.find(x=>x.name===name);
+  if(!modalCompany)return;
+  const c=modalCompany;
+  document.getElementById('m-title').textContent=c.name;
+  document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
+  document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
+  document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
+  const hshot=document.getElementById('m-headshot');
+  hshot.innerHTML='<div class="photo-loading">Loading headshot…</div>';
+  document.getElementById('modal').classList.add('open');
+  const portrait=await fetchHeadshot(c);
+  hshot.innerHTML=`<img src="${portrait.img}" alt="${c.owner}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:10px;background:#F3F4F6;">`;
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+function dlHeadshot(){
+  if(!modalCompany)return;
+  const img=document.querySelector('#m-headshot img');
+  if(!img)return;
+  const a=document.createElement('a');
+  a.href=img.src;
+  a.download='headshot_'+modalCompany.owner.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';
+  a.click();
+}
+
+function dlModal(type){
+  if(!modalCompany)return;
+  const svg=type==='h'?makeHorizSVG(modalCompany):makeVertSVG(modalCompany);
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(type==='h'?'horizontal':'vertical')+'_'+modalCompany.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.svg';
+  a.click();
+}
+
+// ── List rendering ─────────────────────────────────────────────────────────
+function rowHTML(c,i){
+  const col=catColors[c.category]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
+  const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return`<div class="row" onclick="openModal('${nameSafe}')">
+    <span class="row-num">${i+1}</span>
+    <span class="cat-dot" style="background:${col.bg}"></span>
+    <span class="row-name">${esc(c.name)}</span>
+    <span class="row-owner">${esc(c.owner)}</span>
+    <span class="row-cat" style="background:${col.light};color:${col.text}">${esc(c.category)}</span>
+    <span class="row-type">${esc(c.type)}</span>
+  </div>`;
+}
+
+function renderList(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const cat=document.getElementById('catFilter').value;
+  const filtered=companies.filter((c,i)=>{
+    const matchQ=!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q)||c.category.toLowerCase().includes(q)||c.type.toLowerCase().includes(q);
+    const matchCat=!cat||c.category===cat;
+    return matchQ&&matchCat;
+  });
+  document.getElementById('list').innerHTML=filtered.length?filtered.map((c,i)=>rowHTML(c,i)).join(''):`<div class="no-results">No companies match your search.</div>`;
+  document.getElementById('count').textContent=filtered.length+' of '+companies.length+' companies';
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(function init(){
+  const cats=[...new Set(companies.map(c=>c.category))].sort();
+  const sel=document.getElementById('catFilter');
+  cats.forEach(cat=>{const o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);});
+  renderList();
+})();
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
