@@ -550,7 +550,7 @@ async function openModal(name){
   hshot.innerHTML='<div class="photo-loading">Loading headshot…</div>';
   document.getElementById('modal').classList.add('open');
   const portrait=await fetchHeadshot(c);
-  hshot.innerHTML=`<img src="${portrait.img}" alt="${c.owner}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:10px;background:#F3F4F6;">`;
+  hshot.innerHTML=`<img src="${portrait.img}" alt="${c.owner}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;border-radius:10px;background:#F3F4F6;">`;
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');}
