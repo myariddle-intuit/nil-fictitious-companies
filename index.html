@@ -41,12 +41,6 @@
   .modal-close:hover{ color:#111; }
   .modal-title{ font-size:22px; font-weight:800; margin-bottom:4px; }
   .modal-sub{ font-size:12px; color:#6B7280; margin-bottom:20px; }
-  .photo-row{ display:block; margin-bottom:20px; }
-  .photo-slot{ border-radius:10px; overflow:hidden; background:#F3F4F6; }
-  .headshot-slot{ width:100%; max-width:520px; margin:0 auto; }
-  .photo-slot.headshot-slot{ aspect-ratio:307/256; overflow:hidden; border-radius:10px; background:#F3F4F6; }
-  .photo-slot.biz-slot{ aspect-ratio:16/9; }
-  .photo-loading{ display:flex; align-items:center; justify-content:center; height:100%; min-height:120px; font-size:12px; color:#9CA3AF; }
   .logo-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
   .logo-label{ font-size:10px; color:#9CA3AF; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
   .logo-wrap{ background:#F9FAFB; border-radius:8px; padding:12px; }
@@ -89,9 +83,6 @@
     <button class="modal-close" onclick="closeModal()">&#x2715;</button>
     <div class="modal-title" id="m-title"></div>
     <div class="modal-sub" id="m-sub"></div>
-    <div class="photo-row">
-      <div class="photo-slot headshot-slot" id="m-headshot"><div class="photo-loading">Loading…</div></div>
-    </div>
     <div class="logo-cols">
       <div class="logo-wrap"><div class="logo-label">Horizontal</div><div id="m-hlogo"></div></div>
       <div class="logo-wrap"><div class="logo-label">Vertical</div><div id="m-vlogo"></div></div>
@@ -99,7 +90,6 @@
     <div class="modal-actions">
       <button class="btn-dl-h" onclick="dlModal('h')">&#8595; Download Horizontal</button>
       <button class="btn-dl-v" onclick="dlModal('v')">&#8595; Download Vertical</button>
-      <button class="btn-dl-h" onclick="dlHeadshot()">&#8595; Download Headshot</button>
       <button class="btn-close2" onclick="closeModal()">Close</button>
     </div>
   </div>
@@ -318,41 +308,6 @@ function makeVertSVG(c){
   return`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}"><rect width="${W}" height="${h}" fill="#fff"/>${lines.map((l,i)=>`<text x="${W/2}" y="${sy+i*lh}" font-family="'Arial Black',Arial,sans-serif" font-size="${fs}" font-weight="900" fill="${i===0?color:'#111827'}" text-anchor="middle" letter-spacing="-0.5">${esc(l)}</text>`).join('')}<text x="${W/2}" y="${sy+(lc-1)*lh+26}" font-family="Arial,sans-serif" font-size="8.5" fill="#9CA3AF" text-anchor="middle" letter-spacing="2.5">${typeS}</text></svg>`;
 }
 
-// ── Business photo pools (curated Unsplash IDs — no API key) ──────────────
-const catPhotoPools={
-  "Professional Services":["1454165804606-c3d57bc86b40","1497366216548-37526070297c","1560472354-b33ff0c44a43","1552664730-d307ca884978","1521737604082-a4f21ccbff86"],
-  "Technology":["1498050108023-c5249f4df085","1518770660439-4636190af475","1550751827-4bd374c3f58b","1531297484001-80022131f5a1","1504384308090-c5d1a48e2b0b"],
-  "Construction":["1504307651254-35680f356dfd","1503387762-592deb58ef4e","1541888946425-d81bb19240f5","1562259949-e8e7290b3b07","1558618666-fcd25c85cd64"],
-  "Construction-Entities":["1486406686658-d37b43c11697","1503387762-592deb58ef4e","1497366216548-37526070297c","1472099645785-5658abf4ff4e","1560179707-f14e78e16921"],
-  "Retail & Product":["1441986300917-64674bd600d8","1472851294608-062f824d29cc","1556742049-0cfed4f6a45d","1567958451986-2de90aa996e9","1542744173-8e7e53415bb0"],
-  "Retail - Brick & Mortar":["1555529669-e69e7aa0ba9a","1441986300917-64674bd600d8","1481437156560-3205f6a55735","1534452203293-491d4f82e5eb","1555244162-cca949b641b4"],
-  "Healthcare":["1576091160550-2173dba999ef","1505751172876-fa1923c5c528","1519494026892-8cf60c5bc7c3","1551190822-a9333d879b1f","1559757148-5c58b7e9e2a3"],
-  "Food & Beverage":["1414235077428-338989a2e8c0","1504674900247-0877df9cc836","1476224203421-9ac39bcb3327","1493770348161-369560ae357d","1555244162-cca949b641b4"],
-  "Financial Services":["1554224155-6726b3ff8508","1563013544-824ae1b704d3","1526374965328-7f61d4dc18c5","1611974789855-9c60bd5ee4a0","1560472354-b33ff0c44a43"],
-  "Accounting Firm":["1454165804606-c3d57bc86b40","1507679799987-c73779587ccf","1563986768609-322da13575f3","1522202176988-66273c74cd1a","1498049574-a5ef5ccfeb6b"],
-  "Transportation & Logistics":["1519003722824-194d4f64be16","1601584280891-2780f20a00ae","1486074051793-522ed2b07386","1558618666-fcd25c85cd64","1592838564450-7d02e75e6be7"],
-  "Education":["1580582932707-520aed937b7b","1503676260728-1c00da094a0b","1524178232363-1fb2b075b655","1427504494785-3a9ca7044f45","1513128034602-1e83e16dfa3b"],
-  "Photography & Creative Media":["1542038374-ab25d2bfce5c","1522071901873-d7a56ad5e63e","1511871893393-82e39fe73279","1449495169669-b56e19aba34f","1434030216411-0b793f4b4173"],
-  "Arts & Galleries":["1561839426-2b14e8c4f93b","1578926288207-a90a103895db","1536924940846-41e6ac46f3a3","1549289272-3d42d0c3dfb2","1461773518188-b3e86f98d1e8"],
-  "Automotive":["1487754180451-c456f719a1fc","1503376780353-7e6692767b70","1493238792557-2c8edd9e3a42","1507003211169-0a1dd7228f2d","1555215695-3004980ad54e"],
-  "Home Services":["1558618047-3c8c76ca7d13","1581579438-d5b1b7a1bc41","1556909114-f6e7ad7d3136","1513694203-5c3f1f7c3b27","1484154155-84efb8d08e9d"],
-  "Beauty & Wellness":["1522337360788-8b13dee7a37e","1560066984-138daaa2adbb","1521590832167-7bcbfaa6381f","1470259078422-826894b933aa","1487412720507-e7ab37603c6f"],
-  "Fitness & Recreation":["1534438327276-14e5300c3a48","1517836357463-d25dfeac3438","1549060279-7e168fcee0c2","1571019613454-1cb2f99b2d8b","1540497077-85ade483e4f7"],
-  "Hospitality & Travel":["1520250497591-112f2f40a3f4","1551882547-ff40c63fe294","1496417321479-59ae7d3c6dc3","1504214208698-ea1916a55c8e","1530789253388-582c481c54b0"],
-  "Real Estate":["1560518883-ce09059eeffa","1512917774080-9991f1c4c750","1486325212027-8081e485255e","1558981806-ec527fa84c39","1523217582562-09d0def993a6"],
-  "Nonprofit / Social Services":["1469571486292-0ba58a3f068b","1559027615-cd4628902d4a","1488521787071-b710ef46e94d","1582213782179-e0d53f98f2ca","1519671482749-fd09be7ccebf"],
-  "Childcare & Family Services":["1516627145497-ae6968895b74","1476703993599-0035a21b18a8","1484820540004-14229fe36ca4","1536057614579-8f44c9e28a07","1567473165937-9f52c0c8e1b1"],
-  "Agriculture & Farming":["1500382017468-9049fed747ef","1464226184884-fa280b87c399","1530836369250-ef72a3f5cda8","1586771028669-5c4c452a4db4","1574943320219-cfe40e1c5c8d"],
-  "Pet Services":["1587300003388-59208cc962cb","1548199973-03cce0bbc87b","1522276498395-f8fec0b02b9b","1450778869180-41e5f0a2fe9e","1485489862995-27d7ba9e2bce"],
-  "Entertainment & Events":["1501281668745-f7f57925c3b4","1492684223066-81342ee5ff30","1540575467537-4f95400fc62b","1429962419283-ba2c33c97aec","1470229538611-16ba949d7519"],
-  "Video Production & Media":["1536240478700-b869ad10e2b9","1574717024653-f3e56f0ae895","1478720568477-152d9b92543e","1485846234645-a62644f84728","1464217578412-91bb5c7d4d21"]
-};
-
-function bizPhotoUrl(c){
-  const pool=catPhotoPools[c.category]||catPhotoPools["Professional Services"];
-  const id=pool[nameHash(c.name)%pool.length];
-  return`https://images.unsplash.com/photo-${id}?w=800&q=80&auto=format&fit=crop`;
-}
 
 // ── Headshot helpers ───────────────────────────────────────────────────────
 function ownerNat(c){
@@ -366,179 +321,12 @@ function ownerNat(c){
   return pool[nameHash(c.owner)%pool.length];
 }
 
-const localHeadshots={
-  "Aaron Patikan":"individual/hs_aaron_patikan.png",
-  "Adriene Draper":"individual/hs_adriene_draper.png",
-  "Aggie Howland":"individual/hs_aggie_howland.png",
-  "Adam Woodbeck":"individual/hs_adam_woodbeck.png",
-  "Alison Ganz":"individual/hs_alison_ganz.png",
-  "Alexis Cotton":"individual/hs_alexis_cotton.png",
-  "Anita Bhandari":"individual/hs_anita_bhandari.png",
-  "Anders Larsen":"individual/hs_anders_larsen.png",
-  "Ace Vu":"individual/hs_ace_vu.png",
-  "Aditi Bhargava":"individual/hs_aditi_bhargava.png",
-  "Amir Eftekhari":"individual/hs_amir_eftekhari.png",
-  "Ashutosh Kaushik":"individual/hs_ashutosh_kaushik.png",
-  "Alok Bapat":"individual/hs_alok_bapat.png",
-  "Avinash Gaurishankar":"individual/hs_avinash_gaurishankar.png",
-  "Ardavan Mirhosseini":"individual/hs_ardavan_mirhosseini.png",
-  "Ayaz Nabi":"individual/hs_ayaz_nabi.png",
-  "Amethyst Carpenter":"individual/hs_amethyst_carpenter.png",
-  "Calvin Witt":"individual/hs_calvin_witt.png",
-  "Carter Apodaca":"individual/hs_carter_apodaca.png",
-  "Chris Murphy":"individual/hs_chris_murphy.png",
-  "Bacho Vanwari":"individual/hs_bacho_vanwari.png",
-  "Bennett Hart":"individual/hs_bennett_hart.png",
-  "Brady Suggs":"individual/hs_brady_suggs.png",
-  "Brandon Reynolds":"individual/hs_brandon_reynolds.png",
-  "Bryn Tierney":"individual/hs_bryn_tierney.png",
-  "Carly Chan":"individual/hs_carly_chan.png",
-  "Caitlin Myers":"individual/hs_caitlin_myers.png",
-  "Camila Soares":"individual/hs_camila_soares.png",
-  "Amanda Chippendale":"individual/hs_amanda_chippendale.png",
-  "AJ Brinnand":"individual/hs_aj_brinnand.png",
-  "Adilson Okawa":"individual/hs_adilson_okawa.png",
-  "Ailina Heim":"individual/hs_ailina_heim.png",
-  "Aladrian Goods":"individual/hs_aladrian_goods.png",
-  "Alison Seto":"individual/hs_alison_seto.png",
-  "Alayna Truttmann":"individual/hs_alayna_truttmann.png",
-  "Samantha Cerone":"individual/hs_samantha_cerone.png",
-  "Cathy Burke":"individual/hs_cathy_burke.png",
-  "Celine Vieira":"individual/hs_celine_vieira.png",
-  "Charisse Daggs":"individual/hs_charisse_daggs.png",
-  "Charudatta Pable":"individual/hs_charudatta_pable.png",
-  "Chetan Desai":"individual/hs_chetan_desai.png",
-  "Ami Verma":"individual/hs_ami_verma.png",
-  "Ashley Holderness":"individual/hs_ashley_holderness.png",
-  "Autumn Gosewisch":"individual/hs_autumn_gosewisch.png",
-  "Ashlee Jones":"individual/hs_ashlee_jones.png",
-  "Ashton Harvey":"individual/hs_ashton_harvey.png",
-  "Aliza Carpio":"individual/hs_aliza_carpio.png",
-  "April Brauer":"individual/hs_april_brauer.png",
-  "Brooklyn Daron":"individual/hs_brooklyn_daron.png",
-  "Bruce Johnson":"individual/hs_bruce_johnson.png",
-  "Bobleen Chadha":"individual/hs_bobleen_chadha.png",
-  "Breeana Bunzel":"individual/hs_breeana_bunzel.png",
-  "Ben Khoo":"individual/hs_ben_khoo.png",
-  "Brad Kroshus":"individual/hs_brad_kroshus.png",
-  "Barbara Knight":"individual/hs_barbara_knight.png",
-  "Brenda Robison":"individual/hs_brenda_robison.png",
-  "Brahim Ben Atia":"individual/hs_brahim_ben_atia.png",
-  "Adam Beasley":"individual/hs_adam_beasley.png",
-  "Carol Howe":"individual/hs_carol_howe.png",
-  "Cody Corrao":"individual/hs_cody_corrao.png",
-  "Cody Salinas":"individual/hs_cody_salinas.png",
-  "Colleen Grist":"individual/hs_colleen_grist.png",
-  "Carmen Collins":"individual/hs_carmen_collins.png",
-  "Carmen Arvizu":"individual/hs_carmen_arvizu.png",
-  "Boris Shmukler":"individual/hs_boris_shmukler.png",
-  "Brett Denney":"individual/hs_brett_denney.png",
-  "Brian Sterling":"individual/hs_brian_sterling.png",
-  "Blase Iuliano":"individual/hs_blase_iuliano.png",
-  "Ben Mitchell":"individual/hs_ben_mitchell.png",
-  "Afrodite Tinnirello":"individual/hs_afrodite_tinnirello.png",
-  "Alexandria Dillon":"individual/hs_alexandria_dillon.png",
-  "Alyson Pinney":"individual/hs_alyson_pinney.png",
-  "Andy Benedict":"individual/hs_andy_benedict.png",
-  "Antonio Rodriguez":"individual/hs_antonio_rodriguez.png",
-  "Annie Brennan":"individual/hs_annie_brennan.png",
-  "Anna Roberts":"individual/hs_anna_roberts.png",
-  "Angela Leon":"individual/hs_angela_leon.png",
-  "Angela S Marshall":"individual/hs_angela_s_marshall.png",
-  "Anthony Grogan":"individual/hs_anthony_grogan.png",
-  "Mavy Moreno":"individual/hs_mavy_moreno.png",
-  "Andy Birchett":"individual/hs_andy_birchett.png",
-  "Andy Hoobing":"individual/hs_andy_hoobing.png",
-  "Angela Leung":"individual/hs_angela_leung.png",
-  "Angela Browne":"individual/hs_angela_browne.png",
-  "Aravind Kanumuru":"individual/hs_aravind_kanumuru.png",
-  "Angie Kleinsorge":"individual/hs_angie_kleinsorge.png",
-  "Anika Ali":"individual/hs_anika_ali.png",
-  "Anna McCormick":"individual/hs_anna_mccormick.png",
-  "Allison Johnson":"individual/hs_allison_johnson.png",
-  "Angie Robert":"individual/hs_angie_robert.png",
-  "Anne-Lise Seurat":"individual/hs_anne_lise_seurat.png",
-  "Annette Yasseldyk":"individual/hs_annette_yasseldyk.png",
-  "Alysa Trinidad":"individual/hs_alysa_trinidad.png",
-  "Ade Lewis":"individual/hs_ade_lewis.png",
-  "Alex Davis":"individual/hs_alex_davis.png",
-  "Alex Li":"individual/hs_alex_li.png",
-  "Alexander M Rudd":"individual/hs_alexander_m_rudd.png",
-  "Allan Rakotoarivony":"individual/hs_allan_rakotoarivony.png",
-  "Ahsan Tajammul":"individual/hs_ahsan_tajammul.png",
-  "Adela-Lia Muresan":"individual/hs_adela_lia_muresan.png",
-  "Adedolapo Odebode":"individual/hs_adedolapo_odebode.png",
-  "Chris Holly":"individual/hs_chris_holly.png",
-  "Christian Niemi":"individual/hs_christian_niemi.png",
-  "Clarence Huang":"individual/hs_clarence_huang.png",
-  "Claudine Co":"individual/hs_claudine_co.png",
-  "Craig Baker":"individual/hs_craig_baker.png",
-  "Craig Goldberg":"individual/hs_craig_goldberg.png",
-  "Collette DeMoro":"individual/hs_collette_demoro.png",
-  "Courtney Sandlin":"individual/hs_courtney_sandlin.png",
-  "Corey Bullock":"individual/hs_corey_bullock.png",
-  "Ebony Hargro":"individual/hs_ebony_hargro.png",
-  "Eleanor French":"individual/hs_eleanor_french.png",
-  "Emeka Nnama":"individual/hs_emeka_nnama.png",
-  "Emily Hopkins":"individual/hs_emily_hopkins.png",
-  "Elaine Bulloch":"individual/hs_elaine_bulloch.png",
-  "Corey Twitty":"individual/hs_corey_twitty.png",
-  "Cory Aikman":"individual/hs_cory_aikman.png",
-  "Cynthia Lozano":"individual/hs_cynthia_lozano.png",
-  "Doris Ng":"individual/hs_doris_ng.png",
-  "Denise Saunders":"individual/hs_denise_saunders.png",
-  "Daina Hartin":"individual/hs_daina_hartin.png",
-  "Dalton Maffett":"individual/hs_dalton_maffett.png",
-  "Damon Brennen":"individual/hs_damon_brennen.png",
-  "Dan Cheng":"individual/hs_dan_cheng.png",
-  "David Garr":"individual/hs_david_garr.png",
-  "Erin Hine":"individual/hs_erin_hine.png",
-  "Elaine Xu":"individual/hs_elaine_xu.png",
-  "Emily Wang":"individual/hs_emily_wang.png",
-  "Eddy Tang":"individual/hs_eddy_tang.png",
-  "Elisa Rogge":"individual/hs_elisa_rogge.png",
-  "Emily North":"individual/hs_emily_north.png",
-  "Emily Pelosi":"individual/hs_emily_pelosi.png",
-  "Emily Spencer":"individual/hs_emily_spencer.png",
-  "Ene Siong":"individual/hs_ene_siong.png",
-  "Eric Berland":"individual/hs_eric_berland.png",
-  "Clark Fulton":"individual/hs_clark_fulton.png",
-  "Daniele Griffith":"individual/hs_daniele_griffith.png",
-  "Austin Pettus":"individual/hs_austin_pettus.png",
-  "Chris Pepper":"individual/hs_chris_pepper.png",
-  "Eric Phillips":"individual/hs_eric_phillips.png",
-  "Eric Pruvost":"individual/hs_eric_pruvost.png",
-  "Eric Wong":"individual/hs_eric_wong.png",
-  "Erica Santoni":"individual/hs_erica_santoni.png",
-  "Erica Tjader":"individual/hs_erica_tjader.png",
-};
 
-const headCache={};
-async function fetchHeadshot(c){
-  if(headCache[c.owner])return headCache[c.owner];
-  // Use local ChatGPT headshot if available
-  if(localHeadshots[c.owner]){
-    const result={img:localHeadshots[c.owner],src:'local'};
-    headCache[c.owner]=result;return result;
-  }
-  // Fall back to randomuser.me for remaining 4
-  const nat=ownerNat(c),g=c.gender==='female'?'female':'male',seed=encodeURIComponent(c.owner);
-  try{
-    const res=await fetch(`https://randomuser.me/api/?seed=${seed}&gender=${g}&nat=${nat}&results=1`);
-    const data=await res.json();
-    const p=data.results[0];
-    const result={img:p.picture.large,src:'https://randomuser.me'};
-    headCache[c.owner]=result;return result;
-  }catch(e){
-    const fallback={img:`https://randomuser.me/api/portraits/${g==='female'?'women':'men'}/${nameHash(c.owner)%99}.jpg`,src:'https://randomuser.me'};
-    headCache[c.owner]=fallback;return fallback;
-  }
-}
 
 // ── Modal ──────────────────────────────────────────────────────────────────
 let modalCompany=null;
 
-async function openModal(name){
+function openModal(name){
   modalCompany=companies.find(x=>x.name===name);
   if(!modalCompany)return;
   const c=modalCompany;
@@ -546,24 +334,11 @@ async function openModal(name){
   document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
   document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
-  const hshot=document.getElementById('m-headshot');
-  hshot.innerHTML='<div class="photo-loading">Loading headshot…</div>';
   document.getElementById('modal').classList.add('open');
-  const portrait=await fetchHeadshot(c);
-  hshot.innerHTML=`<img src="${portrait.img}" alt="${c.owner}" style="width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;">`;
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
-function dlHeadshot(){
-  if(!modalCompany)return;
-  const img=document.querySelector('#m-headshot img');
-  if(!img)return;
-  const a=document.createElement('a');
-  a.href=img.src;
-  a.download='headshot_'+modalCompany.owner.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';
-  a.click();
-}
 
 function dlModal(type){
   if(!modalCompany)return;
