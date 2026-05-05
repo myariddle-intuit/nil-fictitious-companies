@@ -104,16 +104,6 @@
   .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; }
 
   /* ── Consumer Personas ─────────────────────────────────── */
-  .con-row{ display:flex; align-items:center; padding:10px 14px; border-bottom:1px solid #F3F4F6; gap:10px; cursor:pointer; transition:background .12s; }
-  .con-row:hover{ background:#F8FAFF; }
-  .con-age{ font-size:12px; font-weight:700; color:#374151; width:52px; text-align:center; flex-shrink:0; }
-  .con-score{ font-size:12px; font-weight:800; width:90px; text-align:center; flex-shrink:0; padding:3px 8px; border-radius:20px; }
-  .score-exc{ background:#D1FAE5; color:#065F46; }
-  .score-vgd{ background:#DCFCE7; color:#166534; }
-  .score-gd { background:#FEF9C3; color:#854D0E; }
-  .score-fair{ background:#FEE2E2; color:#991B1B; }
-  .score-poor{ background:#FEE2E2; color:#7F1D1D; }
-  .con-job{ font-size:12px; color:#6B7280; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   /* Tax & credit layout */
   .tax-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
   .tax-card{ background:#F8FAFF; border:1px solid #E0E7FF; border-radius:8px; padding:12px 14px; }
@@ -202,22 +192,25 @@
 <!-- Modal -->
 
 <div id="tab-consumer" class="tab-panel">
-  <div class="list-header" style="margin-bottom:16px">
-    <input type="text" id="con-search" placeholder="Search by name, job, state, or filing status…" oninput="renderConsumers()" style="flex:1;padding:10px 14px;border:1px solid #E5E7EB;border-radius:8px;font-size:14px;outline:none">
-    <select id="con-state-filter" onchange="renderConsumers()" style="padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;font-size:13px;color:#374151;background:#fff">
+  <div class="controls">
+    <input type="text" id="con-search" placeholder="Search by name, job, state, or filing status — e.g. &quot;single parent TX&quot; or &quot;married NJ&quot;" oninput="renderConsumers()">
+    <select id="con-state-filter" onchange="renderConsumers()">
       <option value="">All States</option>
     </select>
+    <span class="count" id="con-count"></span>
   </div>
-  <div class="col-header">
-    <span class="col-h-num">#</span>
-    <span class="col-h-name">Name</span>
-    <span class="col-h-owner" style="width:52px;text-align:center">Age</span>
-    <span class="col-h-cat" style="width:90px">Credit Score</span>
-    <span class="col-h-type">Occupation</span>
-    <span class="col-h-state">State</span>
+  <div class="list-wrap">
+    <div class="col-header">
+      <span class="col-h-num">#</span>
+      <span class="col-h-dot"></span>
+      <span class="col-h-name">Name</span>
+      <span class="col-h-owner">Occupation</span>
+      <span class="col-h-cat">Credit Score</span>
+      <span class="col-h-type">Filing Status</span>
+      <span class="col-h-state">State</span>
+    </div>
+    <div class="list" id="con-list"></div>
   </div>
-  <div id="con-list"></div>
-  <div id="con-count" style="font-size:12px;color:#9CA3AF;margin-top:12px;padding-left:4px"></div>
 </div>
 <div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
@@ -2745,15 +2738,18 @@ function fmtMoney(n){ return n>=1000000?'$'+(n/1000000).toFixed(2).replace(/\.?0
 function fmtFull(n){ return '$'+n.toLocaleString(); }
 
 function conRowHTML(c,i){
-  const sc=scoreClass(c.credit);
+  const color=scoreColor(c.credit);
   const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  return`<div class="con-row" onclick="openConsumerModal('${nameSafe}')">
+  const scoreLight=c.credit>=800?'#D1FAE5':c.credit>=740?'#DCFCE7':c.credit>=670?'#FEF9C3':c.credit>=580?'#FFEDD5':'#FEE2E2';
+  const scoreText=color;
+  const filingMap={'Single':'Single','MFJ':'Married Filing Jointly','HOH':'Head of Household','MFS':'Married Sep.'};
+  return`<div class="row" onclick="openConsumerModal('${nameSafe}')">
     <span class="row-num">${i+1}</span>
-    <span class="cat-dot" style="background:#6366F1"></span>
+    <span class="cat-dot" style="background:#6366F1;display:inline-block"></span>
     <span class="row-name"><span>${esc(c.name)}</span></span>
-    <span class="con-age">${c.age}</span>
-    <span class="con-score ${sc}">${c.credit} <span style="font-weight:400;font-size:10px">${scoreLabel(c.credit)}</span></span>
-    <span class="con-job">${esc(c.job)}</span>
+    <span class="row-owner">${esc(c.job)}</span>
+    <span class="row-cat" style="background:${scoreLight};color:${scoreText}">${c.credit} — ${scoreLabel(c.credit)}</span>
+    <span class="row-type">${esc(filingMap[c.filing]||c.filing)}</span>
     <span class="row-state">${esc(c.state)}</span>
   </div>`;
 }
