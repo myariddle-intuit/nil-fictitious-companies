@@ -122,7 +122,10 @@
 <!-- FBN tab -->
 <div id="tab-fbn" class="tab-panel">
   <div class="controls">
-    <input type="text" id="fbn-search" placeholder="Search approved names, requestor, or intended use..." oninput="renderFBN()">
+    <input type="text" id="fbn-search" placeholder="Search anything — e.g. &quot;construction&quot; or &quot;legal services&quot; or &quot;mailchimp&quot;" oninput="renderFBN()">
+    <select id="fbn-ind-filter" onchange="renderFBN()">
+      <option value="">All Industries</option>
+    </select>
     <span class="fbn-count" id="fbn-count"></span>
   </div>
   <div class="fbn-wrap">
@@ -2039,7 +2042,14 @@ function switchTab(id){
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
-  if(id==='fbn') renderFBN();
+  if(id==='fbn'){
+    const sel=document.getElementById('fbn-ind-filter');
+    if(sel.options.length<=1){
+      const inds=[...new Set(approvedFBN.map(f=>f.industry))].sort();
+      inds.forEach(ind=>{const o=document.createElement('option');o.value=ind;o.textContent=ind;sel.appendChild(o);});
+    }
+    renderFBN();
+  }
 }
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
@@ -2121,16 +2131,44 @@ function fbnRowHTML(f,i){
 
 function renderFBN(){
   const q=(document.getElementById('fbn-search').value||'').toLowerCase().trim();
+  const indFilter=document.getElementById('fbn-ind-filter').value;
+
+  // Natural language: check if query matches an industry name
+  const matchedIndustry=Object.keys(FBN_IND_COLORS).find(ind=>q.includes(ind.toLowerCase()));
+
   const filtered=approvedFBN.filter(f=>{
-    if(!q) return true;
-    return (f.name+' '+(f.industry||'')+' '+f.use).toLowerCase().includes(q);
+    // Dropdown industry filter
+    if(indFilter && f.industry!==indFilter) return false;
+    // NL industry match
+    if(matchedIndustry && f.industry!==matchedIndustry) return false;
+    // Plain text across all fields
+    if(q && !matchedIndustry){
+      const blob=(f.name+' '+(f.industry||'')+' '+f.use).toLowerCase();
+      if(!blob.includes(q)) return false;
+    }
+    return true;
   });
-  document.getElementById('fbn-list').innerHTML=filtered.map((f,i)=>fbnRowHTML(f,i)).join('');
-  document.getElementById('fbn-count').textContent=filtered.length+' of '+approvedFBN.length+' approved names';
+
+  // Result label
+  let label=filtered.length+' of '+approvedFBN.length+' approved names';
+  if(matchedIndustry||indFilter){
+    const ind=matchedIndustry||indFilter;
+    label=filtered.length+' result'+(filtered.length!==1?'s':'')+' — '+ind;
+  }
+
+  document.getElementById('fbn-list').innerHTML=filtered.length
+    ? filtered.map((f,i)=>fbnRowHTML(f,i)).join('')
+    : '<div class="no-results">No results found. Try different keywords.</div>';
+  document.getElementById('fbn-count').textContent=label;
 }
 
-// Run FBN render after all data is declared
-renderFBN();
+// Run FBN render after all data is declared — also populate industry dropdown
+(function initFBN(){
+  const inds=[...new Set(approvedFBN.map(f=>f.industry))].sort();
+  const sel=document.getElementById('fbn-ind-filter');
+  inds.forEach(ind=>{const o=document.createElement('option');o.value=ind;o.textContent=ind;sel.appendChild(o);});
+  renderFBN();
+})();
 </script>
 </body>
 </html>
