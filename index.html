@@ -35,6 +35,7 @@
   .row-cat{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; }
   .row-type{ font-size:11px; color:#9CA3AF; width:170px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   .row-state{ font-size:11px; font-weight:700; color:#0F3460; background:#EEF2FF; border-radius:5px; width:52px; flex-shrink:0; text-align:center; padding:3px 6px; letter-spacing:.04em; }
+  .badge-review{ font-size:10px; font-weight:700; color:#92400E; background:#FEF3C7; border:1px solid #F59E0B; border-radius:20px; padding:2px 8px; white-space:nowrap; flex-shrink:0; letter-spacing:.03em; }
   /* ── Modal ── */
   .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open{ display:flex; }
@@ -1710,7 +1711,8 @@ const companies = [
     "email": "marcus.delgado@example.com",
     "phone": "(404) 555-3871",
     "address": "220 Industrial Parkway, Metro City, GA 30303",
-    "ssn": "400-00-4043"
+    "ssn": "400-00-4043",
+    "status": "needs_review"
   }
 ];
 
@@ -1836,6 +1838,7 @@ function rowHTML(c,i){
   const col=catColors[c.category]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
   const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const stateCode=(c.address.split(',')[2]||'').trim().split(' ')[0]||'';
+  const reviewBadge=c.status==='needs_review'?'<span class="badge-review">⚠ Needs Review</span>':'';
   return`<div class="row" onclick="openModal('${nameSafe}')">
     <span class="row-num">${i+1}</span>
     <span class="cat-dot" style="background:${col.bg}"></span>
@@ -1843,6 +1846,7 @@ function rowHTML(c,i){
     <span class="row-owner">${esc(c.owner)}</span>
     <span class="row-cat" style="background:${col.light};color:${col.text}">${esc(c.category)}</span>
     <span class="row-type">${esc(c.type)}</span>
+    ${reviewBadge}
     <span class="row-state">${esc(stateCode)}</span>
   </div>`;
 }
