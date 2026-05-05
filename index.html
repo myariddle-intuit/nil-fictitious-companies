@@ -230,6 +230,10 @@
       <div class="tx-heading" id="m-entities-heading">Entities Under It</div>
       <div id="m-entities-list"></div>
     </div>
+    <div class="tx-section" id="m-financials" style="display:none">
+      <div class="tx-heading">Income &amp; Expenses</div>
+      <div id="m-fin-content"></div>
+    </div>
     <div class="tx-section">
       <div class="tx-heading">Recent Transactions</div>
       <table class="tx-table">
@@ -2044,8 +2048,6 @@ function openModal(name){
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${c.email}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${c.phone}</span></div>
     <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${c.address}</span></div>
-    <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${c.ssn}</span></div>
-    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Annual Revenue (Est.)</span><span class="contact-value" style="font-weight:700;color:#1B4F72">${fmtRevenue(rev)}</span></div>
   `;
 
   document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
@@ -2053,6 +2055,7 @@ function openModal(name){
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
   document.getElementById('m-entities').style.display='none';
   document.getElementById('m-services').innerHTML=getServices(c.name,c.category).map(s=>`<span class="service-pill">${esc(s)}</span>`).join('');
+  renderFinancials(c.name, rev);
   renderTransactions(c.name, c.category, 1);
   document.getElementById('modal').classList.add('open');
 }
@@ -2438,9 +2441,7 @@ function openFBNModal(name){
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${esc(f.email)}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${esc(f.phone)}</span></div>
-    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${esc(f.address)}</span></div>
-    <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>
-    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Annual Revenue (Est.)</span><span class="contact-value" style="font-weight:700;color:#1B4F72">${fmtRevenue(rev)}</span></div>`;
+    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${esc(f.address)}</span></div>`;
   document.getElementById('m-hlogo').innerHTML='';
   document.getElementById('m-vlogo').innerHTML='';
   // Entities section
@@ -2459,6 +2460,7 @@ function openFBNModal(name){
     entitiesEl.style.display='none';
   }
   const revMult=revTier==='high'?6:1;
+  renderFinancials(f.name, rev);
   renderTransactions(f.name, f.industry, revMult);
   document.getElementById('modal').classList.add('open');
 }
@@ -2734,6 +2736,62 @@ function getRevenue(name, tier){
 function fmtRevenue(v){
   if(v>=1000000) return '$'+(v/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';
   return '$'+(Math.round(v/1000))+'K';
+}
+
+function renderFinancials(name, revenue){
+  const rng=seededRNG(hashStr(name+'financials'));
+  // Expense ratio 52–74% of revenue
+  const expRatio=0.52+rng()*0.22;
+  const totalExp=Math.round(revenue*expRatio);
+  const netIncome=revenue-totalExp;
+  const netPositive=netIncome>=0;
+
+  // Expense category breakdown — always sums to totalExp
+  const catNames=['Cost of Goods / Services','Payroll & Benefits','Rent & Utilities','Marketing & Advertising','Technology & Software','G&A / Other'];
+  const rawWeights=[0.30+rng()*0.15, 0.22+rng()*0.12, 0.10+rng()*0.08, 0.08+rng()*0.07, 0.05+rng()*0.05, 0.04+rng()*0.06];
+  const wSum=rawWeights.reduce((a,b)=>a+b,0);
+  const catAmounts=rawWeights.map(w=>Math.round(totalExp*(w/wSum)));
+  // Fix rounding difference on last item
+  const diff=totalExp-catAmounts.reduce((a,b)=>a+b,0);
+  catAmounts[catAmounts.length-1]+=diff;
+
+  const finEl=document.getElementById('m-financials');
+  const contentEl=document.getElementById('m-fin-content');
+
+  // Summary row
+  const summaryHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
+      <div style="background:#EFF6FF;border-radius:8px;padding:12px 14px">
+        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Annual Revenue</div>
+        <div style="font-size:18px;font-weight:700;color:#1B4F72">${fmtRevenue(revenue)}</div>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:12px 14px">
+        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Expenses</div>
+        <div style="font-size:18px;font-weight:700;color:#9A3412">${fmtRevenue(totalExp)}</div>
+      </div>
+      <div style="background:${netPositive?'#F0FDF4':'#FFF1F2'};border-radius:8px;padding:12px 14px">
+        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Net Income</div>
+        <div style="font-size:18px;font-weight:700;color:${netPositive?'#15803D':'#BE123C'}">${netPositive?'':'-'}${fmtRevenue(Math.abs(netIncome))}</div>
+      </div>
+    </div>`;
+
+  // Expense breakdown bars
+  const barsHTML=catAmounts.map((amt,i)=>{
+    const pct=Math.round((amt/totalExp)*100);
+    const barColors=['#3B82F6','#8B5CF6','#F59E0B','#10B981','#EC4899','#6B7280'];
+    return`<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:11px;color:#374151;font-weight:500">${catNames[i]}</span>
+        <span style="font-size:11px;color:#6B7280">${fmtRevenue(amt)} <span style="color:#9CA3AF">(${pct}%)</span></span>
+      </div>
+      <div style="background:#F3F4F6;border-radius:4px;height:6px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${barColors[i]};border-radius:4px;transition:width .3s"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  contentEl.innerHTML=summaryHTML+`<div style="margin-top:4px"><div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Expense Breakdown</div>${barsHTML}</div>`;
+  finEl.style.display='block';
 }
 
 function generateTransactions(name, category, count=20, revMult=1){
