@@ -65,7 +65,7 @@
   <p>143 Intuit employee-owned businesses &nbsp;|&nbsp; Click any row to view logos &amp; profile &nbsp;|&nbsp; <a href="https://intuitcorp.quickbase.com/nav/app/bbqsxypz5/action/appoverview" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;">View NIL Database ↗</a></p>
 </div>
 <div class="controls">
-  <input type="text" id="search" placeholder="Search companies, owners, or categories…" oninput="renderList()">
+  <input type="text" id="search" placeholder="Try: \"Find someone in construction in New Jersey\" or \"healthcare owner in CA\"" oninput="renderList()">
   <select id="catFilter" onchange="renderList()">
     <option value="">All Categories</option>
   </select>
@@ -1808,16 +1808,143 @@ function rowHTML(c,i){
   </div>`;
 }
 
+// ── Natural language search engine ────────────────────────────────────────
+const STATE_MAP={
+  'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA',
+  'colorado':'CO','connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA',
+  'hawaii':'HI','idaho':'ID','illinois':'IL','indiana':'IN','iowa':'IA',
+  'kansas':'KS','kentucky':'KY','louisiana':'LA','maine':'ME','maryland':'MD',
+  'massachusetts':'MA','michigan':'MI','minnesota':'MN','mississippi':'MS',
+  'missouri':'MO','montana':'MT','nebraska':'NE','nevada':'NV',
+  'new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY',
+  'north carolina':'NC','north dakota':'ND','ohio':'OH','oklahoma':'OK',
+  'oregon':'OR','pennsylvania':'PA','rhode island':'RI','south carolina':'SC',
+  'south dakota':'SD','tennessee':'TN','texas':'TX','utah':'UT','vermont':'VT',
+  'virginia':'VA','washington':'WA','west virginia':'WV','wisconsin':'WI','wyoming':'WY'
+};
+
+const CAT_KEYWORDS={
+  'construction':['Construction','Construction-Entities'],
+  'tech':['Technology'],'technology':['Technology'],
+  'software':['Technology'],'engineering':['Technology','Construction'],
+  'healthcare':['Healthcare'],'medical':['Healthcare'],'health':['Healthcare'],
+  'dental':['Healthcare'],'doctor':['Healthcare'],
+  'food':['Food & Beverage'],'restaurant':['Food & Beverage'],'beverage':['Food & Beverage'],
+  'brewery':['Food & Beverage'],'cafe':['Food & Beverage'],'bakery':['Food & Beverage'],
+  'finance':['Financial Services','Accounting Firm'],
+  'financial':['Financial Services'],'accounting':['Accounting Firm'],
+  'insurance':['Financial Services'],'wealth':['Financial Services'],
+  'retail':['Retail & Product','Retail - Brick & Mortar'],
+  'store':['Retail & Product','Retail - Brick & Mortar'],
+  'shop':['Retail & Product','Retail - Brick & Mortar'],
+  'real estate':['Real Estate'],'realty':['Real Estate'],'property':['Real Estate'],
+  'beauty':['Beauty & Wellness'],'wellness':['Beauty & Wellness'],
+  'salon':['Beauty & Wellness'],'spa':['Beauty & Wellness'],
+  'fitness':['Fitness & Recreation'],'gym':['Fitness & Recreation'],
+  'sports':['Fitness & Recreation'],'recreation':['Fitness & Recreation'],
+  'education':['Education'],'school':['Education'],'training':['Education'],
+  'nonprofit':['Nonprofit / Social Services'],'charity':['Nonprofit / Social Services'],
+  'social services':['Nonprofit / Social Services'],'community':['Nonprofit / Social Services'],
+  'automotive':['Automotive'],'auto':['Automotive'],'car':['Automotive'],
+  'entertainment':['Entertainment & Events'],'events':['Entertainment & Events'],
+  'arts':['Arts & Galleries','Photography & Creative Media'],
+  'photography':['Photography & Creative Media'],'creative':['Photography & Creative Media'],
+  'gallery':['Arts & Galleries'],
+  'home services':['Home Services'],'cleaning':['Home Services'],
+  'plumbing':['Home Services'],'electrical':['Home Services'],
+  'pet':['Pet Services'],'veterinary':['Pet Services'],'vet':['Pet Services'],
+  'agriculture':['Agriculture & Farming'],'farm':['Agriculture & Farming'],
+  'childcare':['Childcare & Family Services'],'daycare':['Childcare & Family Services'],
+  'hospitality':['Hospitality & Travel'],'hotel':['Hospitality & Travel'],
+  'travel':['Hospitality & Travel'],'tourism':['Hospitality & Travel'],
+  'media':['Video Production & Media'],'video':['Video Production & Media'],
+  'film':['Video Production & Media'],'production':['Video Production & Media'],
+  'transportation':['Transportation & Logistics'],'logistics':['Transportation & Logistics'],
+  'trucking':['Transportation & Logistics'],'delivery':['Transportation & Logistics'],
+  'consulting':['Professional Services'],'advisory':['Professional Services'],
+  'legal':['Professional Services'],'law':['Professional Services']
+};
+
+function parseNLQuery(raw){
+  const q=raw.toLowerCase().trim();
+  if(!q) return {state:null,categories:[],keywords:[]};
+  
+  // Extract state — check multi-word first
+  let state=null;
+  for(const [name,code] of Object.entries(STATE_MAP)){
+    if(q.includes(name)){state=code;break;}
+  }
+  // Also check 2-letter code (e.g. "in CA", "from NJ")
+  if(!state){
+    const abbr=q.match(/\b([A-Z]{2})\b/);
+    if(abbr && Object.values(STATE_MAP).includes(abbr[1])) state=abbr[1];
+    // fallback: scan for uppercase 2-letter after spaces in original
+    const orig=raw.match(/\b([A-Z]{2})\b/);
+    if(!state && orig && Object.values(STATE_MAP).includes(orig[1])) state=orig[1];
+  }
+
+  // Extract categories from keywords
+  let categories=new Set();
+  // Check multi-word phrases first
+  for(const [kw,cats] of Object.entries(CAT_KEYWORDS)){
+    if(q.includes(kw)) cats.forEach(c=>categories.add(c));
+  }
+
+  // Remaining plain keywords (stripped of stop words)
+  const stopWords=new Set(['find','me','someone','a','an','the','in','from','who',
+    'lives','living','located','works','working','based','at','and','or','with',
+    'is','are','has','have','i','want','show','get','give','look','for','any']);
+  const keywords=q.split(/\s+/).filter(w=>w.length>2&&!stopWords.has(w)&&
+    !Object.keys(STATE_MAP).some(s=>s.includes(w)&&w.length>3));
+
+  return {state, categories:[...categories], keywords};
+}
+
 function renderList(){
-  const q=(document.getElementById('search').value||'').toLowerCase();
+  const raw=document.getElementById('search').value||'';
   const cat=document.getElementById('catFilter').value;
-  const filtered=companies.filter((c,i)=>{
-    const matchQ=!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q)||c.category.toLowerCase().includes(q)||c.type.toLowerCase().includes(q);
-    const matchCat=!cat||c.category===cat;
-    return matchQ&&matchCat;
+  const {state,categories,keywords}=parseNLQuery(raw);
+  const q=raw.toLowerCase().trim();
+
+  const filtered=companies.filter(c=>{
+    // State filter from NL
+    if(state){
+      const addrState=c.address.split(',')[2]?.trim().split(' ')[0];
+      if(addrState!==state) return false;
+    }
+    // Category filter from NL keywords
+    if(categories.length){
+      if(!categories.some(cat=>c.category===cat||c.category.toLowerCase().includes(cat.toLowerCase()))) return false;
+    }
+    // Dropdown category filter
+    if(cat && c.category!==cat) return false;
+    // Remaining keyword match against name/owner/type/address
+    if(keywords.length&&!state&&!categories.length){
+      const blob=(c.name+c.owner+c.category+c.type+c.address).toLowerCase();
+      if(!keywords.some(kw=>blob.includes(kw))) return false;
+    }
+    // Plain text fallback (no NL signals detected)
+    if(q && !state && !categories.length){
+      const blob=(c.name+c.owner+c.category+c.type+c.address).toLowerCase();
+      if(!blob.includes(q)&&!keywords.some(kw=>blob.includes(kw))) return false;
+    }
+    return true;
   });
-  document.getElementById('list').innerHTML=filtered.length?filtered.map((c,i)=>rowHTML(c,i)).join(''):`<div class="no-results">No companies match your search.</div>`;
-  document.getElementById('count').textContent=filtered.length+' of '+companies.length+' companies';
+
+  // Build result label
+  let label=filtered.length+' of '+companies.length+' companies';
+  if(state||categories.length){
+    const parts=[];
+    if(categories.length) parts.push(categories.join(' or '));
+    if(state) parts.push('in '+state);
+    label=filtered.length+' result'+(filtered.length!==1?'s':'');
+    if(parts.length) label+=' — '+parts.join(', ');
+  }
+
+  document.getElementById('list').innerHTML=filtered.length
+    ?filtered.map((c,i)=>rowHTML(c,i)).join('')
+    :`<div class="no-results">No results found. Try different keywords.</div>`;
+  document.getElementById('count').textContent=label;
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
