@@ -41,6 +41,8 @@
   .entity-item:last-child{ border-bottom:none; }
   .entity-name{ font-size:13px; font-weight:700; color:#1A1A2E; }
   .entity-desc{ font-size:11px; color:#6B7280; margin-top:2px; font-style:italic; }
+  .services-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .service-pill{ font-size:11px; font-weight:600; background:#F0F4FF; color:#1B4F72; border:1px solid #C7D7F0; border-radius:20px; padding:4px 12px; }
   /* ── Modal ── */
   .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open{ display:flex; }
@@ -171,6 +173,10 @@
     <div class="logo-cols">
       <div class="logo-wrap"><div class="logo-label">Horizontal</div><div id="m-hlogo"></div></div>
       <div class="logo-wrap"><div class="logo-label">Vertical</div><div id="m-vlogo"></div></div>
+    </div>
+    <div class="tx-section" id="m-services-section">
+      <div class="tx-heading">Products &amp; Services</div>
+      <div class="services-list" id="m-services"></div>
     </div>
     <div id="m-entities" class="tx-section" style="display:none">
       <div class="tx-heading" id="m-entities-heading">Entities Under It</div>
@@ -1816,6 +1822,7 @@ function openModal(name){
   document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
   document.getElementById('m-entities').style.display='none';
+  document.getElementById('m-services').innerHTML=getServices(c.name,c.category).map(s=>`<span class="service-pill">${esc(s)}</span>`).join('');
   renderTransactions(c.name, c.category, 1);
   document.getElementById('modal').classList.add('open');
 }
@@ -2205,6 +2212,7 @@ function openFBNModal(name){
   document.getElementById('m-hlogo').innerHTML='';
   document.getElementById('m-vlogo').innerHTML='';
   // Entities section
+  document.getElementById('m-services').innerHTML=getServices(f.name,f.industry).map(s=>`<span class="service-pill">${esc(s)}</span>`).join('');
   const entitiesEl=document.getElementById('m-entities');
   if(f.entities&&f.entities.length){
     const headingLabel=f.industry==='Nonprofit / Social Services'?'Divisions / Programs':'Entities Under It';
@@ -2435,6 +2443,56 @@ const TX={
 
 // Fallback for any uncovered category
 TX['default']=TX['Professional Services'];
+
+// ── Products & Services catalog (keyed by category / industry) ──────────────
+const SERVICES={
+  'Professional Services':['Business strategy consulting','Process improvement & optimization','Project management & delivery','Executive coaching & advisory','Workflow design & documentation','Stakeholder alignment facilitation','Change management support','Organizational assessment','Performance benchmarking','Risk & compliance advisory'],
+  'Technology':['Custom software development','Cloud infrastructure & migration','Cybersecurity auditing & monitoring','API design & integration','IT help desk & managed support','Mobile application development','Data engineering & analytics','DevOps & CI/CD pipeline setup','UX research & product design','Systems architecture consulting'],
+  'Construction':['General contracting & project management','Structural framing & foundation work','Commercial & residential renovation','Site preparation & grading','Permit acquisition & code compliance','Subcontractor coordination','Interior build-out & finishing','Roofing & exterior envelope work','Mechanical, electrical & plumbing rough-in','Construction cost estimating'],
+  'Construction-Entities':['Civil infrastructure & heavy construction','Commercial development & build-out','Industrial facility construction','Public works & government contracting','Design-build project delivery','Construction equipment procurement','Regional subcontractor management','Safety & OSHA compliance programs','Green building & LEED consulting','Post-construction facility handover'],
+  'Retail & Product':['Direct-to-consumer product sales','Wholesale & bulk order fulfillment','Custom branded merchandise','Pop-up shop & event retail','Product sourcing & procurement','Inventory & stock management','Point-of-sale system setup','Returns processing & customer service','E-commerce storefront management','Retail display & merchandising'],
+  'Retail - Brick & Mortar':['In-store product sales & service','Seasonal merchandise planning','Customer loyalty program management','Visual merchandising & store layout','Local delivery & curbside pickup','Staff training & sales coaching','Window display & event promotions','Gift wrapping & custom packaging','Community event hosting','In-store product demonstrations'],
+  'Healthcare':['Primary care & wellness exams','Preventive health screenings','Telehealth & remote consultations','Chronic disease management','Diagnostic testing & lab work','Referral coordination & care navigation','Health coaching & lifestyle programs','Occupational health services','Mental health & counseling support','Insurance billing & prior authorization'],
+  'Food & Beverage':['Catering for corporate events','Custom menu design & meal prep','Specialty baked goods & pastries','Private dining & chef experiences','Beverage & bar service','Dietary-specific meal planning','Food truck & pop-up catering','Bulk meal prep for offices','Cooking classes & tasting events','Wholesale ingredient sourcing'],
+  'Financial Services':['Personal & business financial planning','Investment portfolio advisory','Tax strategy & preparation','Retirement planning & 401(k) management','Bookkeeping & accounts reconciliation','Cash flow analysis & forecasting','Business loan & credit advisory','Estate planning consultation','Insurance needs assessment','Quarterly financial review & reporting'],
+  'Accounting Firm':['Tax filing & compliance (individual & business)','Financial statement preparation','Audit & assurance services','Payroll processing & tax deposits','CFO-level advisory services','Multi-entity accounting management','Sales tax compliance & filings','Grant accounting & nonprofit reporting','Forensic accounting & fraud review','Budgeting & financial forecasting'],
+  'Transportation & Logistics':['Freight forwarding & brokerage','Last-mile delivery coordination','Fleet management & dispatch','Warehousing & fulfillment services','Route optimization & load planning','Customs & import/export documentation','Cold chain & temperature-controlled shipping','Cross-docking & transloading','Driver compliance & DOT management','Real-time shipment tracking & reporting'],
+  'Education':['Personalized academic tutoring','Curriculum design & instructional materials','Professional certification programs','Corporate training & upskilling workshops','Online course development & delivery','STEM enrichment programs','College prep & admissions counseling','Literacy & language instruction','Teacher professional development','Educational assessment & reporting'],
+  'Photography & Creative Media':['Commercial & brand photography','Event & conference coverage','Headshot & portrait sessions','Product photography & styling','Photo editing & retouching','Real estate & architectural photography','Social media content creation','Video production & reel editing','Licensing of stock imagery','Photography workshops & coaching'],
+  'Arts & Galleries':['Original artwork sales & commissions','Curated gallery exhibitions','Art consulting for corporate spaces','Custom print & reproduction services','Installation & framing services','Artist residency & studio programs','Art collection appraisal','Community art education workshops','Licensing of artwork for commercial use','Public art & mural projects'],
+  'Automotive':['Routine maintenance & oil service','Engine diagnostics & repair','Brake, suspension & alignment','Tire sales, mounting & balancing','Transmission & drivetrain service','Custom detailing & paint correction','Fleet service & maintenance contracts','Pre-purchase vehicle inspections','ADAS calibration & safety system repair','Classic & specialty vehicle restoration'],
+  'Home Services':['Plumbing repair & installation','Electrical work & panel upgrades','HVAC maintenance & replacement','Interior & exterior painting','General handyman & repair services','Kitchen & bathroom remodeling','Flooring installation & refinishing','Gutter cleaning & roof inspection','Smart home device installation','Seasonal home maintenance programs'],
+  'Beauty & Wellness':['Precision haircuts & color services','Skincare facials & treatments','Therapeutic massage & bodywork','Nail care & gel/acrylic services','Lash & brow services','Wellness consultations & coaching','Waxing & hair removal','Bridal & event beauty packages','At-home & mobile beauty services','Product retail — skincare & styling'],
+  'Fitness & Recreation':['Personal training (1-on-1 & small group)','Group fitness & specialty classes','Sports performance & conditioning','Nutrition coaching & meal planning','Corrective exercise & mobility work','Athletic event programming','Youth & senior fitness programs','Corporate wellness workshops','Online coaching & virtual sessions','Fitness assessment & goal planning'],
+  'Hospitality & Travel':['Hotel accommodations & room packages','Event space rental & venue services','Catering & banquet coordination','Concierge & guest experience services','Corporate travel planning & booking','Meeting & conference hosting','Spa & wellness add-on packages','Group & team retreat planning','Local tour & experience curation','Loyalty & rewards program management'],
+  'Real Estate':['Residential buyer & seller representation','Commercial property leasing & sales','Property management & tenant services','Market analysis & comparative valuations','Investment property advisory','Lease negotiation & contract review','Relocation services & concierge','Real estate development consulting','HOA management support','1031 exchange & tax strategy advisory'],
+  'Nonprofit / Social Services':['Community outreach & case management','Emergency financial assistance','Workforce development & job training','Affordable housing navigation','Youth mentorship & after-school programs','Mental health & crisis support','Food access & nutrition programs','Senior services & companionship','Volunteer coordination & engagement','Grant writing & fund development'],
+  'Childcare & Family Services':['Licensed full-day childcare','Before & after-school programs','Infant & toddler enrichment','Summer camp & school break programs','Family counseling & parenting support','Developmental screenings & assessments','Enrichment classes (art, music, STEM)','Drop-in & flexible childcare','Nanny placement & background screening','Parent education workshops'],
+  'Agriculture & Farming':['Seasonal produce harvest & sales','Organic crop consulting & planning','CSA (community-supported agriculture) boxes','Farm-to-table wholesale distribution','Agricultural equipment rental','Soil testing & land assessment','Agritourism & educational farm tours','Custom crop harvesting services','Livestock management consulting','Specialty herb & heirloom variety cultivation'],
+  'Pet Services':['Dog & cat grooming (bath, trim, style)','Veterinary wellness exams & vaccines','Overnight boarding & pet hotel','Doggy daycare & socialization','In-home pet sitting & feeding visits','Obedience training & behavioral coaching','Mobile grooming & vet services','Flea, tick & parasite prevention','Nutritional counseling for pets','Pet adoption support & foster coordination'],
+  'Entertainment & Events':['Live event production & stage management','Artist & talent booking & management','Audio-visual & lighting design','Corporate event planning & execution','Themed event design & décor','Ticketing & registration management','Virtual & hybrid event production','Festival & conference coordination','Sponsorship & brand activation','Post-event reporting & analytics'],
+  'Video Production & Media':['Commercial & brand video production','Social media content series creation','Documentary & short-form filmmaking','Corporate training & explainer videos','Animation & motion graphics','Post-production editing & color grading','Live streaming & broadcast production','Podcast production & audio engineering','Script development & storyboarding','Video licensing & content distribution'],
+  'Manufacturing':['Custom parts fabrication & machining','Contract manufacturing & assembly','Industrial component supply','Quality assurance & inspection services','Prototype development & testing','Supply chain management & procurement','Product packaging & labeling','Warehouse & distribution operations','Process engineering & optimization','OEM & private-label manufacturing'],
+  'Landscaping':['Residential & commercial lawn maintenance','Landscape design & installation','Irrigation system design & repair','Tree trimming, removal & stump grinding','Hardscape design (patios, walkways, retaining walls)','Seasonal planting & color rotations','Mulch, sod & gravel installation','Snow removal & winter services','Drainage solutions & grading','Landscape lighting design & installation'],
+  'Legal Services':['Contract drafting & negotiation','Business entity formation & structuring','Litigation support & dispute resolution','Employment law & HR compliance','Intellectual property protection','Real estate & title review','Estate planning & probate','Regulatory & licensing compliance','Mergers & acquisition due diligence','Mediation & alternative dispute resolution'],
+  'Marketing & Comms':['Brand strategy & identity development','Digital advertising & paid media management','Content marketing & copywriting','Social media strategy & management','Public relations & media outreach','Email marketing campaigns','SEO & search visibility optimization','Market research & audience insights','Event marketing & experiential activations','Marketing analytics & performance reporting'],
+  'Arts & Creative':['Custom illustration & graphic design','Brand identity & logo design','Mural & large-format art installation','Print collateral design & production','Motion design & animated assets','Packaging design & product visuals','Editorial & publication design','Photography & art direction','Creative direction for campaigns','Licensing of original creative works']
+};
+SERVICES['default']=SERVICES['Professional Services'];
+
+function getServices(name, category, count=5){
+  const pool=SERVICES[category]||SERVICES['default'];
+  const rng=seededRNG(hashStr(name+'services'));
+  const picked=[];
+  const used=new Set();
+  let attempts=0;
+  while(picked.length<count&&attempts<50){
+    const idx=Math.floor(rng()*pool.length);
+    if(!used.has(idx)){used.add(idx);picked.push(pool[idx]);}
+    attempts++;
+  }
+  return picked;
+}
 
 function getRevenue(name, tier){
   const rng=seededRNG(hashStr(name+'annualrev'));
