@@ -79,6 +79,7 @@
   /* FBN rows — matches .row exactly */
   .fbn-list{ display:flex; flex-direction:column; gap:6px; }
   .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; transition:box-shadow .12s; }
+  .fbn-row[onclick]:hover{ box-shadow:0 3px 14px rgba(0,0,0,.11); }
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
   .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   /* Industry tag — matches .row-cat pill */
@@ -2024,18 +2025,17 @@ const approvedFBN=[
   {name:"Gloria's Ink & Frame",              use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
   {name:"Gloria's Print House",              use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
   {name:"Greenscape Gardening",              use:"QB — US, CA, EMEA, AU", industry:"Landscaping"},
-  {name:"Horizon Construction",              use:"IES / NIL",           industry:"Construction"},
+  {name:"Horizon Construction",              use:"IES / NIL",           industry:"Construction",  owner:"Chris Pepper",    type:"Residential Construction",    email:"chris.pepper@example.com",    phone:"(617) 555-1925", address:"789 Pearl Avenue, Hometown, GA 30301",             ssn:"400-00-3525"},
   {name:"Horizon Management",               use:"IES",                 industry:"Professional Services"},
   {name:"Horizon Project Management",       use:"IES",                 industry:"Professional Services"},
   {name:"Idea & Co.",                        use:"Communications",      industry:"Marketing & Comms"},
   {name:"Isa's Ink Shop",                    use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
   {name:"It's a Sign",                       use:"Mailchimp",           industry:"Arts & Creative"},
-  {name:"Keystone Construction",             use:"IES / NIL",           industry:"Construction"},
+  {name:"Keystone Construction",             use:"IES / NIL",           industry:"Construction",  owner:"Clark Fulton",    type:"General Contracting",          email:"clark.fulton@example.com",    phone:"(415) 555-1814", address:"456 Bayshore Drive, Center City, FL 32201",        ssn:"400-00-3522"},
   {name:"Kindred Kitchen",                   use:"Mailchimp",           industry:"Food & Beverage"},
   {name:"Lily's Catering Co.",               use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
   {name:"Livi Law Services",                 use:"IES",                 industry:"Legal Services"},
-  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping"},
-
+  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   owner:"Daniele Griffith", type:"Landscaping & Grounds",        email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523"},
   {name:"Meena Law Services",                use:"IES",                 industry:"Legal Services"},
   {name:"Melodia Institute of Music",        use:"Mailchimp",           industry:"Education"},
   {name:"Mia's Catering",                    use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
@@ -2045,7 +2045,7 @@ const approvedFBN=[
   {name:"PH Accounting",                     use:"QuickBooks",          industry:"Financial Services"},
   {name:"Riverfront Sculpt Studio",          use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
   {name:"Rock Castle Construction & Design", use:"QuickBooks",          industry:"Construction"},
-  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction"},
+  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  owner:"Austin Pettus",   type:"Construction & Solar Install", email:"austin.pettus@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524"},
   {name:"The Ad Assembly",                   use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Ideahouse",                     use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Pedal Pod",                     use:"Mailchimp",           industry:"Fitness & Recreation"},
@@ -2079,12 +2079,29 @@ const FBN_IND_COLORS={
 function fbnRowHTML(f,i){
   const ind=f.industry||'';
   const col=FBN_IND_COLORS[ind]||{light:'#ECEFF1',text:'#455A64'};
-  return`<div class="fbn-row">
+  const nameSafe=f.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const clickable=f.owner?`onclick="openFBNModal('${nameSafe}')" style="cursor:pointer"`:'';
+  return`<div class="fbn-row" ${clickable}>
     <span class="fbn-row-num">${i+1}</span>
-    <span class="fbn-row-name">${esc(f.name)}</span>
+    <span class="fbn-row-name">${esc(f.name)}${f.owner?'<span style="font-size:11px;color:#9CA3AF;font-weight:400;margin-left:8px;">'+esc(f.owner)+'</span>':''}</span>
     <span class="fbn-ind-tag" style="background:${col.light};color:${col.text}">${esc(ind)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
+}
+
+function openFBNModal(name){
+  const f=approvedFBN.find(x=>x.name===name);
+  if(!f||!f.owner) return;
+  document.getElementById('m-title').textContent=f.name;
+  document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
+  document.getElementById('m-contact').innerHTML=`
+    <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${esc(f.email)}</span></div>
+    <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${esc(f.phone)}</span></div>
+    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${esc(f.address)}</span></div>
+    <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>`;
+  document.getElementById('m-hlogo').innerHTML='';
+  document.getElementById('m-vlogo').innerHTML='';
+  document.getElementById('modal').classList.add('open');
 }
 
 function renderFBN(){
