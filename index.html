@@ -102,6 +102,41 @@
   .fbn-row[onclick]:hover{ box-shadow:0 3px 14px rgba(0,0,0,.11); }
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
   .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; }
+
+  /* ── Consumer Personas ─────────────────────────────────── */
+  .con-row{ display:flex; align-items:center; padding:10px 14px; border-bottom:1px solid #F3F4F6; gap:10px; cursor:pointer; transition:background .12s; }
+  .con-row:hover{ background:#F8FAFF; }
+  .con-age{ font-size:12px; font-weight:700; color:#374151; width:52px; text-align:center; flex-shrink:0; }
+  .con-score{ font-size:12px; font-weight:800; width:90px; text-align:center; flex-shrink:0; padding:3px 8px; border-radius:20px; }
+  .score-exc{ background:#D1FAE5; color:#065F46; }
+  .score-vgd{ background:#DCFCE7; color:#166534; }
+  .score-gd { background:#FEF9C3; color:#854D0E; }
+  .score-fair{ background:#FEE2E2; color:#991B1B; }
+  .score-poor{ background:#FEE2E2; color:#7F1D1D; }
+  .con-job{ font-size:12px; color:#6B7280; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  /* Tax & credit layout */
+  .tax-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .tax-card{ background:#F8FAFF; border:1px solid #E0E7FF; border-radius:8px; padding:12px 14px; }
+  .tax-card-label{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#6B7280; margin-bottom:4px; }
+  .tax-card-value{ font-size:18px; font-weight:800; color:#1A1A2E; }
+  .tax-card-value.green{ color:#15803D; }
+  .tax-card-value.red{ color:#DC2626; }
+  .cc-item{ display:flex; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid #F3F4F6; }
+  .cc-item:last-child{ border-bottom:none; }
+  .cc-name{ font-size:13px; font-weight:700; color:#1A1A2E; flex:1; }
+  .cc-bank{ font-size:11px; color:#9CA3AF; }
+  .cc-bar-wrap{ width:120px; flex-shrink:0; }
+  .cc-bar-bg{ height:6px; background:#E5E7EB; border-radius:3px; overflow:hidden; }
+  .cc-bar-fill{ height:100%; border-radius:3px; }
+  .cc-util{ font-size:10px; color:#6B7280; margin-top:3px; text-align:right; }
+  .cc-amt{ font-size:12px; font-weight:700; color:#1A1A2E; text-align:right; white-space:nowrap; }
+  .loan-item{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #F3F4F6; }
+  .loan-item:last-child{ border-bottom:none; }
+  .loan-label{ font-size:13px; font-weight:700; color:#1A1A2E; }
+  .loan-detail{ font-size:11px; color:#6B7280; margin-top:2px; }
+  .loan-bal{ font-size:14px; font-weight:800; color:#1B4F72; }
+  .score-badge{ display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:80px; height:80px; border-radius:50%; font-weight:900; }
+
   /* Industry tag — matches .row-cat pill */
   .fbn-ind-tag{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; }
   /* Intended use — matches .row-type */
@@ -117,6 +152,7 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
   <div class="tab" onclick="switchTab('fbn')">Fictitious Business Names</div>
+  <div class="tab" onclick="switchTab('consumer')">&#128100; Consumer Personas</div>
 </div>
 
 <!-- NIL tab -->
@@ -164,6 +200,25 @@
 </div>
 
 <!-- Modal -->
+
+<div id="tab-consumer" class="tab-panel">
+  <div class="list-header" style="margin-bottom:16px">
+    <input type="text" id="con-search" placeholder="Search by name, job, state, or filing status…" oninput="renderConsumers()" style="flex:1;padding:10px 14px;border:1px solid #E5E7EB;border-radius:8px;font-size:14px;outline:none">
+    <select id="con-state-filter" onchange="renderConsumers()" style="padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;font-size:13px;color:#374151;background:#fff">
+      <option value="">All States</option>
+    </select>
+  </div>
+  <div class="col-header">
+    <span class="col-h-num">#</span>
+    <span class="col-h-name">Name</span>
+    <span class="col-h-owner" style="width:52px;text-align:center">Age</span>
+    <span class="col-h-cat" style="width:90px">Credit Score</span>
+    <span class="col-h-type">Occupation</span>
+    <span class="col-h-state">State</span>
+  </div>
+  <div id="con-list"></div>
+  <div id="con-count" style="font-size:12px;color:#9CA3AF;margin-top:12px;padding-left:4px"></div>
+</div>
 <div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">&#x2715;</button>
@@ -194,7 +249,36 @@
       <button class="btn-dl-v" onclick="dlModal('v')">&#8595; Download Vertical Logo</button>
       <button class="btn-close2" onclick="closeModal()">Close</button>
     </div>
+  
+<div id="consumer-modal" class="modal-overlay" onclick="if(event.target===this)closeConsumerModal()">
+  <div class="modal-box" style="max-width:820px">
+    <button class="modal-close" onclick="closeConsumerModal()">&#x2715;</button>
+    <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:20px">
+      <div>
+        <div class="modal-title" id="cm-name"></div>
+        <div class="modal-sub" id="cm-sub"></div>
+      </div>
+      <div id="cm-score-wrap" style="margin-left:auto;text-align:center;flex-shrink:0"></div>
+    </div>
+    <div id="cm-personal" class="contact-card" style="margin-bottom:20px"></div>
+    <div class="tx-section" style="margin-bottom:20px">
+      <div class="tx-heading">Tax Profile</div>
+      <div id="cm-tax"></div>
+    </div>
+    <div class="tx-section" style="margin-bottom:20px">
+      <div class="tx-heading">Credit Cards</div>
+      <div id="cm-cards"></div>
+    </div>
+    <div class="tx-section">
+      <div class="tx-heading">Loans &amp; Liabilities</div>
+      <div id="cm-loans"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn-close2" onclick="closeConsumerModal()">Close</button>
+    </div>
   </div>
+</div>
+</div>
 </div>
 
 <script>
@@ -1719,6 +1803,110 @@ const companies = [
   }
 ];
 
+
+// ── Consumer Personas ─────────────────────────────────────────────────────
+const consumerData=[
+  {name:"Priya Anand",        age:28,gender:"female",state:"TX",address:"204 Elm Street Apt 3B, Austin, TX 78701",          job:"Junior Software Engineer",    employer:"Brightfield Technologies LLC",    income:72000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:718,
+   cards:[{name:"Apex Platinum Rewards",   bank:"Apex Financial",         bal:1240, lim:5000},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:380,  lim:2500}],
+   auto:{active:false},student_loan:18400,tax:{w2:72000,self_emp:0,spouse_w2:0,refund:840,owed:0}},
+
+  {name:"DeShawn Williams",   age:35,gender:"male",  state:"GA",address:"880 Peachtree Road NE, Atlanta, GA 30305",         job:"Sales Director",              employer:"Meridian Group Inc.",             income:96000,  marital:"Married",  spouse:"Tamara Williams", kids:2,homeowner:true, home_value:310000,  mortgage_bal:241000, mortgage_rate:6.5, filing:"MFJ",        credit:761,
+   cards:[{name:"BlueSky Miles Card",       bank:"BlueSky Bank",           bal:3100, lim:8000},{name:"Liberty Everyday Rewards",    bank:"Liberty FCU",            bal:890,  lim:4000},{name:"Granite Cash+ Card",         bank:"Granite Bank",           bal:2650, lim:6500}],
+   auto:{active:true,car:"2022 Toyota Camry",bal:15800,monthly:438,rate:5.9},student_loan:0,tax:{w2:96000,self_emp:0,spouse_w2:54000,refund:2140,owed:0}},
+
+  {name:"Sofia Castillo",     age:42,gender:"female",state:"CA",address:"1420 Saratoga Ave, San Jose, CA 95129",            job:"Nurse Practitioner",          employer:"Valley Health System",            income:118000, marital:"Divorced", spouse:null,           kids:1,homeowner:true, home_value:545000,  mortgage_bal:402000, mortgage_rate:7.1, filing:"HOH",        credit:734,
+   cards:[{name:"Apex Platinum Rewards",   bank:"Apex Financial",         bal:4200, lim:12000},{name:"Meridian Travel Card",        bank:"Meridian Credit Union",  bal:1750, lim:7500}],
+   auto:{active:true,car:"2020 Honda CR-V",bal:8200,monthly:312,rate:6.4},student_loan:0,tax:{w2:118000,self_emp:0,spouse_w2:0,refund:0,owed:1320}},
+
+  {name:"Ethan Park",         age:24,gender:"male",  state:"WA",address:"312 Capitol Hill Ave, Seattle, WA 98102",         job:"UX Designer",                 employer:"Crestline Digital",               income:68000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:692,
+   cards:[{name:"Summit Cashback Plus",    bank:"Summit Bank",            bal:620,  lim:3000},{name:"Cornerstone Secured Card",    bank:"Cornerstone Bank",       bal:180,  lim:500}],
+   auto:{active:false},student_loan:24600,tax:{w2:68000,self_emp:0,spouse_w2:0,refund:320,owed:0}},
+
+  {name:"Linda Okafor",       age:58,gender:"female",state:"OH",address:"742 Olentangy River Rd, Columbus, OH 43214",       job:"High School Principal",       employer:"Columbus Unified Schools",        income:87000,  marital:"Married",  spouse:"James Okafor", kids:0,homeowner:true, home_value:224000,  mortgage_bal:67000,  mortgage_rate:4.2, filing:"MFJ",        credit:804,
+   cards:[{name:"Pacific Points Card",    bank:"Pacific Savings Bank",   bal:720,  lim:6000},{name:"Pinnacle Preferred Card",     bank:"Pinnacle Bank",          bal:1450, lim:9000}],
+   auto:{active:false},student_loan:0,tax:{w2:87000,self_emp:0,spouse_w2:42000,refund:3200,owed:0}},
+
+  {name:"Marcus Webb",        age:31,gender:"male",  state:"FL",address:"5520 Bayshore Blvd, Tampa, FL 33611",             job:"Freelance Videographer",      employer:"Self-Employed",                   income:52000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:648,
+   cards:[{name:"Horizon Cash Rewards",   bank:"Horizon Credit Union",   bal:1840, lim:4000},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:510,  lim:2000}],
+   auto:{active:true,car:"2019 Ford Transit",bal:6400,monthly:195,rate:7.2},student_loan:0,tax:{w2:0,self_emp:52000,spouse_w2:0,refund:0,owed:4800}},
+
+  {name:"Amara Patel",        age:45,gender:"female",state:"NY",address:"88 Prospect Park West, Brooklyn, NY 11215",       job:"Financial Analyst",           employer:"Sterling Asset Partners LLC",     income:134000, marital:"Married",  spouse:"Rohan Patel",  kids:2,homeowner:true, home_value:875000,  mortgage_bal:640000, mortgage_rate:7.3, filing:"MFJ",        credit:788,
+   cards:[{name:"Meridian Travel Card",   bank:"Meridian Credit Union",  bal:6200, lim:20000},{name:"BlueSky Miles Card",          bank:"BlueSky Bank",           bal:4100, lim:15000},{name:"Liberty Everyday Rewards",    bank:"Liberty FCU",            bal:1200, lim:8000}],
+   auto:{active:true,car:"2023 Subaru Outback",bal:28400,monthly:698,rate:6.1},student_loan:0,tax:{w2:134000,self_emp:0,spouse_w2:88000,refund:0,owed:2880}},
+
+  {name:"Tyler Reyes",        age:27,gender:"male",  state:"CO",address:"1840 Larimer Street, Denver, CO 80202",           job:"Physical Therapist",          employer:"Summit Sports Medicine",          income:74000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:710,
+   cards:[{name:"Apex Platinum Rewards",  bank:"Apex Financial",         bal:2100, lim:5000},{name:"Granite Cash+ Card",          bank:"Granite Bank",           bal:430,  lim:2000}],
+   auto:{active:true,car:"2021 Subaru Impreza",bal:11200,monthly:298,rate:5.8},student_loan:31500,tax:{w2:74000,self_emp:0,spouse_w2:0,refund:580,owed:0}},
+
+  {name:"Cynthia Nguyen",     age:37,gender:"female",state:"IL",address:"2400 N. Lakeview Ave, Chicago, IL 60614",         job:"Account Executive",           employer:"Lakefront Media Group",           income:91000,  marital:"Married",  spouse:"Kevin Nguyen", kids:1,homeowner:true, home_value:385000,  mortgage_bal:308000, mortgage_rate:6.9, filing:"MFJ",        credit:755,
+   cards:[{name:"Pinnacle Preferred Card", bank:"Pinnacle Bank",         bal:3400, lim:10000},{name:"Summit Cashback Plus",       bank:"Summit Bank",            bal:1100, lim:5000}],
+   auto:{active:true,car:"2022 Kia Telluride",bal:24600,monthly:562,rate:6.4},student_loan:0,tax:{w2:91000,self_emp:0,spouse_w2:76000,refund:1650,owed:0}},
+
+  {name:"James Thornton",     age:61,gender:"male",  state:"AZ",address:"9450 E. Desert Cove Ave, Scottsdale, AZ 85260",  job:"Retired (Former Sr. Engineer)",employer:"Retired",                        income:90000,  marital:"Married",  spouse:"Carol Thornton",kids:0,homeowner:true,home_value:420000,  mortgage_bal:0,      mortgage_rate:0,   filing:"MFJ",        credit:821,
+   cards:[{name:"Pacific Points Card",    bank:"Pacific Savings Bank",   bal:880,  lim:12000},{name:"Horizon Cash Rewards",       bank:"Horizon Credit Union",   bal:340,  lim:8000}],
+   auto:{active:false},student_loan:0,tax:{w2:0,self_emp:0,spouse_w2:0,refund:0,owed:620}},
+
+  {name:"Keisha Brown",       age:29,gender:"female",state:"NC",address:"3312 South Blvd, Charlotte, NC 28209",            job:"Elementary School Teacher",   employer:"Charlotte-Mecklenburg Schools",   income:48000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:663,
+   cards:[{name:"Cornerstone Secured Card",bank:"Cornerstone Bank",      bal:290,  lim:1500},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:640,  lim:2500}],
+   auto:{active:true,car:"2020 Hyundai Elantra",bal:7800,monthly:198,rate:6.9},student_loan:22100,tax:{w2:48000,self_emp:0,spouse_w2:0,refund:1240,owed:0}},
+
+  {name:"Ryan Hoffman",       age:33,gender:"male",  state:"TX",address:"4210 Travis Street, Dallas, TX 75205",            job:"Product Manager",             employer:"Nexbridge Software",              income:108000, marital:"Married",  spouse:"Sarah Hoffman", kids:1,homeowner:true, home_value:348000,  mortgage_bal:290000, mortgage_rate:6.7, filing:"MFJ",        credit:744,
+   cards:[{name:"BlueSky Miles Card",      bank:"BlueSky Bank",           bal:2800, lim:10000},{name:"Liberty Everyday Rewards",   bank:"Liberty FCU",            bal:1550, lim:6000}],
+   auto:{active:true,car:"2022 Nissan Pathfinder",bal:21400,monthly:492,rate:6.2},student_loan:0,tax:{w2:108000,self_emp:0,spouse_w2:62000,refund:890,owed:0}},
+
+  {name:"Aaliyah Davis",      age:22,gender:"female",state:"MI",address:"14 W. Grand Blvd, Detroit, MI 48202",              job:"Barista / Part-time Student", employer:"Cornerstone Coffee Co.",          income:19000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:601,
+   cards:[{name:"Cornerstone Secured Card",bank:"Cornerstone Bank",      bal:180,  lim:300}],
+   auto:{active:false},student_loan:8200,tax:{w2:19000,self_emp:0,spouse_w2:0,refund:680,owed:0}},
+
+  {name:"Benjamin Cho",       age:48,gender:"male",  state:"NJ",address:"75 Plainfield Ave, Edison, NJ 08820",             job:"IT Director",                 employer:"Atlantic Healthcare Systems",     income:152000, marital:"Married",  spouse:"Grace Cho (homemaker)",kids:2,homeowner:true,home_value:620000,mortgage_bal:388000, mortgage_rate:5.8, filing:"MFJ",        credit:779,
+   cards:[{name:"Meridian Travel Card",    bank:"Meridian Credit Union",  bal:5100, lim:18000},{name:"Pacific Points Card",        bank:"Pacific Savings Bank",   bal:2400, lim:12000},{name:"Apex Platinum Rewards",     bank:"Apex Financial",         bal:3800, lim:15000}],
+   auto:{active:true,car:"2021 BMW 3 Series",bal:18600,monthly:528,rate:4.9},student_loan:0,tax:{w2:152000,self_emp:0,spouse_w2:0,refund:0,owed:1780}},
+
+  {name:"Maria Santos",       age:39,gender:"female",state:"CA",address:"2180 Blackstone Ave, Fresno, CA 93703",           job:"Licensed Electrician (Union)",employer:"Central Valley IBEW Local 100",  income:88000,  marital:"Single",   spouse:null,           kids:2,homeowner:true, home_value:295000,  mortgage_bal:228000, mortgage_rate:6.4, filing:"HOH",        credit:722,
+   cards:[{name:"Granite Cash+ Card",      bank:"Granite Bank",           bal:1900, lim:5000},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:720,  lim:3000}],
+   auto:{active:true,car:"2020 Toyota Tacoma",bal:14800,monthly:368,rate:5.7},student_loan:0,tax:{w2:88000,self_emp:0,spouse_w2:0,refund:2800,owed:0}},
+
+  {name:"Daniel Fitzpatrick", age:54,gender:"male",  state:"PA",address:"1601 Market Street Apt 22F, Philadelphia, PA 19103",job:"Operations Director",        employer:"Metro Logistics Corp.",           income:127000, marital:"Divorced", spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:698,
+   cards:[{name:"Pinnacle Preferred Card", bank:"Pinnacle Bank",          bal:4200, lim:12000},{name:"Liberty Everyday Rewards",   bank:"Liberty FCU",            bal:1800, lim:7000}],
+   auto:{active:true,car:"2022 Chevrolet Tahoe",bal:24000,monthly:598,rate:6.8},student_loan:0,tax:{w2:127000,self_emp:0,spouse_w2:0,refund:0,owed:3400}},
+
+  {name:"Zoe Washington",     age:26,gender:"female",state:"VA",address:"820 W. Broad Street, Richmond, VA 23220",          job:"Marketing Coordinator",       employer:"Brightway Creative Group",        income:54000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:681,
+   cards:[{name:"Horizon Cash Rewards",    bank:"Horizon Credit Union",   bal:1100, lim:3500},{name:"Cornerstone Secured Card",   bank:"Cornerstone Bank",       bal:420,  lim:1500}],
+   auto:{active:true,car:"2021 Honda Civic",bal:9600,monthly:248,rate:6.1},student_loan:14800,tax:{w2:54000,self_emp:0,spouse_w2:0,refund:440,owed:0}},
+
+  {name:"Carlos Medina",      age:43,gender:"male",  state:"TX",address:"4402 Blanco Rd, San Antonio, TX 78212",           job:"HVAC Technician (Self-Employed)",employer:"Self-Employed",               income:79000,  marital:"Married",  spouse:"Rosa Medina",  kids:3,homeowner:true, home_value:248000,  mortgage_bal:182000, mortgage_rate:5.9, filing:"MFJ",        credit:703,
+   cards:[{name:"Granite Cash+ Card",      bank:"Granite Bank",           bal:2100, lim:4500},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:880,  lim:3000}],
+   auto:{active:true,car:"2020 Ford F-150",bal:12400,monthly:332,rate:6.5},student_loan:0,tax:{w2:0,self_emp:79000,spouse_w2:38000,refund:0,owed:2100}},
+
+  {name:"Rachel Kim",         age:31,gender:"female",state:"OR",address:"2244 NW Thurman Street, Portland, OR 97210",      job:"Senior Graphic Designer",     employer:"Pacific Brand Studio",            income:76000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:728,
+   cards:[{name:"BlueSky Miles Card",      bank:"BlueSky Bank",           bal:1600, lim:6000},{name:"Apex Platinum Rewards",       bank:"Apex Financial",         bal:940,  lim:4000}],
+   auto:{active:false},student_loan:9400,tax:{w2:76000,self_emp:0,spouse_w2:0,refund:710,owed:0}},
+
+  {name:"Samuel Johnson",     age:67,gender:"male",  state:"FL",address:"1800 Ringling Blvd, Sarasota, FL 34236",          job:"Retired (Former CPA)",        employer:"Retired",                        income:90000,  marital:"Widowed",  spouse:null,           kids:0,homeowner:true, home_value:380000,  mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:818,
+   cards:[{name:"Pacific Points Card",    bank:"Pacific Savings Bank",   bal:560,  lim:8000},{name:"Horizon Cash Rewards",        bank:"Horizon Credit Union",   bal:220,  lim:5000}],
+   auto:{active:false},student_loan:0,tax:{w2:0,self_emp:0,spouse_w2:0,refund:0,owed:2100}},
+
+  {name:"Nadia Shah",         age:35,gender:"female",state:"GA",address:"1140 Ponce de Leon Ave NE, Atlanta, GA 30306",    job:"Pharmacist",                  employer:"Eastside Health Network",        income:126000, marital:"Married",  spouse:"Arjun Shah",   kids:1,homeowner:true, home_value:425000,  mortgage_bal:340000, mortgage_rate:7.0, filing:"MFJ",        credit:762,
+   cards:[{name:"Meridian Travel Card",   bank:"Meridian Credit Union",  bal:3900, lim:14000},{name:"Liberty Everyday Rewards",   bank:"Liberty FCU",            bal:1400, lim:6500}],
+   auto:{active:true,car:"2023 Toyota RAV4",bal:22800,monthly:548,rate:6.3},student_loan:0,tax:{w2:126000,self_emp:0,spouse_w2:82000,refund:0,owed:1420}},
+
+  {name:"Owen Blackwell",     age:29,gender:"male",  state:"TN",address:"620 Church Street, Nashville, TN 37219",          job:"Logistics Coordinator",       employer:"Cumberland Freight Group",        income:61000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:672,
+   cards:[{name:"Summit Cashback Plus",   bank:"Summit Bank",            bal:1200, lim:4000},{name:"Cornerstone Secured Card",    bank:"Cornerstone Bank",       bal:340,  lim:1000}],
+   auto:{active:true,car:"2021 Chevy Colorado",bal:13800,monthly:348,rate:6.7},student_loan:16200,tax:{w2:61000,self_emp:0,spouse_w2:0,refund:290,owed:0}},
+
+  {name:"Fatima Hassan",      age:41,gender:"female",state:"MN",address:"3308 Bryant Ave S, Minneapolis, MN 55408",        job:"Licensed Social Worker",      employer:"Northern County Human Services",  income:68000,  marital:"Married",  spouse:"Ibrahim Hassan",kids:2,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"MFJ",        credit:685,
+   cards:[{name:"Granite Cash+ Card",     bank:"Granite Bank",           bal:1800, lim:4500},{name:"Apex Platinum Rewards",       bank:"Apex Financial",         bal:680,  lim:3000}],
+   auto:{active:true,car:"2019 Honda Odyssey",bal:8600,monthly:268,rate:7.1},student_loan:28400,tax:{w2:68000,self_emp:0,spouse_w2:71000,refund:2640,owed:0}},
+
+  {name:"Patrick O'Brien",    age:52,gender:"male",  state:"MA",address:"180 Boylston Street Apt 8C, Boston, MA 02116",   job:"Operations Manager",          employer:"Eastcoast Distribution Inc.",    income:118000, marital:"Divorced", spouse:null,           kids:0,homeowner:true, home_value:568000,  mortgage_bal:310000, mortgage_rate:6.2, filing:"Single",     credit:714,
+   cards:[{name:"Pinnacle Preferred Card", bank:"Pinnacle Bank",         bal:5800, lim:14000},{name:"Pacific Points Card",        bank:"Pacific Savings Bank",   bal:2100, lim:9000},{name:"BlueSky Miles Card",         bank:"BlueSky Bank",           bal:3400, lim:11000}],
+   auto:{active:true,car:"2022 Audi A4",bal:22600,monthly:580,rate:5.4},student_loan:0,tax:{w2:118000,self_emp:0,spouse_w2:0,refund:0,owed:2600}},
+
+  {name:"Jasmine Carter",     age:23,gender:"female",state:"TX",address:"6800 Main Street Apt 204, Houston, TX 77030",      job:"Marketing Assistant",         employer:"Sunridge Media Partners",        income:44000,  marital:"Single",   spouse:null,           kids:0,homeowner:false,home_value:0,      mortgage_bal:0,      mortgage_rate:0,   filing:"Single",     credit:618,
+   cards:[{name:"Cornerstone Secured Card",bank:"Cornerstone Bank",     bal:390,  lim:1000},{name:"Summit Cashback Plus",        bank:"Summit Bank",            bal:280,  lim:1500}],
+   auto:{active:true,car:"2018 Toyota Corolla",bal:4200,monthly:168,rate:7.4},student_loan:19800,tax:{w2:44000,self_emp:0,spouse_w2:0,refund:1020,owed:0}}
+];
+
 const catColors = {
   "Professional Services":{bg:"#1B4F72",light:"#EDF2FB",text:"#1B4F72"},
   "Technology":{bg:"#0E6655",light:"#E8F8F5",text:"#0E6655"},
@@ -2039,10 +2227,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active', (i===0&&id==='nil')||(i===1&&id==='fbn'));
+    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='consumer'));
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
+  document.getElementById('tab-consumer').classList.toggle('active', id==='consumer');
   if(id==='fbn'){
     const sel=document.getElementById('fbn-ind-filter');
     if(sel.options.length<=1){
@@ -2051,6 +2240,7 @@ function switchTab(id){
     }
     renderFBN();
   }
+  if(id==='consumer') renderConsumers();
 }
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
@@ -2546,6 +2736,135 @@ function renderTransactions(name, category, revMult=1){
   inds.forEach(ind=>{const o=document.createElement('option');o.value=ind;o.textContent=ind;sel.appendChild(o);});
   renderFBN();
 })();
+
+// ── Consumer Personas rendering & modal ───────────────────────────────────
+function scoreClass(s){ return s>=800?'score-exc':s>=740?'score-vgd':s>=670?'score-gd':s>=580?'score-fair':'score-poor'; }
+function scoreLabel(s){ return s>=800?'Exceptional':s>=740?'Very Good':s>=670?'Good':s>=580?'Fair':'Poor'; }
+function scoreColor(s){ return s>=800?'#15803D':s>=740?'#16A34A':s>=670?'#CA8A04':s>=580?'#EA580C':'#DC2626'; }
+function fmtMoney(n){ return n>=1000000?'$'+(n/1000000).toFixed(2).replace(/\.?0+$/,'')+'M':n>=1000?'$'+(n/1000).toFixed(0)+'K':'$'+n; }
+function fmtFull(n){ return '$'+n.toLocaleString(); }
+
+function conRowHTML(c,i){
+  const sc=scoreClass(c.credit);
+  const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return`<div class="con-row" onclick="openConsumerModal('${nameSafe}')">
+    <span class="row-num">${i+1}</span>
+    <span class="cat-dot" style="background:#6366F1"></span>
+    <span class="row-name"><span>${esc(c.name)}</span></span>
+    <span class="con-age">${c.age}</span>
+    <span class="con-score ${sc}">${c.credit} <span style="font-weight:400;font-size:10px">${scoreLabel(c.credit)}</span></span>
+    <span class="con-job">${esc(c.job)}</span>
+    <span class="row-state">${esc(c.state)}</span>
+  </div>`;
+}
+
+function renderConsumers(){
+  const q=(document.getElementById('con-search').value||'').toLowerCase().trim();
+  const stateF=document.getElementById('con-state-filter').value;
+  const filtered=consumerData.filter(c=>{
+    if(stateF && c.state!==stateF) return false;
+    if(q){
+      const blob=(c.name+' '+c.job+' '+c.employer+' '+c.state+' '+c.filing+' '+c.marital).toLowerCase();
+      if(!blob.includes(q)) return false;
+    }
+    return true;
+  });
+  document.getElementById('con-list').innerHTML=filtered.length
+    ?filtered.map((c,i)=>conRowHTML(c,i)).join('')
+    :'<div style="text-align:center;color:#9CA3AF;padding:40px">No results found.</div>';
+  document.getElementById('con-count').textContent=filtered.length+' of '+consumerData.length+' consumer personas';
+}
+
+function openConsumerModal(name){
+  const c=consumerData.find(x=>x.name===name);
+  if(!c) return;
+  const color=scoreColor(c.credit);
+  // Header
+  document.getElementById('cm-name').textContent=c.name;
+  document.getElementById('cm-sub').textContent=c.job+' · '+c.employer+' · '+c.state;
+  // Score badge
+  document.getElementById('cm-score-wrap').innerHTML=`
+    <div class="score-badge" style="background:${color}15;border:3px solid ${color}">
+      <span style="font-size:22px;font-weight:900;color:${color}">${c.credit}</span>
+      <span style="font-size:10px;font-weight:700;color:${color}">${scoreLabel(c.credit)}</span>
+    </div>
+    <div style="font-size:10px;color:#9CA3AF;margin-top:4px">Credit Score</div>`;
+  // Personal info
+  const kids=c.kids===0?'None':c.kids===1?'1 child':c.kids+' children';
+  const homeStr=c.homeowner?'Yes — '+fmtFull(c.home_value):'Renter';
+  const spouseStr=c.spouse?c.spouse:'—';
+  document.getElementById('cm-personal').innerHTML=`
+    <div class="contact-field"><span class="contact-label">Address</span><span class="contact-value">${esc(c.address)}</span></div>
+    <div class="contact-field"><span class="contact-label">Age</span><span class="contact-value">${c.age}</span></div>
+    <div class="contact-field"><span class="contact-label">Annual Income</span><span class="contact-value" style="font-weight:700;color:#1B4F72">${fmtFull(c.income)}</span></div>
+    <div class="contact-field"><span class="contact-label">Marital Status</span><span class="contact-value">${c.marital}</span></div>
+    <div class="contact-field"><span class="contact-label">Spouse / Partner</span><span class="contact-value">${esc(spouseStr)}</span></div>
+    <div class="contact-field"><span class="contact-label">Children</span><span class="contact-value">${kids}</span></div>
+    <div class="contact-field"><span class="contact-label">Homeowner</span><span class="contact-value">${homeStr}</span></div>`;
+  // Tax profile
+  const totalIncome=c.tax.w2+c.tax.self_emp+c.tax.spouse_w2;
+  const refundOrOwe=c.tax.refund>0
+    ?`<div class="tax-card-value green">+${fmtFull(c.tax.refund)}</div><div style="font-size:10px;color:#15803D;margin-top:2px">Est. Refund</div>`
+    :`<div class="tax-card-value red">-${fmtFull(c.tax.owed)}</div><div style="font-size:10px;color:#DC2626;margin-top:2px">Est. Owed</div>`;
+  const incomeSources=c.tax.self_emp>0?'Self-Employment Income':c.tax.w2>0?'W-2 Wages':'Retirement / Other';
+  document.getElementById('cm-tax').innerHTML=`
+    <div class="tax-grid">
+      <div class="tax-card"><div class="tax-card-label">Filing Status</div><div class="tax-card-value" style="font-size:16px">${esc(c.filing)}</div></div>
+      <div class="tax-card"><div class="tax-card-label">Total Income</div><div class="tax-card-value">${fmtFull(totalIncome)}</div></div>
+      <div class="tax-card"><div class="tax-card-label">Tax Outcome</div>${refundOrOwe}</div>
+      <div class="tax-card"><div class="tax-card-label">Primary Income Type</div><div class="tax-card-value" style="font-size:14px">${incomeSources}</div></div>
+      ${c.tax.spouse_w2>0?`<div class="tax-card"><div class="tax-card-label">Spouse Income</div><div class="tax-card-value">${fmtFull(c.tax.spouse_w2)}</div></div>`:''}
+      ${c.tax.self_emp>0?`<div class="tax-card"><div class="tax-card-label">Self-Emp. Income</div><div class="tax-card-value">${fmtFull(c.tax.self_emp)}</div></div>`:''}
+    </div>`;
+  // Credit cards
+  document.getElementById('cm-cards').innerHTML=c.cards.map(card=>{
+    const util=Math.round(card.bal/card.lim*100);
+    const barColor=util<30?'#22C55E':util<50?'#EAB308':'#EF4444';
+    return`<div class="cc-item">
+      <div style="flex:1">
+        <div class="cc-name">${esc(card.name)}</div>
+        <div class="cc-bank">${esc(card.bank)}</div>
+      </div>
+      <div class="cc-bar-wrap">
+        <div class="cc-bar-bg"><div class="cc-bar-fill" style="width:${util}%;background:${barColor}"></div></div>
+        <div class="cc-util">${util}% utilization</div>
+      </div>
+      <div class="cc-amt">${fmtFull(card.bal)} / ${fmtFull(card.lim)}</div>
+    </div>`;
+  }).join('');
+  // Loans
+  let loansHTML='';
+  if(c.homeowner && c.mortgage_bal>0){
+    loansHTML+=`<div class="loan-item">
+      <div><div class="loan-label">Mortgage</div><div class="loan-detail">Rate: ${c.mortgage_rate}% — Est. Monthly: ${fmtFull(Math.round(c.mortgage_bal*c.mortgage_rate/100/12+200))}</div></div>
+      <div class="loan-bal">${fmtFull(c.mortgage_bal)}</div></div>`;
+  } else if(c.homeowner){
+    loansHTML+=`<div class="loan-item"><div><div class="loan-label">Mortgage</div><div class="loan-detail">Paid off</div></div><div class="loan-bal" style="color:#15803D">$0</div></div>`;
+  }
+  if(c.auto.active){
+    loansHTML+=`<div class="loan-item">
+      <div><div class="loan-label">Auto Loan — ${esc(c.auto.car)}</div><div class="loan-detail">Rate: ${c.auto.rate}% — Monthly: ${fmtFull(c.auto.monthly)}</div></div>
+      <div class="loan-bal">${fmtFull(c.auto.bal)}</div></div>`;
+  }
+  if(c.student_loan>0){
+    loansHTML+=`<div class="loan-item">
+      <div><div class="loan-label">Student Loan</div><div class="loan-detail">Federal / Private — income-based repayment</div></div>
+      <div class="loan-bal">${fmtFull(c.student_loan)}</div></div>`;
+  }
+  if(!loansHTML) loansHTML='<div style="color:#9CA3AF;font-size:13px;padding:10px 0">No outstanding loans.</div>';
+  document.getElementById('cm-loans').innerHTML=loansHTML;
+  document.getElementById('consumer-modal').classList.add('open');
+}
+
+function closeConsumerModal(){ document.getElementById('consumer-modal').classList.remove('open'); }
+
+// Init consumer tab
+(function initConsumer(){
+  const states=[...new Set(consumerData.map(c=>c.state))].sort();
+  const sel=document.getElementById('con-state-filter');
+  states.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
+})();
+
 </script>
 </body>
 </html>
