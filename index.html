@@ -1843,10 +1843,10 @@ function rowHTML(c,i){
     <span class="row-num">${i+1}</span>
     <span class="cat-dot" style="background:${col.bg}"></span>
     <span class="row-name">${esc(c.name)}</span>
+    ${reviewBadge}
     <span class="row-owner">${esc(c.owner)}</span>
     <span class="row-cat" style="background:${col.light};color:${col.text}">${esc(c.category)}</span>
     <span class="row-type">${esc(c.type)}</span>
-    ${reviewBadge}
     <span class="row-state">${esc(stateCode)}</span>
   </div>`;
 }
