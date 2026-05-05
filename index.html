@@ -2028,7 +2028,6 @@ function renderList(){
   const sel=document.getElementById('catFilter');
   cats.forEach(cat=>{const o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);});
   renderList();
-  renderFBN();
 })();
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
@@ -2110,6 +2109,9 @@ function renderFBN(){
   document.getElementById('fbn-list').innerHTML=filtered.map((f,i)=>fbnRowHTML(f,i)).join('');
   document.getElementById('fbn-count').textContent=filtered.length+' of '+approvedFBN.length+' approved names';
 }
+
+// Run FBN render after all data is declared
+renderFBN();
 </script>
 </body>
 </html>
