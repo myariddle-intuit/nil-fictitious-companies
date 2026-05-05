@@ -59,6 +59,18 @@
   .btn-close2{ background:#F3F4F6; color:#374151; }
   .modal-actions button:hover{ opacity:.85; }
   .no-results{ text-align:center; padding:60px 20px; color:#9CA3AF; font-size:14px; }
+  /* ── Transactions ── */
+  .tx-section{ margin-top:24px; }
+  .tx-heading{ font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#9CA3AF; margin-bottom:10px; }
+  .tx-table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .tx-table th{ text-align:left; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#9CA3AF; padding:4px 10px 6px; border-bottom:2px solid #E5E7EB; }
+  .tx-table td{ padding:9px 10px; border-bottom:1px solid #F3F4F6; color:#374151; vertical-align:top; }
+  .tx-table tr:last-child td{ border-bottom:none; }
+  .tx-table tr:hover td{ background:#F9FAFB; }
+  .tx-vendor{ font-weight:600; color:#1A1A2E; }
+  .tx-amount{ font-weight:700; color:#0F3460; text-align:right; white-space:nowrap; }
+  .tx-date{ color:#9CA3AF; white-space:nowrap; }
+  .tx-desc{ color:#6B7280; }
   /* ── Tabs ── */
   .tabs{ background:var(--dark); padding:0 40px; display:flex; gap:0; border-top:1px solid rgba(255,255,255,.1); }
   .tab{ padding:12px 22px; font-size:13px; font-weight:600; color:rgba(255,255,255,.55); cursor:pointer; border-bottom:3px solid transparent; transition:all .15s; white-space:nowrap; }
@@ -154,7 +166,14 @@
       <div class="logo-wrap"><div class="logo-label">Horizontal</div><div id="m-hlogo"></div></div>
       <div class="logo-wrap"><div class="logo-label">Vertical</div><div id="m-vlogo"></div></div>
     </div>
-    <div class="modal-actions">
+    <div class="tx-section">
+      <div class="tx-heading">Recent Transactions</div>
+      <table class="tx-table">
+        <thead><tr><th>Date</th><th>Vendor</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody id="m-tx"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions" style="margin-top:20px">
       <button class="btn-dl-h" onclick="dlModal('h')">&#8595; Download Horizontal</button>
       <button class="btn-dl-v" onclick="dlModal('v')">&#8595; Download Vertical</button>
       <button class="btn-close2" onclick="closeModal()">Close</button>
@@ -1783,6 +1802,7 @@ function openModal(name){
   document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
   document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
+  renderTransactions(c.name, c.category);
   document.getElementById('modal').classList.add('open');
 }
 
@@ -2101,6 +2121,7 @@ function openFBNModal(name){
     <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>`;
   document.getElementById('m-hlogo').innerHTML='';
   document.getElementById('m-vlogo').innerHTML='';
+  renderTransactions(f.name, f.industry);
   document.getElementById('modal').classList.add('open');
 }
 
@@ -2135,6 +2156,217 @@ function renderFBN(){
     ? filtered.map((f,i)=>fbnRowHTML(f,i)).join('')
     : '<div class="no-results">No results found. Try different keywords.</div>';
   document.getElementById('fbn-count').textContent=label;
+}
+
+// Run FBN render after all data is declared — also populate industry dropdown
+(function initFBN(){
+  const inds=[...new Set(approvedFBN.map(f=>f.industry))].sort();
+  const sel=document.getElementById('fbn-ind-filter');
+  inds.forEach(ind=>{const o=document.createElement('option');o.value=ind;o.textContent=ind;sel.appendChild(o);});
+  renderFBN();
+})();
+
+// ── Transaction Generator ──────────────────────────────────────────────────
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return Math.abs(h);}
+function seededRNG(seed){
+  return function(){
+    seed=seed+0x6D2B79F5|0;
+    let t=Math.imul(seed^seed>>>15,1|seed);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+const TX={
+  'Construction':{
+    vendors:['Atlas Building Supply','Pioneer Equipment Rental','CityWide Concrete','Summit Steel Fabricators','Western Electrical Supply','ProSafety Gear Co.','Pacific Lumber Co.','AquaPlumb Wholesale','TerraGrade Excavation','Beacon Scaffolding','Ironclad Tool Rentals','National Permit Services','Apex Paint & Coatings','Sierra Masonry Supply','Delta Roofing Materials'],
+    items:['Framing lumber & plywood','Excavator rental — 2 weeks','Ready-mix concrete delivery','Structural steel beams','Electrical conduit & wiring','Safety harnesses & helmets','Dimensional lumber order','PVC pipe & fittings','Site grading & prep work','Scaffold rental — monthly','Power tool rental package','Building permit processing fee','Interior & exterior paint','Brick & mortar materials','Roofing shingles & underlayment'],
+    min:350,max:18000
+  },
+  'Construction-Entities':{
+    vendors:['Horizon Subcontractors LLC','Atlas Building Supply','BondSecure Insurance','TerraGrade Excavation','Pioneer Equipment Rental','National Permit Services','Summit Steel Fabricators','Apex Engineering Consultants','CityWide Concrete','ProSafety Gear Co.','Pacific Lumber Co.','Delta Roofing Materials','Ironclad Tool Rentals','Beacon Scaffolding','Western Electrical Supply'],
+    items:['Subcontractor labor agreement','Structural materials order','General liability insurance','Site preparation & grading','Heavy equipment rental','Permit & inspection fees','Steel beam fabrication','Engineering review services','Concrete pour — foundation','PPE & jobsite safety kit','Lumber & framing package','Roofing materials order','Tool & equipment rental','Scaffolding — monthly lease','Electrical rough-in materials'],
+    min:500,max:25000
+  },
+  'Technology':{
+    vendors:['CloudScale Hosting','DevTools Pro','SecureLayer Inc.','Orbital SaaS Solutions','TechHardware Direct','NetStream Connectivity','DataVault Backup Co.','Agile Studio Licenses','Patchwork Security','Bandwidth Plus','CodeDeploy Platform','UX Research Tools Inc.','TeamCollab Suite','Infra Monitor Co.','API Gateway Services'],
+    items:['Cloud server hosting — monthly','Developer IDE license renewal','Endpoint security suite','SaaS project management license','Workstation hardware upgrade','Business fiber internet','Offsite backup & DR service','Design & prototyping tool license','Penetration testing service','Additional bandwidth package','CI/CD pipeline subscription','User research platform','Team communication suite','Infrastructure monitoring tool','API management platform'],
+    min:80,max:8500
+  },
+  'Healthcare':{
+    vendors:['MedSupply Direct','PharmSource Wholesale','ClinicalTech Equipment','BioClean Sterilization','PatientFlow Software','LabCore Diagnostics','MedLinen Services','PracticeGuard Insurance','Wellness Equipment Co.','HealthDocs EHR Systems','AidKit First Responder Supply','Compliance Training Pro','Patient Comfort Goods','Sterile Solutions Inc.','Clinical Furniture Co.'],
+    items:['Disposable medical supplies','Pharmaceutical restocking order','Autoclave & sterilizer service','Biohazard disposal & sanitation','Practice management software','Lab test reagents & kits','Patient gown & linen service','Malpractice insurance premium','Exam table & equipment','EHR system license renewal','First aid & emergency kit restock','HIPAA compliance training','Patient waiting area supplies','Sterile gloves & drapes — bulk','Exam room furniture replacement'],
+    min:120,max:12000
+  },
+  'Food & Beverage':{
+    vendors:['FreshSource Food Distributors','KitchenPro Equipment','PackRight Packaging','ColdChain Refrigeration','POS Systems Plus','BrewSupply Wholesale','CleanSweep Commercial','Linen & Uniform Co.','FarmFresh Produce Direct','BevDistrib Wholesale','FireSafe Hood Service','GrillMaster Parts & Repair','NutriLabel Compliance','CulinaryWare Direct','PestGuard Commercial'],
+    items:['Weekly produce & dry goods order','Commercial oven & range service','Custom packaging & containers','Walk-in cooler maintenance','POS system & payment processing','Ingredient & supplies restocking','Commercial kitchen cleaning','Staff aprons & uniforms','Local farm produce delivery','Beverage distributor order','Hood & exhaust cleaning service','Grill repair & replacement parts','Nutritional labeling service','Cookware & kitchen utensils','Quarterly pest control service'],
+    min:150,max:9500
+  },
+  'Financial Services':{
+    vendors:['ComplianceCore Software','MarketData Feeds Inc.','SecureDoc Filing','LexisNexis Financial','Office Essentials Pro','WealthTech Platform','AuditReady Solutions','InsureTrust Commercial','FinPrint Analytics','Bloomberg Terminal Co.','DocuSeal E-Sign','ClearCash Payment Processing','RegWatch Monitoring','TaxPrep Software Inc.','FinAdvisor CRM Systems'],
+    items:['Regulatory compliance software','Real-time market data feed','SEC & FINRA filing services','Legal & compliance research tool','Office supplies & stationery','Portfolio management platform','Audit preparation software','E&O insurance premium','Financial analytics dashboard','Data terminal subscription','E-signature & document service','Payment processing fees','Regulatory change monitoring','Tax preparation software','Client relationship management system'],
+    min:200,max:14000
+  },
+  'Accounting Firm':{
+    vendors:['TaxEngine Pro','AuditWorks Software','DocuStore Filing','CPE Training Institute','Compliance Central','LexisNexis Tax','SecurePaper Shredding','PracticeFlow CRM','Cloud Accounting Suite','E-File Services Inc.','InsurePro Liability','Office Depot Business','NetVault Secure Backup','ClientPortal Software','Payroll Bridge Systems'],
+    items:['Tax preparation software license','Audit management platform','Document storage & filing system','Continuing education credits','Regulatory compliance update','Tax law research database','Secure document shredding','Client management system','Cloud accounting suite renewal','Electronic filing services','Professional liability insurance','Office supplies & printer toner','Secure offsite data backup','Client portal & collaboration tool','Payroll processing integration'],
+    min:150,max:7500
+  },
+  'Retail & Product':{
+    vendors:['InventoryHub Wholesale','ShelfRight Fixtures','PackSource Packaging','ShipFast Logistics','PointOfSale Pro','LabelMaker Direct','StoragePro Racking','CleanSpace Commercial','SecurityNet Systems','EcommPlatform Inc.','DisplayCraft Fixtures','BrandPrint Marketing','RetailInsure Co.','MerchTech Inventory','CarrierConnect Shipping'],
+    items:['Merchandise inventory restock','Shelving & display fixtures','Product packaging & bags','Shipping & fulfillment services','POS terminal & software','Custom price & product labels','Warehouse racking system','Store cleaning services','Loss prevention & security system','E-commerce platform subscription','Window & floor display installation','In-store marketing & signage','Business insurance premium','Inventory management software','Carrier shipping contract'],
+    min:100,max:11000
+  },
+  'Retail - Brick & Mortar':{
+    vendors:['InventoryHub Wholesale','StoreFront Fixtures','ShipFast Logistics','PointOfSale Pro','CleanSpace Commercial','SecurityNet Systems','DisplayCraft Fixtures','BrandPrint Marketing','RetailInsure Co.','SignageWorks Co.','PackSource Packaging','MerchTech Inventory','LightingDirect Commercial','FlooringPro Commercial','HVAC ServiceCo'],
+    items:['Seasonal merchandise restocking','Store fixtures & display refresh','Freight & delivery services','POS system maintenance','Commercial cleaning service','Alarm & camera system','In-store display installation','Window signage & banners','General liability insurance','Custom storefront signage','Shopping bags & packaging','Inventory management system','Commercial lighting upgrade','Floor refinishing service','HVAC quarterly maintenance'],
+    min:150,max:9000
+  },
+  'Professional Services':{
+    vendors:['OfficeSupply Pro','DocuSign Business','Zoom Business Suite','LexisNexis Research','CRM Platform Inc.','TravelDesk Corporate','InsurePro Business','PrintShop Direct','CloudDrive Secure','ComplianceTrack Pro','HR Payroll Solutions','MarketReach Agency','ContinuityPlan DR','AccountingLink Software','AnswerDesk Support'],
+    items:['Office supplies & equipment','E-signature platform license','Video conferencing suite','Legal research database access','CRM system subscription','Corporate travel booking','Business liability insurance','Business card & stationery printing','Secure cloud file storage','Compliance tracking software','Payroll processing service','Marketing & outreach campaign','Business continuity planning','Accounting software license','Client support desk service'],
+    min:100,max:6500
+  },
+  'Legal Services':{
+    vendors:['Westlaw Legal Research','LexisNexis Pro','CourtFiling Direct','DocuStore Archival','BarAssociation Dues','PracticeManage Pro','eDiscovery Solutions','InsurePro Legal','SecureScan Document','ClientPortal Legal','LegalPrint Services','CLE Training Institute','TranscriptPro Court','CaseMgmt Software','MeetingLink Secure'],
+    items:['Westlaw legal research subscription','LexisNexis case law access','Court filing & docket fees','Case file archival & storage','State bar association dues','Practice management software','eDiscovery platform license','Professional liability insurance','Document scanning & digitization','Secure client portal license','Brief printing & binding','CLE continuing education credits','Court reporter & transcript fees','Case management system','Secure video conferencing'],
+    min:200,max:8000
+  },
+  'Education':{
+    vendors:['CurriculumDirect','EduTech Platforms','ClassroomSupply Co.','SafeLearn LMS','PrintEd Solutions','AV Equipment Direct','LibrarySource Books','GrantWrite Pro','StudentInfo SIS','CleanCampus Janitorial','SafetyFirst Training','SnackSource Catering','SportEquip Wholesale','AccreditAssist Pro','TeachTech Devices'],
+    items:['Curriculum materials & workbooks','Learning management system license','Classroom supplies & art materials','Student safety & compliance software','Printing & copying services','Projector & audio-visual equipment','Library books & subscriptions','Grant writing & research services','Student information system','Campus cleaning services','Staff safety & CPR training','Cafeteria & snack supplies','Physical education equipment','Accreditation consulting services','Student tablets & devices'],
+    min:100,max:7500
+  },
+  'Photography & Creative Media':{
+    vendors:['LensSource Equipment','AdobeCreative Suite','PrintLab Pro','PropHouse Rentals','StudioGear Direct','ColorLab Processing','BackdropWorld','InsureArt Creative','CloudGallery Platform','EventStaff Agency','LightRight Equipment','SoundByte Audio','VideoRig Rentals','PackShip Fragile','BrandPress Printing'],
+    items:['Camera & lens rental','Adobe Creative Cloud renewal','Large-format print order','Set & prop rental','Studio lighting equipment','Photo lab processing & prints','Background & backdrop set','Equipment insurance premium','Online portfolio platform','Second shooter & assistant','Continuous lighting kit','Audio recording equipment','Video rig & gimbal rental','Fragile shipping & crating','Branding & promotional print'],
+    min:80,max:5500
+  },
+  'Arts & Galleries':{
+    vendors:['ArtFrame Supply Co.','GalleryTech AV','ShipArt Crated','InsureArt Valuations','MountPro Installation','LightRight Gallery','PrintHouse Fine Art','ArtistSupply Wholesale','DigitalCatalog Pro','EventDrape & Linen','SecurityNet Galleries','ClimateControl Pro','ArtPress Marketing','CurateSoft Platform','TravelArt Logistics'],
+    items:['Custom framing & matting','Gallery audio-visual system','Crated artwork shipping','Fine art insurance valuation','Artwork installation service','Track lighting & spotlights','Fine art print reproduction','Artist supplies — bulk restock','Digital catalog software','Event linen & draping rental','Gallery security system','Climate control maintenance','Exhibition marketing materials','Collection management software','Art fair transport & logistics'],
+    min:150,max:7000
+  },
+  'Automotive':{
+    vendors:['AutoParts Direct','ToolShop Equipment','LiftRight Hydraulics','SafetyGear Auto','DetailSupply Pro','DiagnosticTech Systems','LubricantSource Wholesale','TireTrack Wholesale','OEM Parts Network','CleanShop Commercial','UniformWorks Auto','WarrantyTrack Software','InsureGarage Commercial','SignShop Auto','TrainingPro Auto Tech'],
+    items:['OEM & aftermarket parts order','Professional hand tool set','Hydraulic lift maintenance','Shop safety gear & PPE','Detail supplies & chemicals','Diagnostic scanner software update','Motor oil & lubricant restock','Tire inventory restock','Manufacturer parts order','Shop floor cleaning service','Technician uniforms','Service warranty tracking software','Garage liability insurance','Bay signage & pricing display','ASE tech training program'],
+    min:200,max:13000
+  },
+  'Home Services':{
+    vendors:['ProSupply Hardware','ToolRent Direct','SafetyFirst Supply','CleanAgent Wholesale','VehicleWrap Graphics','ScheduleTech Software','InsureField Commercial','UniformBrands Co.','PlumbParts Wholesale','ElecSupply Direct','HVACparts Wholesale','PaintDirect Pro','LawnGear Wholesale','PermitAssist Pro','CustomerDesk CRM'],
+    items:['Hardware & fasteners restock','Power tool rental — weekly','Crew safety gear & PPE','Cleaning solutions — bulk order','Service van wrap & branding','Field scheduling & dispatch software','General liability insurance','Branded crew uniforms','Plumbing parts & fixtures','Electrical supplies & wire','HVAC parts & refrigerant','Paint & primer — bulk','Lawn & landscaping equipment','Permit processing assistance','Customer management system'],
+    min:100,max:6500
+  },
+  'Beauty & Wellness':{
+    vendors:['BeatySupply Pro','SpaEquip Direct','CleanScene Salon','SalonSoft Booking','LabelPrint Beauty','InsureSalon Commercial','TowelSource Linen','AromaSource Wholesale','RetailDisplay Co.','WellnessMedia Marketing','SafetyFirst Salon','EducateBeauty Training','PackageIt Beauty','MusicStream Salon','GiftCard Platform'],
+    items:['Professional salon product restock','Spa equipment & tool upgrade','Commercial cleaning & sanitation','Appointment booking software','Custom retail product labeling','Salon liability insurance','Towels & linen service','Essential oils & aromatherapy restock','Retail display shelving','Social media marketing service','OSHA & sanitation compliance kit','Staff product knowledge training','Custom gift packaging','In-salon music streaming license','Digital gift card system'],
+    min:80,max:4500
+  },
+  'Fitness & Recreation':{
+    vendors:['GymEquip Direct','FloorPro Fitness','MemberSoft Platform','CleanFit Supply','SupplementSource Wholesale','AudioFit Systems','InsureFit Commercial','UniformFit Apparel','RepairTech Equipment','DigitalFit Marketing','TowelService Gym','SafetyMat Supply','NutriVend Machines','TrainCert Fitness','WaiverPro Legal'],
+    items:['Cardio & strength equipment','Rubber flooring & mat replacement','Member management software','Gym cleaning & disinfectant supplies','Supplement & merchandise restock','Sound system & speaker service','Fitness facility insurance','Staff & trainer uniforms','Equipment repair & maintenance','Digital marketing campaign','Towel & linen laundry service','Safety padding & mat supply','Vending machine restocking','Personal trainer certification','Digital waiver & liability system'],
+    min:100,max:9000
+  },
+  'Landscaping':{
+    vendors:['GreenSource Nursery','EquipRent Outdoor','FuelDirect Fleet','IrrigationPro Supply','SafetyGear Outdoor','SoilAmend Wholesale','TreeCare Equipment','LawnChemical Pro','UniformWorks Landscape','ScheduleField Software','InsureLandscape Co.','SignWorks Landscape','TruckMaint Fleet','MulchDirect Wholesale','ClipperBlade Service'],
+    items:['Seasonal plants & sod delivery','Mower & equipment rental','Fleet fuel — monthly','Irrigation parts & drip lines','Crew PPE & safety gear','Topsoil, compost & mulch delivery','Tree trimming equipment service','Fertilizer & herbicide restock','Crew uniforms & hats','Job scheduling & routing software','General liability insurance','Vehicle & trailer signage','Fleet maintenance & oil change','Bulk mulch order','Blade sharpening & equipment service'],
+    min:150,max:7500
+  },
+  'Real Estate':{
+    vendors:['ListingPro MLS','SignShop Realty','StageRight Staging','PhotoPro Real Estate','DocuSign Real Estate','InsureRealty E&O','PrintHouse Marketing','CRMFlow Real Estate','OpenHouse Digital','TitleSource Partners','CleanProp Commercial','ShowingTime Software','AdReach Real Estate','LockBox Systems','ComplianceTrack RE'],
+    items:['MLS listing & portal subscription','For-sale & directional signage','Home staging rental service','Professional property photography','Electronic signature platform','Errors & omissions insurance','Property brochures & flyers','Real estate CRM subscription','Virtual tour & open house tools','Title search & escrow service','Property cleaning & prep','Showing scheduling software','Digital advertising campaign','Electronic lockbox system','Transaction compliance software'],
+    min:100,max:6000
+  },
+  'Nonprofit / Social Services':{
+    vendors:['MissionPrint Co.','DonorFlow CRM','GrantTrack Pro','EventHire Staffing','OfficeGive Supply','CleanCare Janitorial','SafetyFirst Nonprofit','MediaReach PR','TransportAssist Fleet','FoodBank Direct','VolunteerBridge Platform','AccreditAssist Nonprofit','PrintGood Marketing','TechBridge IT Services','InsureNonprofit Co.'],
+    items:['Program flyers & awareness materials','Donor management system','Grant tracking & reporting software','Event volunteer & staff services','Office supplies & stationery','Facility cleaning service','Staff & volunteer safety training','Media outreach & PR campaign','Client transportation services','Food pantry restocking','Volunteer coordination platform','Accreditation & compliance review','Annual report printing','IT support & device maintenance','Nonprofit liability insurance'],
+    min:50,max:4500
+  },
+  'Childcare & Family Services':{
+    vendors:['SafeKids Supply','LearningTree Curriculum','NutriKids Catering','CleanSafe Janitorial','ChildSafe Security','PlayEquip Direct','InsureChildcare Co.','FirstAid Training Pro','StaffCerts Childcare','FamilyPortal Software','ToySource Wholesale','SleepSafe Furniture','HealthScreen Services','ActivityPrint Arts','TransportSafe Fleet'],
+    items:['Child-safe cleaning & sanitation','Age-appropriate curriculum materials','Nutritious meal & snack catering','Daily facility deep clean','Keypad entry & camera system','Outdoor play equipment','Childcare liability insurance','Staff CPR & first aid training','Staff background check services','Parent communication app license','Educational toys & games restock','Nap cots & rest furniture','Child health screening services','Art & activity supply kits','Safe passenger transport service'],
+    min:80,max:5000
+  },
+  'Agriculture & Farming':{
+    vendors:['AgriSeed Direct','FarmEquip Rentals','SoilTest Labs','IrrigaTech Systems','AgroChem Supply','HarvestHaul Logistics','FencePost Materials','GrainStore Solutions','FuelFarm Direct','LivestockSupply Co.','CropInsure Ag','FarmSoft Management','VetCare Mobile','NutriSoil Amendments','PackFarm Wholesale'],
+    items:['Seasonal seed & plant stock','Tractor & equipment rental','Soil testing & analysis','Drip irrigation system parts','Fertilizer & pesticide restock','Harvest transport & logistics','Fencing materials & posts','Grain bin rental & storage','Fleet fuel — farm vehicles','Livestock feed & supplies','Crop insurance premium','Farm management software','Mobile vet & herd health visit','Compost & soil amendment delivery','Produce packaging & crates'],
+    min:200,max:16000
+  },
+  'Pet Services':{
+    vendors:['PetSupply Wholesale','GroomEquip Direct','VetMed Supplies','CleanPaws Sanitation','PetSoft Booking','SafetyFirst Kennel','NutriPet Food Dist.','PetFurnish Direct','InsurePet Commercial','TrainCert Canine','AquaClean Tank Supply','PetMedia Marketing','WasteDispose Pro','Bedding & Linen Pets','AppointTrack Software'],
+    items:['Grooming tools & supplies restock','Grooming table & dryer service','Veterinary & pharmaceutical supplies','Facility sanitation & disinfectant','Pet grooming appointment software','Kennel safety & containment systems','Premium pet food & treats','Kennels, crates & bedding','Pet business liability insurance','Staff grooming certification','Aquarium & tank cleaning supplies','Social media marketing service','Pet waste disposal service','Bedding & towel laundry service','Appointment & scheduling system'],
+    min:80,max:4500
+  },
+  'Entertainment & Events':{
+    vendors:['StageCraft Rentals','AVPro Event Tech','EventLinen Direct','TalentBridge Agency','TicketFlow Platform','PrintEvent Marketing','CateringLink Co.','PermitPro Events','SecurityStaff Pro','TransportVIP Fleet','SoundWave Audio','LightShow Systems','FenceGuard Events','CleanUp Crew Co.','EventInsure Commercial'],
+    items:['Stage, tent & furniture rental','Audio-visual & screen rental','Event linen & table décor','Talent booking & management fee','Ticketing & registration platform','Event program printing','Event catering contract deposit','Event permit & licensing fee','Private security staffing','Guest shuttle & transport','Sound system & PA rental','Uplighting & lighting design','Crowd control fencing','Post-event cleanup crew','Event liability insurance'],
+    min:300,max:22000
+  },
+  'Video Production & Media':{
+    vendors:['CineGear Rentals','AdobePremiere Suite','ColorGrade Pro','SoundByte Audio','StudioSpace Rental','ScriptVault Platform','TalentCall Agency','DriveBackup Media','DeliveryPipe CDN','InsureProduction Co.','PropHouse Cinema','CaptionSync Services','MusicLicense Direct','DroneOps Aerial','PostHouse Edit Suite'],
+    items:['Camera & cinema lens rental','Video editing software license','Color correction & grading suite','Audio recording & sound design','Studio space rental — daily','Script & asset management platform','On-camera talent booking','Redundant media drive storage','Video CDN & streaming delivery','Production insurance policy','Props & set design rental','Closed caption & subtitle service','Music licensing for video','Licensed drone operation','Post-production editing suite'],
+    min:200,max:18000
+  },
+  'Transportation & Logistics':{
+    vendors:['FleetFuel Direct','VehicleMaint Pro','InsureFleet Commercial','DispatchTech Software','DOT Compliance Pro','TireTrack Wholesale','FreightBroker Link','WareSpace Logistics','GPSFleet Tracking','DriverCert Training','CargoSecure Straps','WeighStation Pro','UniformFleet Apparel','LoadBoard Platform','CleanFleet Wash'],
+    items:['Fleet fuel — monthly contract','Preventive vehicle maintenance','Commercial fleet insurance','Dispatch & route optimization software','DOT compliance & filing service','Fleet tire rotation & replacement','Freight brokerage fees','Warehouse storage rental','GPS fleet tracking subscription','Driver CDL certification & training','Cargo straps & load securing','Weigh station compliance service','Driver uniform & safety gear','Load board subscription','Fleet wash & detailing service'],
+    min:300,max:20000
+  },
+  'Hospitality & Travel':{
+    vendors:['LinenSource Commercial','FoodDistrib Hotel','MaintenancePro Hospitality','PMSystems Hotel','ReviewBoost Platform','CleanMaster Commercial','GuestAmenity Direct','EventStaff Agency','LaundryLink Service','InsureHotel Commercial','TechDesk IT Support','BookingEngine Pro','EnergyAudit Systems','FurnishPro Hotel','GuestWifi Solutions'],
+    items:['Hotel linen & towel restock','Food & beverage distributor order','HVAC & plumbing maintenance','Property management system license','Guest review management platform','Deep cleaning & sanitation service','In-room guest amenity restock','Banquet & event staffing','Commercial laundry service','Hospitality liability insurance','IT support & network maintenance','Online booking engine subscription','Energy efficiency audit','Lobby & room furniture refresh','Guest wi-fi infrastructure'],
+    min:200,max:14000
+  },
+  'Marketing & Comms':{
+    vendors:['AdReach Digital','PrintHouse Creative','HubSpot CRM Suite','StockPhoto Pro','CopyDesk Freelance','VideoProd Studio','MailStream Email','SurveyLink Research','BrandPress Print','InsurePro Media','SocialMonitor Pro','SEOtool Platform','MediaBuy Agency','EventKit Promo','DesignCloud Tools'],
+    items:['Digital ad campaign — quarterly','Brochure & collateral printing','CRM & marketing automation license','Stock photography subscription','Freelance copywriting services','Video production retainer','Email marketing platform','Market research & survey tool','Brand standards printing','Media liability insurance','Social media monitoring tool','SEO & keyword tracking platform','Paid media placement','Promotional event materials kit','Design software subscription'],
+    min:150,max:9500
+  },
+  'Arts & Creative':{
+    vendors:['ArtSupply Wholesale','PrintLab Fine Art','FrameCraft Custom','AdobeCreative Suite','GalleryPro Platform','InsureArt Commercial','PropHouse Rentals','EventDisplay Co.','ShipArt Crated','ColorLab Processing','CraftEquip Direct','TechBridge IT Creative','BrandPrint Marketing','ArtistPay Platform','ClimateStore Supply'],
+    items:['Artist materials & supply restock','Fine art print & reproduction run','Custom framing & mat cutting','Creative software license renewal','Online gallery & portfolio platform','Art & equipment insurance','Prop & set rental','Trade show display rental','Insured artwork shipping','Photo & print processing','Cutting, binding & craft equipment','IT support & device maintenance','Promotional art marketing print','Artist payment processing fees','Archival storage & supplies'],
+    min:80,max:5500
+  }
+};
+
+// Fallback for any uncovered category
+TX['default']=TX['Professional Services'];
+
+function generateTransactions(name, category, count=20){
+  const rng=seededRNG(hashStr(name+category));
+  const tmpl=TX[category]||TX['default'];
+  const now=new Date();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const methods=['ACH Transfer','Check','Wire Transfer','Corporate Card','ACH Transfer','ACH Transfer','Check','Corporate Card'];
+
+  const txns=[];
+  const usedVendors=[];
+  for(let i=0;i<count;i++){
+    const daysAgo=Math.floor(rng()*540)+1;
+    const d=new Date(now-daysAgo*86400000);
+    const dateStr=months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    // Pick vendor — try to vary them
+    let vIdx=Math.floor(rng()*tmpl.vendors.length);
+    const vendor=tmpl.vendors[vIdx];
+    const item=tmpl.items[Math.floor(rng()*tmpl.items.length)];
+    const amount=(tmpl.min+rng()*(tmpl.max-tmpl.min));
+    const amountStr='$'+(amount>=1000?(amount/1000).toFixed(1)+'k':amount.toFixed(2));
+    const method=methods[Math.floor(rng()*methods.length)];
+    txns.push({date:d,dateStr,vendor,item,amount,amountStr,method});
+  }
+  return txns.sort((a,b)=>b.date-a.date);
+}
+
+function renderTransactions(name, category){
+  const txns=generateTransactions(name,category);
+  document.getElementById('m-tx').innerHTML=txns.map(t=>`
+    <tr>
+      <td class="tx-date">${t.dateStr}</td>
+      <td class="tx-vendor">${esc(t.vendor)}<br><span style="font-size:10px;color:#9CA3AF;font-weight:400">${esc(t.method)}</span></td>
+      <td class="tx-desc">${esc(t.item)}</td>
+      <td class="tx-amount">${t.amountStr}</td>
+    </tr>`).join('');
 }
 
 // Run FBN render after all data is declared — also populate industry dropdown
