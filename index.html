@@ -36,6 +36,11 @@
   .row-type{ font-size:11px; color:#9CA3AF; width:170px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   .row-state{ font-size:11px; font-weight:700; color:#0F3460; background:#EEF2FF; border-radius:5px; width:52px; flex-shrink:0; text-align:center; padding:3px 6px; letter-spacing:.04em; }
   .badge-review{ font-size:10px; font-weight:700; color:#92400E; background:#FEF3C7; border:1px solid #F59E0B; border-radius:20px; padding:2px 8px; white-space:nowrap; flex-shrink:0; letter-spacing:.03em; }
+  .fbn-row-name{ display:flex; align-items:center; gap:7px; }
+  .entity-item{ padding:8px 0; border-bottom:1px solid #F3F4F6; }
+  .entity-item:last-child{ border-bottom:none; }
+  .entity-name{ font-size:13px; font-weight:700; color:#1A1A2E; }
+  .entity-desc{ font-size:11px; color:#6B7280; margin-top:2px; font-style:italic; }
   /* ── Modal ── */
   .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.open{ display:flex; }
@@ -94,7 +99,7 @@
   .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; transition:box-shadow .12s; }
   .fbn-row[onclick]:hover{ box-shadow:0 3px 14px rgba(0,0,0,.11); }
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
-  .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; }
   /* Industry tag — matches .row-cat pill */
   .fbn-ind-tag{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; }
   /* Intended use — matches .row-type */
@@ -166,6 +171,10 @@
     <div class="logo-cols">
       <div class="logo-wrap"><div class="logo-label">Horizontal</div><div id="m-hlogo"></div></div>
       <div class="logo-wrap"><div class="logo-label">Vertical</div><div id="m-vlogo"></div></div>
+    </div>
+    <div id="m-entities" class="tx-section" style="display:none">
+      <div class="tx-heading" id="m-entities-heading">Entities Under It</div>
+      <div id="m-entities-list"></div>
     </div>
     <div class="tx-section">
       <div class="tx-heading">Recent Transactions</div>
@@ -1816,6 +1825,7 @@ function openModal(name){
   document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
   document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
+  document.getElementById('m-entities').style.display='none';
   renderTransactions(c.name, c.category);
   document.getElementById('modal').classList.add('open');
 }
@@ -2093,6 +2103,66 @@ const approvedFBN=[
   {name:"Whimcycle",                         use:"Mailchimp",           industry:"Fitness & Recreation"},
   {name:"Woodbeck Law Services",             use:"IES",                 industry:"Legal Services"},
   {name:"X Fit",                             use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
+  {name:"Horizon Construction Group",  use:"IES / NIL", industry:"Construction", status:"needs_review", owner:"Jordan Mills",   type:"Construction Group — Parent Entity",     email:"jordan.mills@example.com",   phone:"(617) 555-2200", address:"100 Industrial Drive, Harbor Town, MA 02101", ssn:"400-00-3526",
+   entities:[
+    {name:"Horizon Civil Solutions LLC",        desc:"roads, bridges, heavy infrastructure"},
+    {name:"Horizon Commercial Builders Inc.",   desc:"offices, retail, large developments"},
+    {name:"Horizon Industrial & Energy Ltd.",   desc:"plants, factories, energy projects"},
+    {name:"Horizon Equipment & Logistics Co.",  desc:"machinery, transport, fleet management"},
+    {name:"Horizon Materials Supply LLC",       desc:"concrete, steel, aggregates"},
+    {name:"Horizon Construction West LLC",      desc:"regional operations — western U.S."},
+    {name:"Horizon Construction East LLC",      desc:"regional operations — eastern U.S."}
+  ]},
+  {name:"Keystone Construction Group",  use:"IES / NIL", industry:"Construction", status:"needs_review", owner:"Clark Fulton",  type:"Construction Group — Parent Entity",     email:"clark.fulton@example.com",   phone:"(415) 555-1900", address:"456 Bayshore Drive, Center City, FL 32201", ssn:"400-00-3527",
+   entities:[
+    {name:"Keystone Civil Infrastructure LLC",  desc:"roads, bridges, public works projects"},
+    {name:"Keystone Commercial Builders Inc.",  desc:"office buildings, retail, mixed-use developments"},
+    {name:"Keystone Industrial & Energy Ltd.",  desc:"plants, manufacturing facilities, energy projects"},
+    {name:"Keystone Equipment & Logistics Co.", desc:"fleet, heavy machinery, transport operations"},
+    {name:"Keystone Materials & Supply LLC",    desc:"concrete, steel, aggregates, procurement"},
+    {name:"Keystone Construction West LLC",     desc:"regional operations — western U.S."},
+    {name:"Keystone Construction East LLC",     desc:"regional operations — eastern U.S."}
+  ]},
+  {name:"Ironvale Manufacturing Group", use:"NIL",       industry:"Manufacturing",  status:"needs_review", owner:"Preston Okafor", type:"Manufacturing Group — Parent Entity",   email:"preston.okafor@example.com", phone:"(312) 555-4410", address:"88 Commerce Boulevard, Lakeside, OH 44101",  ssn:"400-00-3528",
+   entities:[
+    {name:"Ironvale Industrial Systems LLC",    desc:"core manufacturing — heavy equipment, components"},
+    {name:"Ironvale Advanced Materials Inc.",   desc:"composites, specialty materials, R&D"},
+    {name:"Ironvale Consumer Products Ltd.",    desc:"retail-facing manufactured goods"},
+    {name:"Ironvale Supply Chain & Logistics Co.", desc:"distribution, warehousing, shipping"},
+    {name:"Ironvale Manufacturing West LLC",    desc:"western U.S. production"},
+    {name:"Ironvale Manufacturing East LLC",    desc:"eastern U.S. production"},
+    {name:"Ironvale Engineering & Innovation LLC", desc:"product design, R&D, process optimization"}
+  ]},
+  {name:"ForgeWorks Industries",        use:"NIL",       industry:"Manufacturing",  status:"needs_review", owner:"Taylor Nguyen", type:"Manufacturing Group — Parent Entity",    email:"taylor.nguyen@example.com",  phone:"(213) 555-7730", address:"2200 Factory Row, Westfield, CA 90007",       ssn:"400-00-3529",
+   entities:[
+    {name:"ForgeWorks Heavy Manufacturing LLC",  desc:"large-scale equipment, industrial components"},
+    {name:"ForgeWorks Precision Components Inc.",desc:"high-accuracy parts, machining, aerospace/auto supply"},
+    {name:"ForgeWorks Materials Technology Ltd.",desc:"advanced materials, metals, composites"},
+    {name:"ForgeWorks Supply Chain & Distribution Co.", desc:"logistics, warehousing, fulfillment"},
+    {name:"ForgeWorks Manufacturing West LLC",   desc:"western U.S. production facilities"},
+    {name:"ForgeWorks Manufacturing Central LLC",desc:"central U.S. production hub"},
+    {name:"ForgeWorks Research & Engineering LLC",desc:"R&D, product development, process innovation"}
+  ]},
+  {name:"Evergreen Foundation",         use:"NIL",       industry:"Nonprofit / Social Services", status:"needs_review", owner:"Diana Reyes",   type:"Nonprofit Organization — Parent Entity", email:"diana.reyes@example.com",    phone:"(503) 555-8821", address:"310 Greenway Lane, River City, OR 97201",     ssn:"400-00-3530",
+   entities:[
+    {name:"Evergreen Community Development",    desc:"housing, neighborhood revitalization, local economies"},
+    {name:"Evergreen Education Initiative",     desc:"scholarships, workforce training, schools"},
+    {name:"Evergreen Health & Wellness",        desc:"clinics, mental health, public health outreach"},
+    {name:"Evergreen Environmental Alliance",   desc:"conservation, sustainability, climate programs"},
+    {name:"Evergreen West Region",              desc:"regional programs — western U.S."},
+    {name:"Evergreen East Region",              desc:"regional programs — eastern U.S."},
+    {name:"Evergreen Global Partnerships",      desc:"international aid, NGO collaborations"}
+  ]},
+  {name:"BrightPath Foundation",        use:"NIL",       industry:"Nonprofit / Social Services", status:"needs_review", owner:"Samuel Park",   type:"Nonprofit Organization — Parent Entity", email:"samuel.park@example.com",    phone:"(404) 555-3390", address:"75 Civic Center Plaza, Metro City, GA 30305",  ssn:"400-00-3531",
+   entities:[
+    {name:"BrightPath Community Development",   desc:"housing, local economic growth"},
+    {name:"BrightPath Education Initiative",    desc:"scholarships, training, schools"},
+    {name:"BrightPath Health & Wellness",       desc:"clinics, outreach, mental health"},
+    {name:"BrightPath Environmental Alliance",  desc:"sustainability, conservation"},
+    {name:"BrightPath West Region",             desc:"regional programs — western U.S."},
+    {name:"BrightPath East Region",             desc:"regional programs — eastern U.S."},
+    {name:"BrightPath Global Partnerships",     desc:"international programs, NGO coordination"}
+  ]},
 ];
 
 const FBN_IND_COLORS={
@@ -2109,6 +2179,8 @@ const FBN_IND_COLORS={
   'Education':            {bg:'#E65100',light:'#FFF3E0',text:'#E65100'},
   'Home Services':        {bg:'#1B5E20',light:'#E8F5E9',text:'#1B5E20'},
   'Healthcare':           {bg:'#1A5276',light:'#EBF5FB',text:'#1A5276'},
+  'Manufacturing':        {bg:'#37474F',light:'#ECEFF1',text:'#37474F'},
+  'Nonprofit / Social Services':{bg:'#004D40',light:'#E0F2F1',text:'#004D40'},
 };
 
 function fbnRowHTML(f,i){
@@ -2116,9 +2188,11 @@ function fbnRowHTML(f,i){
   const col=FBN_IND_COLORS[ind]||{light:'#ECEFF1',text:'#455A64'};
   const nameSafe=f.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const clickable=f.owner?`onclick="openFBNModal('${nameSafe}')" style="cursor:pointer"`:'';
+  const reviewBadge=f.status==='needs_review'?'<span class="badge-review">⚠ Needs Review</span>':'';
+  const ownerTag=f.owner&&!f.status?'<span style="font-size:11px;color:#9CA3AF;font-weight:400;margin-left:8px;">'+esc(f.owner)+'</span>':'';
   return`<div class="fbn-row" ${clickable}>
     <span class="fbn-row-num">${i+1}</span>
-    <span class="fbn-row-name">${esc(f.name)}${f.owner?'<span style="font-size:11px;color:#9CA3AF;font-weight:400;margin-left:8px;">'+esc(f.owner)+'</span>':''}</span>
+    <span class="fbn-row-name"><span>${esc(f.name)}</span>${reviewBadge}${ownerTag}</span>
     <span class="fbn-ind-tag" style="background:${col.light};color:${col.text}">${esc(ind)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
@@ -2127,7 +2201,8 @@ function fbnRowHTML(f,i){
 function openFBNModal(name){
   const f=approvedFBN.find(x=>x.name===name);
   if(!f||!f.owner) return;
-  document.getElementById('m-title').textContent=f.name;
+  const reviewTag=f.status==='needs_review'?' <span class="badge-review" style="font-size:11px;vertical-align:middle">⚠ Needs Review</span>':'';
+  document.getElementById('m-title').innerHTML=esc(f.name)+reviewTag;
   document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${esc(f.email)}</span></div>
@@ -2136,6 +2211,20 @@ function openFBNModal(name){
     <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>`;
   document.getElementById('m-hlogo').innerHTML='';
   document.getElementById('m-vlogo').innerHTML='';
+  // Entities section
+  const entitiesEl=document.getElementById('m-entities');
+  if(f.entities&&f.entities.length){
+    const headingLabel=f.industry==='Nonprofit / Social Services'?'Divisions / Programs':'Entities Under It';
+    document.getElementById('m-entities-heading').textContent=headingLabel;
+    document.getElementById('m-entities-list').innerHTML=f.entities.map(e=>`
+      <div class="entity-item">
+        <div class="entity-name">${esc(e.name)}</div>
+        <div class="entity-desc">${esc(e.desc)}</div>
+      </div>`).join('');
+    entitiesEl.style.display='block';
+  } else {
+    entitiesEl.style.display='none';
+  }
   renderTransactions(f.name, f.industry);
   document.getElementById('modal').classList.add('open');
 }
