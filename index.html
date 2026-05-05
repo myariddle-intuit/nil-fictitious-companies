@@ -1815,18 +1815,20 @@ function openModal(name){
   if(!modalCompany)return;
   const c=modalCompany;
   document.getElementById('m-title').textContent=c.name;
+  const rev=getRevenue(c.name,'low');
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${c.email}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${c.phone}</span></div>
     <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${c.address}</span></div>
     <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${c.ssn}</span></div>
+    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Annual Revenue (Est.)</span><span class="contact-value" style="font-weight:700;color:#1B4F72">${fmtRevenue(rev)}</span></div>
   `;
 
   document.getElementById('m-sub').textContent=c.owner+'  ·  '+c.type+'  ·  '+c.category;
   document.getElementById('m-hlogo').innerHTML=makeHorizSVG(c);
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
   document.getElementById('m-entities').style.display='none';
-  renderTransactions(c.name, c.category);
+  renderTransactions(c.name, c.category, 1);
   document.getElementById('modal').classList.add('open');
 }
 
@@ -2204,11 +2206,14 @@ function openFBNModal(name){
   const reviewTag=f.status==='needs_review'?' <span class="badge-review" style="font-size:11px;vertical-align:middle">⚠ Needs Review</span>':'';
   document.getElementById('m-title').innerHTML=esc(f.name)+reviewTag;
   document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
+  const revTier=f.revTier||'high';
+  const rev=getRevenue(f.name,revTier);
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${esc(f.email)}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${esc(f.phone)}</span></div>
     <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Address</span><span class="contact-value">${esc(f.address)}</span></div>
-    <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>`;
+    <div class="contact-field contact-ssn" style="grid-column:1/-1"><span class="contact-label">SSN (Test Only)</span><span class="contact-value">${esc(f.ssn)}</span></div>
+    <div class="contact-field" style="grid-column:1/-1"><span class="contact-label">Annual Revenue (Est.)</span><span class="contact-value" style="font-weight:700;color:#1B4F72">${fmtRevenue(rev)}</span></div>`;
   document.getElementById('m-hlogo').innerHTML='';
   document.getElementById('m-vlogo').innerHTML='';
   // Entities section
@@ -2225,7 +2230,8 @@ function openFBNModal(name){
   } else {
     entitiesEl.style.display='none';
   }
-  renderTransactions(f.name, f.industry);
+  const revMult=revTier==='high'?6:1;
+  renderTransactions(f.name, f.industry, revMult);
   document.getElementById('modal').classList.add('open');
 }
 
@@ -2283,157 +2289,157 @@ function seededRNG(seed){
 
 const TX={
   'Construction':{
-    vendors:['Lumber Supply Co.','Equipment Rentals Co.','Concrete Supply Co.','Steel Supply Co.','Electrical Supply Co.','Safety Gear Co.','Building Materials Co.','Plumbing Supply Co.','Excavation Services Co.','Scaffolding Rentals Co.','Tool Rentals Co.','Permit Services Co.','Paint & Coatings Co.','Masonry Supply Co.','Roofing Materials Co.'],
+    vendors:['Lumber Supply LLC','Equipment Rentals Inc.','Concrete Supply Corp.','Steel Supply Group','Electrical Supply Services','Safety Gear Supply','Building Materials Solutions','Plumbing Supply Partners','Excavation Services Works','Scaffolding Rentals Associates','Tool Rentals Enterprises','Permit Services Industries','Paint & Coatings LLC','Masonry Supply Inc.','Roofing Materials Corp.'],
     items:['Framing lumber & plywood','Excavator rental — 2 weeks','Ready-mix concrete delivery','Structural steel beams','Electrical conduit & wiring','Safety harnesses & helmets','Dimensional lumber order','PVC pipe & fittings','Site grading & prep work','Scaffold rental — monthly','Power tool rental package','Building permit processing fee','Interior & exterior paint','Brick & mortar materials','Roofing shingles & underlayment'],
     min:350,max:18000
   },
   'Construction-Entities':{
-    vendors:['Subcontractor Services Co.','Building Materials Co.','General Insurance Co.','Excavation Services Co.','Equipment Rentals Co.','Permit Services Co.','Steel Supply Co.','Engineering Consultants Co.','Concrete Supply Co.','Safety Gear Co.','Lumber Supply Co.','Roofing Materials Co.','Tool Rentals Co.','Scaffolding Rentals Co.','Electrical Supply Co.'],
+    vendors:['Subcontractor Services Group','Building Materials Services','General Insurance Supply','Excavation Services Solutions','Equipment Rentals Partners','Permit Services Works','Steel Supply Associates','Engineering Consultants Enterprises','Concrete Supply Industries','Safety Gear LLC','Lumber Supply Inc.','Roofing Materials Corp.','Tool Rentals Group','Scaffolding Rentals Services','Electrical Supply Supply'],
     items:['Subcontractor labor agreement','Structural materials order','General liability insurance','Site preparation & grading','Heavy equipment rental','Permit & inspection fees','Steel beam fabrication','Engineering review services','Concrete pour — foundation','PPE & jobsite safety kit','Lumber & framing package','Roofing materials order','Tool & equipment rental','Scaffolding — monthly lease','Electrical rough-in materials'],
     min:500,max:25000
   },
   'Technology':{
-    vendors:['Cloud Hosting Co.','Developer Tools Co.','Security Software Co.','SaaS Platform Co.','Hardware Supply Co.','Internet Services Co.','Data Backup Co.','Design Software Co.','Cyber Security Co.','Bandwidth Services Co.','Deployment Platform Co.','User Research Co.','Team Software Co.','Infrastructure Monitor Co.','API Services Co.'],
+    vendors:['Cloud Hosting Solutions','Developer Tools Partners','Security Software Works','SaaS Platform Associates','Hardware Supply Enterprises','Internet Services Industries','Data Backup LLC','Design Software Inc.','Cyber Security Corp.','Bandwidth Services Group','Deployment Platform Services','User Research Supply','Team Software Solutions','Infrastructure Monitor Partners','API Services Works'],
     items:['Cloud server hosting — monthly','Developer IDE license renewal','Endpoint security suite','SaaS project management license','Workstation hardware upgrade','Business fiber internet','Offsite backup & DR service','Design & prototyping tool license','Penetration testing service','Additional bandwidth package','CI/CD pipeline subscription','User research platform','Team communication suite','Infrastructure monitoring tool','API management platform'],
     min:80,max:8500
   },
   'Healthcare':{
-    vendors:['Medical Supply Co.','Pharmaceutical Supply Co.','Medical Equipment Co.','Sterilization Services Co.','Practice Software Co.','Lab Diagnostics Co.','Medical Linen Co.','Medical Insurance Co.','Wellness Equipment Co.','Health Records Software Co.','First Aid Supply Co.','Compliance Training Co.','Patient Supply Co.','Sterile Products Co.','Medical Furniture Co.'],
+    vendors:['Medical Supply Associates','Pharmaceutical Supply Enterprises','Medical Equipment Industries','Sterilization Services LLC','Practice Software Inc.','Lab Diagnostics Corp.','Medical Linen Group','Medical Insurance Services','Wellness Equipment Supply','Health Records Software Solutions','First Aid Supply Partners','Compliance Training Works','Patient Supply Associates','Sterile Products Enterprises','Medical Furniture Industries'],
     items:['Disposable medical supplies','Pharmaceutical restocking order','Autoclave & sterilizer service','Biohazard disposal & sanitation','Practice management software','Lab test reagents & kits','Patient gown & linen service','Malpractice insurance premium','Exam table & equipment','EHR system license renewal','First aid & emergency kit restock','HIPAA compliance training','Patient waiting area supplies','Sterile gloves & drapes — bulk','Exam room furniture replacement'],
     min:120,max:12000
   },
   'Food & Beverage':{
-    vendors:['Food Distributors Co.','Kitchen Equipment Co.','Food Packaging Co.','Refrigeration Services Co.','POS Systems Co.','Beverage Supply Co.','Commercial Cleaning Co.','Linen & Uniform Co.','Produce Distributors Co.','Beverage Distributors Co.','Hood Cleaning Co.','Kitchen Repair Co.','Labeling Services Co.','Kitchen Supply Co.','Pest Control Co.'],
+    vendors:['Food Distributors LLC','Kitchen Equipment Inc.','Food Packaging Corp.','Refrigeration Services Group','POS Systems Services','Beverage Supply Supply','Commercial Cleaning Solutions','Linen & Uniform Partners','Produce Distributors Works','Beverage Distributors Associates','Hood Cleaning Enterprises','Kitchen Repair Industries','Labeling Services LLC','Kitchen Supply Inc.','Pest Control Corp.'],
     items:['Weekly produce & dry goods order','Commercial oven & range service','Custom packaging & containers','Walk-in cooler maintenance','POS system & payment processing','Ingredient & supplies restocking','Commercial kitchen cleaning','Staff aprons & uniforms','Local farm produce delivery','Beverage distributor order','Hood & exhaust cleaning service','Grill repair & replacement parts','Nutritional labeling service','Cookware & kitchen utensils','Quarterly pest control service'],
     min:150,max:9500
   },
   'Financial Services':{
-    vendors:['Compliance Software Co.','Market Data Co.','Filing Services Co.','Financial Research Co.','Office Supply Co.','Portfolio Software Co.','Audit Software Co.','Commercial Insurance Co.','Financial Analytics Co.','Market Terminal Co.','E-Signature Co.','Payment Processing Co.','Regulatory Monitor Co.','Tax Software Co.','Financial CRM Co.'],
+    vendors:['Compliance Software Group','Market Data Services','Filing Services Supply','Financial Research Solutions','Office Supply Partners','Portfolio Software Works','Audit Software Associates','Commercial Insurance Enterprises','Financial Analytics Industries','Market Terminal LLC','E-Signature Inc.','Payment Processing Corp.','Regulatory Monitor Group','Tax Software Services','Financial CRM Supply'],
     items:['Regulatory compliance software','Real-time market data feed','SEC & FINRA filing services','Legal & compliance research tool','Office supplies & stationery','Portfolio management platform','Audit preparation software','E&O insurance premium','Financial analytics dashboard','Data terminal subscription','E-signature & document service','Payment processing fees','Regulatory change monitoring','Tax preparation software','Client relationship management system'],
     min:200,max:14000
   },
   'Accounting Firm':{
-    vendors:['Tax Software Co.','Audit Software Co.','Document Filing Co.','Professional Training Co.','Compliance Services Co.','Tax Research Co.','Document Shredding Co.','Client Management Co.','Accounting Software Co.','E-Filing Services Co.','Liability Insurance Co.','Office Supply Co.','Data Backup Co.','Client Portal Co.','Payroll Services Co.'],
+    vendors:['Tax Software Solutions','Audit Software Partners','Document Filing Works','Professional Training Associates','Compliance Services Enterprises','Tax Research Industries','Document Shredding LLC','Client Management Inc.','Accounting Software Corp.','E-Filing Services Group','Liability Insurance Services','Office Supply Supply','Data Backup Solutions','Client Portal Partners','Payroll Services Works'],
     items:['Tax preparation software license','Audit management platform','Document storage & filing system','Continuing education credits','Regulatory compliance update','Tax law research database','Secure document shredding','Client management system','Cloud accounting suite renewal','Electronic filing services','Professional liability insurance','Office supplies & printer toner','Secure offsite data backup','Client portal & collaboration tool','Payroll processing integration'],
     min:150,max:7500
   },
   'Retail & Product':{
-    vendors:['Wholesale Supply Co.','Store Fixtures Co.','Product Packaging Co.','Logistics Co.','POS Systems Co.','Label Supply Co.','Storage & Racking Co.','Commercial Cleaning Co.','Security Systems Co.','E-Commerce Platform Co.','Display Fixtures Co.','Print Shop Direct','Retail Insurance Co.','Inventory Software Co.','Shipping Services Co.'],
+    vendors:['Wholesale Supply Associates','Store Fixtures Enterprises','Product Packaging Industries','Logistics LLC','POS Systems Inc.','Label Supply Corp.','Storage & Racking Group','Commercial Cleaning Services','Security Systems Supply','E-Commerce Platform Solutions','Display Fixtures Partners','Print Shop Direct','Retail Insurance Works','Inventory Software Associates','Shipping Services Enterprises'],
     items:['Merchandise inventory restock','Shelving & display fixtures','Product packaging & bags','Shipping & fulfillment services','POS terminal & software','Custom price & product labels','Warehouse racking system','Store cleaning services','Loss prevention & security system','E-commerce platform subscription','Window & floor display installation','In-store marketing & signage','Business insurance premium','Inventory management software','Carrier shipping contract'],
     min:100,max:11000
   },
   'Retail - Brick & Mortar':{
-    vendors:['Wholesale Supply Co.','Store Fixtures Co.','Freight Services Co.','POS Systems Co.','Commercial Cleaning Co.','Security Systems Co.','Display Fixtures Co.','Print Shop Direct','Retail Insurance Co.','Signage Co.','Product Packaging Co.','Inventory Software Co.','Commercial Lighting Co.','Flooring Services Co.','HVAC Services Co.'],
+    vendors:['Wholesale Supply Industries','Store Fixtures LLC','Freight Services Inc.','POS Systems Corp.','Commercial Cleaning Group','Security Systems Services','Display Fixtures Supply','Print Shop Direct','Retail Insurance Solutions','Signage Partners','Product Packaging Works','Inventory Software Associates','Commercial Lighting Enterprises','Flooring Services Industries','HVAC Services LLC'],
     items:['Seasonal merchandise restocking','Store fixtures & display refresh','Freight & delivery services','POS system maintenance','Commercial cleaning service','Alarm & camera system','In-store display installation','Window signage & banners','General liability insurance','Custom storefront signage','Shopping bags & packaging','Inventory management system','Commercial lighting upgrade','Floor refinishing service','HVAC quarterly maintenance'],
     min:150,max:9000
   },
   'Professional Services':{
-    vendors:['Office Supply Co.','E-Signature Co.','Video Conferencing Co.','Legal Research Co.','CRM Software Co.','Corporate Travel Co.','Business Insurance Co.','Print Shop Direct','Cloud Storage Co.','Compliance Software Co.','Payroll Services Co.','Marketing Agency Co.','Business Continuity Co.','Accounting Software Co.','Client Support Co.'],
+    vendors:['Office Supply Inc.','E-Signature Corp.','Video Conferencing Group','Legal Research Services','CRM Software Supply','Corporate Travel Solutions','Business Insurance Partners','Print Shop Direct','Cloud Storage Works','Compliance Software Associates','Payroll Services Enterprises','Marketing Agency Industries','Business Continuity LLC','Accounting Software Inc.','Client Support Corp.'],
     items:['Office supplies & equipment','E-signature platform license','Video conferencing suite','Legal research database access','CRM system subscription','Corporate travel booking','Business liability insurance','Business card & stationery printing','Secure cloud file storage','Compliance tracking software','Payroll processing service','Marketing & outreach campaign','Business continuity planning','Accounting software license','Client support desk service'],
     min:100,max:6500
   },
   'Legal Services':{
-    vendors:['Legal Research Co.','Case Law Research Co.','Court Filing Services Co.','Document Archival Co.','Bar Association Services Co.','Practice Management Co.','E-Discovery Co.','Legal Insurance Co.','Document Scanning Co.','Client Portal Co.','Legal Print Direct','Legal Training Co.','Court Transcript Co.','Case Management Co.','Conferencing Services Co.'],
+    vendors:['Legal Research Group','Case Law Research Services','Court Filing Services Supply','Document Archival Solutions','Bar Association Services Partners','Practice Management Works','E-Discovery Associates','Legal Insurance Enterprises','Document Scanning Industries','Client Portal LLC','Legal Print Direct','Legal Training Inc.','Court Transcript Corp.','Case Management Group','Conferencing Services Services'],
     items:['Legal research platform subscription','Case law research platform access','Court filing & docket fees','Case file archival & storage','State bar association dues','Practice management software','eDiscovery platform license','Professional liability insurance','Document scanning & digitization','Secure client portal license','Brief printing & binding','CLE continuing education credits','Court reporter & transcript fees','Case management system','Secure video conferencing'],
     min:200,max:8000
   },
   'Education':{
-    vendors:['Curriculum Supply Co.','Education Software Co.','Classroom Supply Co.','Learning Management Co.','Print Shop Direct','AV Equipment Co.','Library Supply Co.','Grant Services Co.','Student Records Co.','Campus Cleaning Co.','Safety Training Co.','Cafeteria Supply Co.','Athletic Equipment Co.','Accreditation Services Co.','Student Device Co.'],
+    vendors:['Curriculum Supply Supply','Education Software Solutions','Classroom Supply Partners','Learning Management Works','Print Shop Direct','AV Equipment Associates','Library Supply Enterprises','Grant Services Industries','Student Records LLC','Campus Cleaning Inc.','Safety Training Corp.','Cafeteria Supply Group','Athletic Equipment Services','Accreditation Services Supply','Student Device Solutions'],
     items:['Curriculum materials & workbooks','Learning management system license','Classroom supplies & art materials','Student safety & compliance software','Printing & copying services','Projector & audio-visual equipment','Library books & subscriptions','Grant writing & research services','Student information system','Campus cleaning services','Staff safety & CPR training','Cafeteria & snack supplies','Physical education equipment','Accreditation consulting services','Student tablets & devices'],
     min:100,max:7500
   },
   'Photography & Creative Media':{
-    vendors:['Camera Equipment Co.','Creative Software Co.','Print Shop Direct','Prop Rentals Co.','Studio Equipment Co.','Photo Lab Co.','Backdrop Supply Co.','Equipment Insurance Co.','Portfolio Platform Co.','Event Staffing Co.','Lighting Equipment Co.','Audio Equipment Co.','Video Equipment Co.','Freight & Shipping Co.','Print Shop Direct'],
+    vendors:['Camera Equipment Partners','Creative Software Works','Print Shop Direct','Prop Rentals Associates','Studio Equipment Enterprises','Photo Lab Industries','Backdrop Supply LLC','Equipment Insurance Inc.','Portfolio Platform Corp.','Event Staffing Group','Lighting Equipment Services','Audio Equipment Supply','Video Equipment Solutions','Freight & Shipping Partners','Print Shop Direct'],
     items:['Camera & lens rental','Creative suite software renewal','Large-format print order','Set & prop rental','Studio lighting equipment','Photo lab processing & prints','Background & backdrop set','Equipment insurance premium','Online portfolio platform','Second shooter & assistant','Continuous lighting kit','Audio recording equipment','Video rig & gimbal rental','Fragile shipping & crating','Branding & promotional print'],
     min:80,max:5500
   },
   'Arts & Galleries':{
-    vendors:['Framing Supply Co.','Gallery AV Co.','Art Shipping Co.','Art Insurance Co.','Installation Services Co.','Gallery Lighting Co.','Fine Art Print Direct','Artist Supply Co.','Digital Catalog Co.','Event Linen Co.','Gallery Security Co.','Climate Control Co.','Art Marketing Co.','Collection Software Co.','Art Logistics Co.'],
+    vendors:['Framing Supply Works','Gallery AV Associates','Art Shipping Enterprises','Art Insurance Industries','Installation Services LLC','Gallery Lighting Inc.','Fine Art Print Direct','Artist Supply Corp.','Digital Catalog Group','Event Linen Services','Gallery Security Supply','Climate Control Solutions','Art Marketing Partners','Collection Software Works','Art Logistics Associates'],
     items:['Custom framing & matting','Gallery audio-visual system','Crated artwork shipping','Fine art insurance valuation','Artwork installation service','Track lighting & spotlights','Fine art print reproduction','Artist supplies — bulk restock','Digital catalog software','Event linen & draping rental','Gallery security system','Climate control maintenance','Exhibition marketing materials','Collection management software','Art fair transport & logistics'],
     min:150,max:7000
   },
   'Automotive':{
-    vendors:['Auto Parts Co.','Tool Supply Co.','Lift Equipment Co.','Safety Gear Co.','Detail Supply Co.','Diagnostic Software Co.','Lubricant Supply Co.','Tire Supply Co.','Parts Supply Co.','Shop Cleaning Co.','Uniform Supply Co.','Warranty Software Co.','Garage Insurance Co.','Shop Signage Co.','Auto Training Co.'],
+    vendors:['Auto Parts Enterprises','Tool Supply Industries','Lift Equipment LLC','Safety Gear Inc.','Detail Supply Corp.','Diagnostic Software Group','Lubricant Supply Services','Tire Supply Supply','Parts Supply Solutions','Shop Cleaning Partners','Uniform Supply Works','Warranty Software Associates','Garage Insurance Enterprises','Shop Signage Industries','Auto Training LLC'],
     items:['OEM & aftermarket parts order','Professional hand tool set','Hydraulic lift maintenance','Shop safety gear & PPE','Detail supplies & chemicals','Diagnostic scanner software update','Motor oil & lubricant restock','Tire inventory restock','Manufacturer parts order','Shop floor cleaning service','Technician uniforms','Service warranty tracking software','Garage liability insurance','Bay signage & pricing display','ASE tech training program'],
     min:200,max:13000
   },
   'Home Services':{
-    vendors:['Hardware Supply Co.','Tool Rental Co.','Safety Supply Co.','Cleaning Supply Co.','Vehicle Wrap Co.','Scheduling Software Co.','Field Insurance Co.','Uniform Supply Co.','Plumbing Supply Co.','Electrical Supply Co.','HVAC Supply Co.','Paint Supply Co.','Lawn Equipment Co.','Permit Services Co.','Customer Management Co.'],
+    vendors:['Hardware Supply Inc.','Tool Rental Corp.','Safety Supply Group','Cleaning Supply Services','Vehicle Wrap Supply','Scheduling Software Solutions','Field Insurance Partners','Uniform Supply Works','Plumbing Supply Associates','Electrical Supply Enterprises','HVAC Supply Industries','Paint Supply LLC','Lawn Equipment Inc.','Permit Services Corp.','Customer Management Group'],
     items:['Hardware & fasteners restock','Power tool rental — weekly','Crew safety gear & PPE','Cleaning solutions — bulk order','Service van wrap & branding','Field scheduling & dispatch software','General liability insurance','Branded crew uniforms','Plumbing parts & fixtures','Electrical supplies & wire','HVAC parts & refrigerant','Paint & primer — bulk','Lawn & landscaping equipment','Permit processing assistance','Customer management system'],
     min:100,max:6500
   },
   'Beauty & Wellness':{
-    vendors:['Salon Supply Co.','Spa Equipment Co.','Salon Cleaning Co.','Booking Software Co.','Label Print Direct','Salon Insurance Co.','Linen Services Co.','Aromatherapy Supply Co.','Retail Display Co.','Wellness Marketing Co.','Salon Safety Co.','Beauty Training Co.','Gift Packaging Co.','Music Streaming Co.','Gift Card Co.'],
+    vendors:['Salon Supply Services','Spa Equipment Supply','Salon Cleaning Solutions','Booking Software Partners','Label Print Direct','Salon Insurance Works','Linen Services Associates','Aromatherapy Supply Enterprises','Retail Display Industries','Wellness Marketing LLC','Salon Safety Inc.','Beauty Training Corp.','Gift Packaging Group','Music Streaming Services','Gift Card Supply'],
     items:['Professional salon product restock','Spa equipment & tool upgrade','Commercial cleaning & sanitation','Appointment booking software','Custom retail product labeling','Salon liability insurance','Towels & linen service','Essential oils & aromatherapy restock','Retail display shelving','Social media marketing service','OSHA & sanitation compliance kit','Staff product knowledge training','Custom gift packaging','In-salon music streaming license','Digital gift card system'],
     min:80,max:4500
   },
   'Fitness & Recreation':{
-    vendors:['Gym Equipment Co.','Fitness Flooring Co.','Member Management Co.','Cleaning Supply Co.','Supplement Supply Co.','Audio Systems Co.','Fitness Insurance Co.','Uniform Supply Co.','Equipment Repair Co.','Digital Marketing Co.','Linen Services Co.','Safety Mat Co.','Vending Services Co.','Fitness Training Co.','Waiver Services Co.'],
+    vendors:['Gym Equipment Solutions','Fitness Flooring Partners','Member Management Works','Cleaning Supply Associates','Supplement Supply Enterprises','Audio Systems Industries','Fitness Insurance LLC','Uniform Supply Inc.','Equipment Repair Corp.','Digital Marketing Group','Linen Services Services','Safety Mat Supply','Vending Services Solutions','Fitness Training Partners','Waiver Services Works'],
     items:['Cardio & strength equipment','Rubber flooring & mat replacement','Member management software','Gym cleaning & disinfectant supplies','Supplement & merchandise restock','Sound system & speaker service','Fitness facility insurance','Staff & trainer uniforms','Equipment repair & maintenance','Digital marketing campaign','Towel & linen laundry service','Safety padding & mat supply','Vending machine restocking','Personal trainer certification','Digital waiver & liability system'],
     min:100,max:9000
   },
   'Landscaping':{
-    vendors:['Nursery Supply Co.','Outdoor Equipment Rentals Co.','Fleet Fuel Co.','Irrigation Supply Co.','Safety Gear Co.','Soil & Compost Co.','Tree Equipment Co.','Lawn Chemical Co.','Uniform Supply Co.','Field Scheduling Co.','Landscape Insurance Co.','Vehicle Signage Co.','Fleet Maintenance Co.','Mulch Supply Co.','Equipment Service Co.'],
+    vendors:['Nursery Supply Associates','Outdoor Equipment Rentals Enterprises','Fleet Fuel Industries','Irrigation Supply LLC','Safety Gear Inc.','Soil & Compost Corp.','Tree Equipment Group','Lawn Chemical Services','Uniform Supply Supply','Field Scheduling Solutions','Landscape Insurance Partners','Vehicle Signage Works','Fleet Maintenance Associates','Mulch Supply Enterprises','Equipment Service Industries'],
     items:['Seasonal plants & sod delivery','Mower & equipment rental','Fleet fuel — monthly','Irrigation parts & drip lines','Crew PPE & safety gear','Topsoil, compost & mulch delivery','Tree trimming equipment service','Fertilizer & herbicide restock','Crew uniforms & hats','Job scheduling & routing software','General liability insurance','Vehicle & trailer signage','Fleet maintenance & oil change','Bulk mulch order','Blade sharpening & equipment service'],
     min:150,max:7500
   },
   'Real Estate':{
-    vendors:['MLS Listing Co.','Real Estate Signage Co.','Home Staging Co.','Property Photography Co.','E-Signature Co.','Real Estate Insurance Co.','Print Shop Direct','Real Estate CRM Co.','Virtual Tour Co.','Title & Escrow Co.','Property Cleaning Co.','Showing Software Co.','Real Estate Advertising Co.','Lockbox Systems Co.','Compliance Software Co.'],
+    vendors:['MLS Listing LLC','Real Estate Signage Inc.','Home Staging Corp.','Property Photography Group','E-Signature Services','Real Estate Insurance Supply','Print Shop Direct','Real Estate CRM Solutions','Virtual Tour Partners','Title & Escrow Works','Property Cleaning Associates','Showing Software Enterprises','Real Estate Advertising Industries','Lockbox Systems LLC','Compliance Software Inc.'],
     items:['MLS listing & portal subscription','For-sale & directional signage','Home staging rental service','Professional property photography','Electronic signature platform','Errors & omissions insurance','Property brochures & flyers','Real estate CRM subscription','Virtual tour & open house tools','Title search & escrow service','Property cleaning & prep','Showing scheduling software','Digital advertising campaign','Electronic lockbox system','Transaction compliance software'],
     min:100,max:6000
   },
   'Nonprofit / Social Services':{
-    vendors:['Print Shop Direct','Donor Management Co.','Grant Tracking Co.','Event Staffing Co.','Office Supply Co.','Janitorial Services Co.','Safety Training Co.','PR & Media Co.','Transportation Services Co.','Food Supply Co.','Volunteer Software Co.','Accreditation Services Co.','Print Shop Direct','IT Services Co.','Nonprofit Insurance Co.'],
+    vendors:['Print Shop Direct','Donor Management Corp.','Grant Tracking Group','Event Staffing Services','Office Supply Supply','Janitorial Services Solutions','Safety Training Partners','PR & Media Works','Transportation Services Associates','Food Supply Enterprises','Volunteer Software Industries','Accreditation Services LLC','Print Shop Direct','IT Services Inc.','Nonprofit Insurance Corp.'],
     items:['Program flyers & awareness materials','Donor management system','Grant tracking & reporting software','Event volunteer & staff services','Office supplies & stationery','Facility cleaning service','Staff & volunteer safety training','Media outreach & PR campaign','Client transportation services','Food pantry restocking','Volunteer coordination platform','Accreditation & compliance review','Annual report printing','IT support & device maintenance','Nonprofit liability insurance'],
     min:50,max:4500
   },
   'Childcare & Family Services':{
-    vendors:['Child Safety Supply Co.','Curriculum Supply Co.','Meal Catering Co.','Janitorial Services Co.','Security Systems Co.','Play Equipment Co.','Childcare Insurance Co.','First Aid Training Co.','Staff Certification Co.','Parent Communication Co.','Educational Toy Co.','Child Furniture Co.','Health Screening Co.','Activity Supply Co.','Transportation Services Co.'],
+    vendors:['Child Safety Supply Group','Curriculum Supply Services','Meal Catering Supply','Janitorial Services Solutions','Security Systems Partners','Play Equipment Works','Childcare Insurance Associates','First Aid Training Enterprises','Staff Certification Industries','Parent Communication LLC','Educational Toy Inc.','Child Furniture Corp.','Health Screening Group','Activity Supply Services','Transportation Services Supply'],
     items:['Child-safe cleaning & sanitation','Age-appropriate curriculum materials','Nutritious meal & snack catering','Daily facility deep clean','Keypad entry & camera system','Outdoor play equipment','Childcare liability insurance','Staff CPR & first aid training','Staff background check services','Parent communication app license','Educational toys & games restock','Nap cots & rest furniture','Child health screening services','Art & activity supply kits','Safe passenger transport service'],
     min:80,max:5000
   },
   'Agriculture & Farming':{
-    vendors:['Seed Supply Co.','Farm Equipment Rentals Co.','Soil Testing Co.','Irrigation Supply Co.','Agricultural Chemical Co.','Harvest Logistics Co.','Fencing Materials Co.','Grain Storage Co.','Farm Fuel Co.','Livestock Supply Co.','Crop Insurance Co.','Farm Management Co.','Veterinary Services Co.','Soil Amendments Co.','Farm Packaging Co.'],
+    vendors:['Seed Supply Solutions','Farm Equipment Rentals Partners','Soil Testing Works','Irrigation Supply Associates','Agricultural Chemical Enterprises','Harvest Logistics Industries','Fencing Materials LLC','Grain Storage Inc.','Farm Fuel Corp.','Livestock Supply Group','Crop Insurance Services','Farm Management Supply','Veterinary Services Solutions','Soil Amendments Partners','Farm Packaging Works'],
     items:['Seasonal seed & plant stock','Tractor & equipment rental','Soil testing & analysis','Drip irrigation system parts','Fertilizer & pesticide restock','Harvest transport & logistics','Fencing materials & posts','Grain bin rental & storage','Fleet fuel — farm vehicles','Livestock feed & supplies','Crop insurance premium','Farm management software','Mobile vet & herd health visit','Compost & soil amendment delivery','Produce packaging & crates'],
     min:200,max:16000
   },
   'Pet Services':{
-    vendors:['Pet Supply Co.','Grooming Equipment Co.','Veterinary Supply Co.','Pet Sanitation Co.','Booking Software Co.','Kennel Safety Co.','Pet Food Supply Co.','Pet Furniture Co.','Pet Insurance Co.','Pet Training Co.','Aquarium Supply Co.','Pet Marketing Co.','Waste Disposal Co.','Pet Linen Co.','Scheduling Software Co.'],
+    vendors:['Pet Supply Associates','Grooming Equipment Enterprises','Veterinary Supply Industries','Pet Sanitation LLC','Booking Software Inc.','Kennel Safety Corp.','Pet Food Supply Group','Pet Furniture Services','Pet Insurance Supply','Pet Training Solutions','Aquarium Supply Partners','Pet Marketing Works','Waste Disposal Associates','Pet Linen Enterprises','Scheduling Software Industries'],
     items:['Grooming tools & supplies restock','Grooming table & dryer service','Veterinary & pharmaceutical supplies','Facility sanitation & disinfectant','Pet grooming appointment software','Kennel safety & containment systems','Premium pet food & treats','Kennels, crates & bedding','Pet business liability insurance','Staff grooming certification','Aquarium & tank cleaning supplies','Social media marketing service','Pet waste disposal service','Bedding & towel laundry service','Appointment & scheduling system'],
     min:80,max:4500
   },
   'Entertainment & Events':{
-    vendors:['Stage & Tent Rentals Co.','AV Equipment Co.','Event Linen Co.','Talent Agency Co.','Ticketing Platform Co.','Print Shop Direct','Event Catering Co.','Event Permit Co.','Security Staffing Co.','Guest Transport Co.','Sound Equipment Co.','Lighting Systems Co.','Crowd Control Co.','Event Cleanup Co.','Event Insurance Co.'],
+    vendors:['Stage & Tent Rentals LLC','AV Equipment Inc.','Event Linen Corp.','Talent Agency Group','Ticketing Platform Services','Print Shop Direct','Event Catering Supply','Event Permit Solutions','Security Staffing Partners','Guest Transport Works','Sound Equipment Associates','Lighting Systems Enterprises','Crowd Control Industries','Event Cleanup LLC','Event Insurance Inc.'],
     items:['Stage, tent & furniture rental','Audio-visual & screen rental','Event linen & table décor','Talent booking & management fee','Ticketing & registration platform','Event program printing','Event catering contract deposit','Event permit & licensing fee','Private security staffing','Guest shuttle & transport','Sound system & PA rental','Uplighting & lighting design','Crowd control fencing','Post-event cleanup crew','Event liability insurance'],
     min:300,max:22000
   },
   'Video Production & Media':{
-    vendors:['Camera Rentals Co.','Video Editing Software Co.','Color Grading Co.','Audio Recording Co.','Studio Rentals Co.','Script Management Co.','Talent Agency Co.','Media Storage Co.','Video Delivery Co.','Production Insurance Co.','Prop Rentals Co.','Captioning Services Co.','Music Licensing Co.','Drone Services Co.','Post Production Co.'],
+    vendors:['Camera Rentals Corp.','Video Editing Software Group','Color Grading Services','Audio Recording Supply','Studio Rentals Solutions','Script Management Partners','Talent Agency Works','Media Storage Associates','Video Delivery Enterprises','Production Insurance Industries','Prop Rentals LLC','Captioning Services Inc.','Music Licensing Corp.','Drone Services Group','Post Production Services'],
     items:['Camera & cinema lens rental','Video editing software license','Color correction & grading suite','Audio recording & sound design','Studio space rental — daily','Script & asset management platform','On-camera talent booking','Redundant media drive storage','Video CDN & streaming delivery','Production insurance policy','Props & set design rental','Closed caption & subtitle service','Music licensing for video','Licensed drone operation','Post-production editing suite'],
     min:200,max:18000
   },
   'Transportation & Logistics':{
-    vendors:['Fleet Fuel Co.','Vehicle Maintenance Co.','Fleet Insurance Co.','Dispatch Software Co.','DOT Compliance Co.','Tire Supply Co.','Freight Brokerage Co.','Warehouse Storage Co.','Fleet Tracking Co.','Driver Training Co.','Cargo Supply Co.','Compliance Services Co.','Driver Uniform Co.','Load Board Co.','Fleet Wash Co.'],
+    vendors:['Fleet Fuel Supply','Vehicle Maintenance Solutions','Fleet Insurance Partners','Dispatch Software Works','DOT Compliance Associates','Tire Supply Enterprises','Freight Brokerage Industries','Warehouse Storage LLC','Fleet Tracking Inc.','Driver Training Corp.','Cargo Supply Group','Compliance Services Services','Driver Uniform Supply','Load Board Solutions','Fleet Wash Partners'],
     items:['Fleet fuel — monthly contract','Preventive vehicle maintenance','Commercial fleet insurance','Dispatch & route optimization software','DOT compliance & filing service','Fleet tire rotation & replacement','Freight brokerage fees','Warehouse storage rental','GPS fleet tracking subscription','Driver CDL certification & training','Cargo straps & load securing','Weigh station compliance service','Driver uniform & safety gear','Load board subscription','Fleet wash & detailing service'],
     min:300,max:20000
   },
   'Hospitality & Travel':{
-    vendors:['Linen Supply Co.','Food Distributors Co.','Property Maintenance Co.','Property Management Co.','Guest Review Co.','Commercial Cleaning Co.','Guest Amenity Co.','Event Staffing Co.','Laundry Services Co.','Hospitality Insurance Co.','IT Support Co.','Booking Software Co.','Energy Audit Co.','Hotel Furniture Co.','Wi-Fi Services Co.'],
+    vendors:['Linen Supply Works','Food Distributors Associates','Property Maintenance Enterprises','Property Management Industries','Guest Review LLC','Commercial Cleaning Inc.','Guest Amenity Corp.','Event Staffing Group','Laundry Services Services','Hospitality Insurance Supply','IT Support Solutions','Booking Software Partners','Energy Audit Works','Hotel Furniture Associates','Wi-Fi Services Enterprises'],
     items:['Hotel linen & towel restock','Food & beverage distributor order','HVAC & plumbing maintenance','Property management system license','Guest review management platform','Deep cleaning & sanitation service','In-room guest amenity restock','Banquet & event staffing','Commercial laundry service','Hospitality liability insurance','IT support & network maintenance','Online booking engine subscription','Energy efficiency audit','Lobby & room furniture refresh','Guest wi-fi infrastructure'],
     min:200,max:14000
   },
   'Marketing & Comms':{
-    vendors:['Digital Advertising Co.','Print Shop Direct','CRM Software Co.','Stock Photo Co.','Freelance Copywriting Co.','Video Production Co.','Email Marketing Co.','Market Research Co.','Print Shop Direct','Media Insurance Co.','Social Media Co.','SEO Services Co.','Media Buying Co.','Promo Materials Co.','Design Software Co.'],
+    vendors:['Digital Advertising Industries','Print Shop Direct','CRM Software LLC','Stock Photo Inc.','Freelance Copywriting Corp.','Video Production Group','Email Marketing Services','Market Research Supply','Print Shop Direct','Media Insurance Solutions','Social Media Partners','SEO Services Works','Media Buying Associates','Promo Materials Enterprises','Design Software Industries'],
     items:['Digital ad campaign — quarterly','Brochure & collateral printing','CRM & marketing automation license','Stock photography subscription','Freelance copywriting services','Video production retainer','Email marketing platform','Market research & survey tool','Brand standards printing','Media liability insurance','Social media monitoring tool','SEO & keyword tracking platform','Paid media placement','Promotional event materials kit','Design software subscription'],
     min:150,max:9500
   },
   'Arts & Creative':{
-    vendors:['Art Supply Co.','Fine Art Print Direct','Framing Supply Co.','Creative Software Co.','Gallery Platform Co.','Art Insurance Co.','Prop Rentals Co.','Display Rentals Co.','Art Shipping Co.','Photo Processing Co.','Craft Equipment Co.','IT Services Co.','Print Shop Direct','Payment Processing Co.','Archival Supply Co.'],
+    vendors:['Art Supply LLC','Fine Art Print Direct','Framing Supply Inc.','Creative Software Corp.','Gallery Platform Group','Art Insurance Services','Prop Rentals Supply','Display Rentals Solutions','Art Shipping Partners','Photo Processing Works','Craft Equipment Associates','IT Services Enterprises','Print Shop Direct','Payment Processing Industries','Archival Supply LLC'],
     items:['Artist materials & supply restock','Fine art print & reproduction run','Custom framing & mat cutting','Creative software license renewal','Online gallery & portfolio platform','Art & equipment insurance','Prop & set rental','Trade show display rental','Insured artwork shipping','Photo & print processing','Cutting, binding & craft equipment','IT support & device maintenance','Promotional art marketing print','Artist payment processing fees','Archival storage & supplies'],
     min:80,max:5500
   },
   'Manufacturing':{
-    vendors:['Raw Materials Co.','Industrial Equipment Co.','Parts Supply Co.','Fabrication Supply Co.','Packaging Materials Co.','Freight & Logistics Co.','Safety Equipment Co.','Tool & Die Co.','Quality Testing Co.','Industrial Cleaning Co.','Facility Maintenance Co.','Warehouse Supply Co.','Assembly Components Co.','Compliance Services Co.','Metal & Alloy Supply Co.'],
+    vendors:['Raw Materials Inc.','Industrial Equipment Corp.','Parts Supply Group','Fabrication Supply Services','Packaging Materials Supply','Freight & Logistics Solutions','Safety Equipment Partners','Tool & Die Works','Quality Testing Associates','Industrial Cleaning Enterprises','Facility Maintenance Industries','Warehouse Supply LLC','Assembly Components Inc.','Compliance Services Corp.','Metal & Alloy Supply Group'],
     items:['Raw material bulk order','Heavy machinery lease payment','Fabrication parts & components','Industrial packaging materials','Outbound freight & shipping','Workplace safety equipment','Precision tool & die services','Quality assurance & testing','Facility & floor maintenance','Warehouse racking & storage','Assembly sub-components order','Regulatory compliance services','Material handling equipment','Industrial cleaning services','Metal & alloy supply restock'],
     min:500,max:42000
   }
@@ -2442,26 +2448,33 @@ const TX={
 // Fallback for any uncovered category
 TX['default']=TX['Professional Services'];
 
-function generateTransactions(name, category, count=20){
+function getRevenue(name, tier){
+  const rng=seededRNG(hashStr(name+'annualrev'));
+  if(tier==='high') return 1000000+Math.floor(rng()*4000000);
+  return 100000+Math.floor(rng()*850000);
+}
+function fmtRevenue(v){
+  if(v>=1000000) return '$'+(v/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';
+  return '$'+(Math.round(v/1000))+'K';
+}
+
+function generateTransactions(name, category, count=20, revMult=1){
   const rng=seededRNG(hashStr(name+category));
   const tmpl=TX[category]||TX['default'];
   const now=new Date();
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const methods=['ACH Transfer','Check','Wire Transfer','Corporate Card','ACH Transfer','ACH Transfer','Check','Corporate Card'];
-
   const txns=[];
-  const usedVendors=[];
   for(let i=0;i<count;i++){
     const jan1=new Date('2026-01-01');
     const maxDays=Math.max(1,Math.floor((now-jan1)/86400000));
     const daysAgo=Math.floor(rng()*maxDays);
     const d=new Date(jan1.getTime()+daysAgo*86400000);
     const dateStr=months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
-    // Pick vendor — try to vary them
     let vIdx=Math.floor(rng()*tmpl.vendors.length);
     const vendor=tmpl.vendors[vIdx];
     const item=tmpl.items[Math.floor(rng()*tmpl.items.length)];
-    const amount=(tmpl.min+rng()*(tmpl.max-tmpl.min));
+    const amount=Math.round((tmpl.min+rng()*(tmpl.max-tmpl.min))*revMult/10)*10;
     const amountStr='$'+(amount>=1000?(amount/1000).toFixed(1)+'k':amount.toFixed(2));
     const method=methods[Math.floor(rng()*methods.length)];
     txns.push({date:d,dateStr,vendor,item,amount,amountStr,method});
@@ -2469,8 +2482,8 @@ function generateTransactions(name, category, count=20){
   return txns.sort((a,b)=>b.date-a.date);
 }
 
-function renderTransactions(name, category){
-  const txns=generateTransactions(name,category);
+function renderTransactions(name, category, revMult=1){
+  const txns=generateTransactions(name,category,20,revMult);
   document.getElementById('m-tx').innerHTML=txns.map(t=>`
     <tr>
       <td class="tx-date">${t.dateStr}</td>
