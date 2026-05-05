@@ -73,14 +73,14 @@
   .fbn-col-header span{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#9CA3AF; }
   .fbn-h-num{ width:28px; flex-shrink:0; text-align:right; }
   .fbn-h-name{ flex:1; min-width:0; }
-  .fbn-h-req{ width:180px; flex-shrink:0; }
-  .fbn-h-use{ width:200px; flex-shrink:0; }
+  .fbn-h-ind{ width:160px; flex-shrink:0; }
+  .fbn-h-use{ width:180px; flex-shrink:0; }
   .fbn-list{ display:flex; flex-direction:column; gap:6px; }
   .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; }
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
   .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; }
-  .fbn-row-req{ font-size:12px; color:#6B7280; width:180px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-  .fbn-row-use{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:200px; flex-shrink:0; background:#F0FDF4; color:#15803D; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
+  .fbn-ind-tag{ font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; width:160px; flex-shrink:0; text-align:center; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; }
+  .fbn-row-use{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:180px; flex-shrink:0; background:#F0FDF4; color:#15803D; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
   .fbn-badge{ display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; background:#DCFCE7; color:#15803D; letter-spacing:.04em; margin-left:8px; }
   .fbn-search{ flex:1; min-width:200px; padding:8px 14px; border-radius:6px; border:none; font-size:13px; outline:none; }
   .fbn-count{ color:rgba(255,255,255,.8); font-size:12px; margin-left:auto; white-space:nowrap; }
@@ -130,6 +130,7 @@
     <div class="fbn-col-header">
       <span class="fbn-h-num">#</span>
       <span class="fbn-h-name">Business Name</span>
+      <span class="fbn-h-ind">Industry</span>
       <span class="fbn-h-use">Intended Use</span>
     </div>
     <div class="fbn-list" id="fbn-list"></div>
@@ -2042,58 +2043,77 @@ function switchTab(id){
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
 const approvedFBN=[
-  {name:"Beasley & Howe Financials",     requestor:"PJ Nidecker",                  use:"QuickBooks"},
-  {name:"Bo's Buns",                      requestor:"Stephanie Gallagher",           use:"Mailchimp"},
-  {name:"Brinnand Law Services",          requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"Brosnan Law Services",           requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"Camila's Custom Prints",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Canopy Collection",              requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"Cross Sculpt",                   requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"David's Gardening",              requestor:"Giulia Salatino",               use:"QB Payments — UK"},
-  {name:"Downtown Ink Lab",               requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Downtown Sculpt Studio",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Gloria's Ink & Frame",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Gloria's Print House",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Greenscape Gardening",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Horizon Construction",           requestor:"Puja Pendley",                  use:"IES"},
-  {name:"Horizon Management",             requestor:"Megan Foster",                  use:"IES"},
-  {name:"Horizon Project Management",     requestor:"Megan Foster",                  use:"IES"},
-  {name:"Idea & Co.",                     requestor:"Emily Zhao",                    use:"Communications"},
-  {name:"Isa's Ink Shop",                 requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"It's a Sign",                    requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"Keystone Construction",          requestor:"Megan Foster",                  use:"IES"},
-  {name:"Kindred Kitchen",                requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"Lily's Catering Co.",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Livi Law Services",              requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"Magnolia Landscaping",           requestor:"",                              use:"NIL"},
-  {name:"Meena Law Services",             requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"Melodia Institute of Music",     requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"Mia's Catering",                 requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Mia's Fine Catering",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"North & Main Interior Design",   requestor:"Mark Maynard",                  use:"Intuit Connect"},
-  {name:"Oat Lord",                       requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"PH Accounting",                  requestor:"Angela Leung",                  use:"QuickBooks"},
-  {name:"Riverfront Sculpt Studio",       requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Rock Castle Construction & Design", requestor:"PJ Nidecker",               use:"QuickBooks"},
-  {name:"Spark Construction and Solar",   requestor:"PJ Nidecker",                   use:"QuickBooks"},
-  {name:"The Ad Assembly",                requestor:"Emily Zhao",                    use:"Communications"},
-  {name:"The Ideahouse",                  requestor:"Emily Zhao",                    use:"Communications"},
-  {name:"The Pedal Pod",                  requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"The Village Green Team",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Third Street Core",              requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Tooth Fairy Worldwide",          requestor:"Angela Leung",                  use:"US"},
-  {name:"Tooth Fairy, Inc.",              requestor:"Angela Leung",                  use:"US"},
-  {name:"Truttmann Law Services",         requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"Village Landscaping",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
-  {name:"Whimcycle",                      requestor:"Elizabeth Teasley",             use:"Mailchimp"},
-  {name:"Woodbeck Law Services",          requestor:"Kelly Unruh",                   use:"IES"},
-  {name:"X Fit",                          requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Beasley & Howe Financials",        use:"QuickBooks",          industry:"Financial Services"},
+  {name:"Bo's Buns",                         use:"Mailchimp",           industry:"Food & Beverage"},
+  {name:"Brinnand Law Services",             use:"IES",                 industry:"Legal Services"},
+  {name:"Brosnan Law Services",              use:"IES",                 industry:"Legal Services"},
+  {name:"Camila's Custom Prints",            use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
+  {name:"Canopy Collection",                 use:"Mailchimp",           industry:"Retail & Product"},
+  {name:"Cross Sculpt",                      use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
+  {name:"David's Gardening",                 use:"QB Payments — UK",    industry:"Landscaping"},
+  {name:"Downtown Ink Lab",                  use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
+  {name:"Downtown Sculpt Studio",            use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
+  {name:"Gloria's Ink & Frame",              use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
+  {name:"Gloria's Print House",              use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
+  {name:"Greenscape Gardening",              use:"QB — US, CA, EMEA, AU", industry:"Landscaping"},
+  {name:"Horizon Construction",              use:"IES",                 industry:"Construction"},
+  {name:"Horizon Management",               use:"IES",                 industry:"Professional Services"},
+  {name:"Horizon Project Management",       use:"IES",                 industry:"Professional Services"},
+  {name:"Idea & Co.",                        use:"Communications",      industry:"Marketing & Comms"},
+  {name:"Isa's Ink Shop",                    use:"QB — US, CA, EMEA, AU", industry:"Arts & Creative"},
+  {name:"It's a Sign",                       use:"Mailchimp",           industry:"Arts & Creative"},
+  {name:"Keystone Construction",             use:"IES",                 industry:"Construction"},
+  {name:"Kindred Kitchen",                   use:"Mailchimp",           industry:"Food & Beverage"},
+  {name:"Lily's Catering Co.",               use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
+  {name:"Livi Law Services",                 use:"IES",                 industry:"Legal Services"},
+  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping"},
+  {name:"Meena Law Services",                use:"IES",                 industry:"Legal Services"},
+  {name:"Melodia Institute of Music",        use:"Mailchimp",           industry:"Education"},
+  {name:"Mia's Catering",                    use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
+  {name:"Mia's Fine Catering",               use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
+  {name:"North & Main Interior Design",      use:"Intuit Connect",      industry:"Home Services"},
+  {name:"Oat Lord",                          use:"Mailchimp",           industry:"Food & Beverage"},
+  {name:"PH Accounting",                     use:"QuickBooks",          industry:"Financial Services"},
+  {name:"Riverfront Sculpt Studio",          use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
+  {name:"Rock Castle Construction & Design", use:"QuickBooks",          industry:"Construction"},
+  {name:"Spark Construction and Solar",      use:"QuickBooks",          industry:"Construction"},
+  {name:"The Ad Assembly",                   use:"Communications",      industry:"Marketing & Comms"},
+  {name:"The Ideahouse",                     use:"Communications",      industry:"Marketing & Comms"},
+  {name:"The Pedal Pod",                     use:"Mailchimp",           industry:"Fitness & Recreation"},
+  {name:"The Village Green Team",            use:"QB — US, CA, EMEA, AU", industry:"Landscaping"},
+  {name:"Third Street Core",                 use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
+  {name:"Tooth Fairy Worldwide",             use:"US",                  industry:"Healthcare"},
+  {name:"Tooth Fairy, Inc.",                 use:"US",                  industry:"Healthcare"},
+  {name:"Truttmann Law Services",            use:"IES",                 industry:"Legal Services"},
+  {name:"Village Landscaping",               use:"QB — US, CA, EMEA, AU", industry:"Landscaping"},
+  {name:"Whimcycle",                         use:"Mailchimp",           industry:"Fitness & Recreation"},
+  {name:"Woodbeck Law Services",             use:"IES",                 industry:"Legal Services"},
+  {name:"X Fit",                             use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
 ];
 
+const FBN_IND_COLORS={
+  'Construction':        {bg:'#FEF3C7',text:'#92400E'},
+  'Legal Services':      {bg:'#EDE9FE',text:'#5B21B6'},
+  'Financial Services':  {bg:'#DCFCE7',text:'#166534'},
+  'Food & Beverage':     {bg:'#FEE2E2',text:'#991B1B'},
+  'Arts & Creative':     {bg:'#FCE7F3',text:'#9D174D'},
+  'Fitness & Recreation':{bg:'#DBEAFE',text:'#1E40AF'},
+  'Landscaping':         {bg:'#D1FAE5',text:'#065F46'},
+  'Professional Services':{bg:'#F3F4F6',text:'#374151'},
+  'Marketing & Comms':   {bg:'#FFF7ED',text:'#C2410C'},
+  'Retail & Product':    {bg:'#F0F9FF',text:'#0369A1'},
+  'Education':           {bg:'#FDF4FF',text:'#7E22CE'},
+  'Home Services':       {bg:'#ECFDF5',text:'#047857'},
+  'Healthcare':          {bg:'#EFF6FF',text:'#1D4ED8'},
+};
+
 function fbnRowHTML(f,i){
+  const ind=f.industry||'';
+  const col=FBN_IND_COLORS[ind]||{bg:'#F3F4F6',text:'#374151'};
   return`<div class="fbn-row">
     <span class="fbn-row-num">${i+1}</span>
     <span class="fbn-row-name">${esc(f.name)}<span class="fbn-badge">&#10003; Approved</span></span>
+    <span class="fbn-ind-tag" style="background:${col.bg};color:${col.text}">${esc(ind)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
 }
