@@ -69,20 +69,22 @@
   /* ── FBN list ── */
   .fbn-wrap{ padding:24px 40px; }
   .fbn-intro{ font-size:12px; color:#6B7280; margin-bottom:16px; line-height:1.6; }
+  /* FBN col header — matches .col-header */
   .fbn-col-header{ display:flex; align-items:center; gap:14px; padding:6px 18px 8px; position:sticky; top:0; background:#F9FAFB; z-index:10; border-bottom:2px solid #E5E7EB; margin-bottom:6px; }
   .fbn-col-header span{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#9CA3AF; }
   .fbn-h-num{ width:28px; flex-shrink:0; text-align:right; }
   .fbn-h-name{ flex:1; min-width:0; }
-  .fbn-h-ind{ width:160px; flex-shrink:0; }
-  .fbn-h-use{ width:180px; flex-shrink:0; }
+  .fbn-h-ind{ width:150px; flex-shrink:0; }
+  .fbn-h-use{ width:170px; flex-shrink:0; }
+  /* FBN rows — matches .row exactly */
   .fbn-list{ display:flex; flex-direction:column; gap:6px; }
-  .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; }
+  .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; transition:box-shadow .12s; }
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
-  .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; }
-  .fbn-ind-tag{ font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; width:160px; flex-shrink:0; text-align:center; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; }
-  .fbn-row-use{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:180px; flex-shrink:0; background:#F0FDF4; color:#15803D; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
-  .fbn-badge{ display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; background:#DCFCE7; color:#15803D; letter-spacing:.04em; margin-left:8px; }
-  .fbn-search{ flex:1; min-width:200px; padding:8px 14px; border-radius:6px; border:none; font-size:13px; outline:none; }
+  .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  /* Industry tag — matches .row-cat pill */
+  .fbn-ind-tag{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
+  /* Intended use — matches .row-type */
+  .fbn-row-use{ font-size:11px; color:#9CA3AF; width:170px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   .fbn-count{ color:rgba(255,255,255,.8); font-size:12px; margin-left:auto; white-space:nowrap; }
 </style>
 </head>
@@ -2123,7 +2125,7 @@ function fbnRowHTML(f,i){
   const col=FBN_IND_COLORS[ind]||{bg:'#F3F4F6',text:'#374151'};
   return`<div class="fbn-row">
     <span class="fbn-row-num">${i+1}</span>
-    <span class="fbn-row-name">${esc(f.name)}<span class="fbn-badge">&#10003; Approved</span></span>
+    <span class="fbn-row-name">${esc(f.name)}</span>
     <span class="fbn-ind-tag" style="background:${col.bg};color:${col.text}">${esc(ind)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
