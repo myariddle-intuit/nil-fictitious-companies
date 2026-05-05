@@ -2039,6 +2039,7 @@ function switchTab(id){
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
+  if(id==='fbn') renderFBN();
 }
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
@@ -2122,7 +2123,7 @@ function renderFBN(){
   const q=(document.getElementById('fbn-search').value||'').toLowerCase().trim();
   const filtered=approvedFBN.filter(f=>{
     if(!q) return true;
-    return (f.name+f.requestor+f.use).toLowerCase().includes(q);
+    return (f.name+' '+(f.industry||'')+' '+f.use).toLowerCase().includes(q);
   });
   document.getElementById('fbn-list').innerHTML=filtered.map((f,i)=>fbnRowHTML(f,i)).join('');
   document.getElementById('fbn-count').textContent=filtered.length+' of '+approvedFBN.length+' approved names';
