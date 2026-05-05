@@ -82,7 +82,7 @@
   .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
   .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   /* Industry tag — matches .row-cat pill */
-  .fbn-ind-tag{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
+  .fbn-ind-tag{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:150px; flex-shrink:0; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; }
   /* Intended use — matches .row-type */
   .fbn-row-use{ font-size:11px; color:#9CA3AF; width:170px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
   .fbn-count{ color:rgba(255,255,255,.8); font-size:12px; margin-left:auto; white-space:nowrap; }
@@ -95,7 +95,7 @@
 </div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
-  <div class="tab" onclick="switchTab('fbn')">&#10003; Approved Fictitious Business Names</div>
+  <div class="tab" onclick="switchTab('fbn')">Fictitious Business Names</div>
 </div>
 
 <!-- NIL tab -->
@@ -2105,28 +2105,28 @@ const approvedFBN=[
 ];
 
 const FBN_IND_COLORS={
-  'Construction':        {bg:'#FEF3C7',text:'#92400E'},
-  'Legal Services':      {bg:'#EDE9FE',text:'#5B21B6'},
-  'Financial Services':  {bg:'#DCFCE7',text:'#166534'},
-  'Food & Beverage':     {bg:'#FEE2E2',text:'#991B1B'},
-  'Arts & Creative':     {bg:'#FCE7F3',text:'#9D174D'},
-  'Fitness & Recreation':{bg:'#DBEAFE',text:'#1E40AF'},
-  'Landscaping':         {bg:'#D1FAE5',text:'#065F46'},
-  'Professional Services':{bg:'#F3F4F6',text:'#374151'},
-  'Marketing & Comms':   {bg:'#FFF7ED',text:'#C2410C'},
-  'Retail & Product':    {bg:'#F0F9FF',text:'#0369A1'},
-  'Education':           {bg:'#FDF4FF',text:'#7E22CE'},
-  'Home Services':       {bg:'#ECFDF5',text:'#047857'},
-  'Healthcare':          {bg:'#EFF6FF',text:'#1D4ED8'},
+  'Construction':         {bg:'#7D6608',light:'#FEF9E7',text:'#7D6608'},
+  'Legal Services':       {bg:'#1B4F72',light:'#EDF2FB',text:'#1B4F72'},
+  'Financial Services':   {bg:'#6C3483',light:'#F4ECF7',text:'#6C3483'},
+  'Food & Beverage':      {bg:'#1E8449',light:'#F0FFF4',text:'#1E8449'},
+  'Arts & Creative':      {bg:'#6A1B9A',light:'#F3E5F5',text:'#6A1B9A'},
+  'Fitness & Recreation': {bg:'#006064',light:'#E0F7FA',text:'#006064'},
+  'Landscaping':          {bg:'#33691E',light:'#F1F8E9',text:'#33691E'},
+  'Professional Services':{bg:'#1B4F72',light:'#EDF2FB',text:'#1B4F72'},
+  'Marketing & Comms':    {bg:'#BF360C',light:'#FBE9E7',text:'#BF360C'},
+  'Retail & Product':     {bg:'#922B21',light:'#F9EBEA',text:'#922B21'},
+  'Education':            {bg:'#E65100',light:'#FFF3E0',text:'#E65100'},
+  'Home Services':        {bg:'#1B5E20',light:'#E8F5E9',text:'#1B5E20'},
+  'Healthcare':           {bg:'#1A5276',light:'#EBF5FB',text:'#1A5276'},
 };
 
 function fbnRowHTML(f,i){
   const ind=f.industry||'';
-  const col=FBN_IND_COLORS[ind]||{bg:'#F3F4F6',text:'#374151'};
+  const col=FBN_IND_COLORS[ind]||{light:'#ECEFF1',text:'#455A64'};
   return`<div class="fbn-row">
     <span class="fbn-row-num">${i+1}</span>
     <span class="fbn-row-name">${esc(f.name)}</span>
-    <span class="fbn-ind-tag" style="background:${col.bg};color:${col.text}">${esc(ind)}</span>
+    <span class="fbn-ind-tag" style="background:${col.light};color:${col.text}">${esc(ind)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
 }
