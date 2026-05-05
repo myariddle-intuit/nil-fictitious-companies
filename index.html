@@ -59,31 +59,82 @@
   .btn-close2{ background:#F3F4F6; color:#374151; }
   .modal-actions button:hover{ opacity:.85; }
   .no-results{ text-align:center; padding:60px 20px; color:#9CA3AF; font-size:14px; }
+  /* ── Tabs ── */
+  .tabs{ background:var(--dark); padding:0 40px; display:flex; gap:0; border-top:1px solid rgba(255,255,255,.1); }
+  .tab{ padding:12px 22px; font-size:13px; font-weight:600; color:rgba(255,255,255,.55); cursor:pointer; border-bottom:3px solid transparent; transition:all .15s; white-space:nowrap; }
+  .tab:hover{ color:rgba(255,255,255,.85); }
+  .tab.active{ color:#fff; border-bottom-color:var(--yellow); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  /* ── FBN list ── */
+  .fbn-wrap{ padding:24px 40px; }
+  .fbn-intro{ font-size:12px; color:#6B7280; margin-bottom:16px; line-height:1.6; }
+  .fbn-col-header{ display:flex; align-items:center; gap:14px; padding:6px 18px 8px; position:sticky; top:0; background:#F9FAFB; z-index:10; border-bottom:2px solid #E5E7EB; margin-bottom:6px; }
+  .fbn-col-header span{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#9CA3AF; }
+  .fbn-h-num{ width:28px; flex-shrink:0; text-align:right; }
+  .fbn-h-name{ flex:1; min-width:0; }
+  .fbn-h-req{ width:180px; flex-shrink:0; }
+  .fbn-h-use{ width:200px; flex-shrink:0; }
+  .fbn-list{ display:flex; flex-direction:column; gap:6px; }
+  .fbn-row{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; padding:13px 18px; }
+  .fbn-row-num{ font-size:11px; color:#9CA3AF; width:28px; flex-shrink:0; text-align:right; }
+  .fbn-row-name{ font-size:14px; font-weight:700; flex:1; min-width:0; }
+  .fbn-row-req{ font-size:12px; color:#6B7280; width:180px; flex-shrink:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .fbn-row-use{ font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; width:200px; flex-shrink:0; background:#F0FDF4; color:#15803D; font-weight:600; overflow:hidden; text-overflow:ellipsis; }
+  .fbn-badge{ display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; background:#DCFCE7; color:#15803D; letter-spacing:.04em; margin-left:8px; }
+  .fbn-search{ flex:1; min-width:200px; padding:8px 14px; border-radius:6px; border:none; font-size:13px; outline:none; }
+  .fbn-count{ color:rgba(255,255,255,.8); font-size:12px; margin-left:auto; white-space:nowrap; }
 </style>
 </head>
 <body>
 <div class="header">
   <h1>&#9733; Name in Lights — Fictitious Companies</h1>
-  <p>143 Intuit employee-owned businesses &nbsp;|&nbsp; Click any row to view logos &amp; profile &nbsp;|&nbsp; <a href="https://intuitcorp.quickbase.com/nav/app/bbqsxypz5/action/appoverview" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;">View NIL Database ↗</a></p>
+  <p>Intuit employee-owned businesses &amp; legally cleared fictitious business names &nbsp;|&nbsp; <a href="https://intuitcorp.quickbase.com/nav/app/bbqsxypz5/action/appoverview" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;">View NIL Database ↗</a></p>
 </div>
-<div class="controls">
-  <input type="text" id="search" placeholder="Search anything — e.g. \"construction in Texas\" or \"healthcare NJ\" or \"dentist CA\"" oninput="renderList()">
-  <select id="catFilter" onchange="renderList()">
-    <option value="">All Categories</option>
-  </select>
-  <span class="count" id="count"></span>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
+  <div class="tab" onclick="switchTab('fbn')">&#10003; Approved Fictitious Business Names</div>
 </div>
-<div class="list-wrap">
-  <div class="col-header">
-    <span class="col-h-num">#</span>
-    <span class="col-h-dot"></span>
-    <span class="col-h-name">Company</span>
-    <span class="col-h-owner">Owner</span>
-    <span class="col-h-cat">Category</span>
-    <span class="col-h-type">Type</span>
-    <span class="col-h-state">State</span>
+
+<!-- NIL tab -->
+<div id="tab-nil" class="tab-panel active">
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search anything — e.g. &quot;construction in Texas&quot; or &quot;healthcare NJ&quot; or &quot;dentist CA&quot;" oninput="renderList()">
+    <select id="catFilter" onchange="renderList()">
+      <option value="">All Categories</option>
+    </select>
+    <span class="count" id="count"></span>
   </div>
-  <div class="list" id="list"></div>
+  <div class="list-wrap">
+    <div class="col-header">
+      <span class="col-h-num">#</span>
+      <span class="col-h-dot"></span>
+      <span class="col-h-name">Company</span>
+      <span class="col-h-owner">Owner</span>
+      <span class="col-h-cat">Category</span>
+      <span class="col-h-type">Type</span>
+      <span class="col-h-state">State</span>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<!-- FBN tab -->
+<div id="tab-fbn" class="tab-panel">
+  <div class="controls">
+    <input type="text" id="fbn-search" placeholder="Search approved names, requestor, or intended use..." oninput="renderFBN()">
+    <span class="fbn-count" id="fbn-count"></span>
+  </div>
+  <div class="fbn-wrap">
+    <p class="fbn-intro">These business names have been reviewed and cleared by Legal for use in Intuit demos, marketing, and product content. All names marked <strong>Yes</strong> are approved for use.</p>
+    <div class="fbn-col-header">
+      <span class="fbn-h-num">#</span>
+      <span class="fbn-h-name">Business Name</span>
+      <span class="fbn-h-req">Requestor</span>
+      <span class="fbn-h-use">Intended Use</span>
+    </div>
+    <div class="fbn-list" id="fbn-list"></div>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -1977,9 +2028,88 @@ function renderList(){
   const sel=document.getElementById('catFilter');
   cats.forEach(cat=>{const o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);});
   renderList();
+  renderFBN();
 })();
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&id==='nil')||(i===1&&id==='fbn'));
+  });
+  document.getElementById('tab-nil').classList.toggle('active', id==='nil');
+  document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
+}
+
+// ── Approved Fictitious Business Names ────────────────────────────────────
+const approvedFBN=[
+  {name:"Beasley & Howe Financials",     requestor:"PJ Nidecker",                  use:"QuickBooks"},
+  {name:"Bo's Buns",                      requestor:"Stephanie Gallagher",           use:"Mailchimp"},
+  {name:"Brinnand Law Services",          requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"Brosnan Law Services",           requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"Camila's Custom Prints",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Canopy Collection",              requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"Cross Sculpt",                   requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"David's Gardening",              requestor:"Giulia Salatino",               use:"QB Payments — UK"},
+  {name:"Downtown Ink Lab",               requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Downtown Sculpt Studio",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Gloria's Ink & Frame",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Gloria's Print House",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Greenscape Gardening",           requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Horizon Construction",           requestor:"Puja Pendley",                  use:"IES"},
+  {name:"Horizon Management",             requestor:"Megan Foster",                  use:"IES"},
+  {name:"Horizon Project Management",     requestor:"Megan Foster",                  use:"IES"},
+  {name:"Idea & Co.",                     requestor:"Emily Zhao",                    use:"Communications"},
+  {name:"Isa's Ink Shop",                 requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"It's a Sign",                    requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"Keystone Construction",          requestor:"Megan Foster",                  use:"IES"},
+  {name:"Kindred Kitchen",                requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"Lily's Catering Co.",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Livi Law Services",              requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"Magnolia Landscaping",           requestor:"",                              use:"NIL"},
+  {name:"Meena Law Services",             requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"Melodia Institute of Music",     requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"Mia's Catering",                 requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Mia's Fine Catering",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"North & Main Interior Design",   requestor:"Mark Maynard",                  use:"Intuit Connect"},
+  {name:"Oat Lord",                       requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"PH Accounting",                  requestor:"Angela Leung",                  use:"QuickBooks"},
+  {name:"Riverfront Sculpt Studio",       requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Rock Castle Construction & Design", requestor:"PJ Nidecker",               use:"QuickBooks"},
+  {name:"Spark Construction and Solar",   requestor:"PJ Nidecker",                   use:"QuickBooks"},
+  {name:"The Ad Assembly",                requestor:"Emily Zhao",                    use:"Communications"},
+  {name:"The Ideahouse",                  requestor:"Emily Zhao",                    use:"Communications"},
+  {name:"The Pedal Pod",                  requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"The Village Green Team",         requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Third Street Core",              requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Tooth Fairy Worldwide",          requestor:"Angela Leung",                  use:"US"},
+  {name:"Tooth Fairy, Inc.",              requestor:"Angela Leung",                  use:"US"},
+  {name:"Truttmann Law Services",         requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"Village Landscaping",            requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+  {name:"Whimcycle",                      requestor:"Elizabeth Teasley",             use:"Mailchimp"},
+  {name:"Woodbeck Law Services",          requestor:"Kelly Unruh",                   use:"IES"},
+  {name:"X Fit",                          requestor:"Angela Leung",                  use:"QB — US, CA, EMEA, AU"},
+];
+
+function fbnRowHTML(f,i){
+  return`<div class="fbn-row">
+    <span class="fbn-row-num">${i+1}</span>
+    <span class="fbn-row-name">${esc(f.name)}<span class="fbn-badge">&#10003; Approved</span></span>
+    <span class="fbn-row-req">${esc(f.requestor)}</span>
+    <span class="fbn-row-use">${esc(f.use)}</span>
+  </div>`;
+}
+
+function renderFBN(){
+  const q=(document.getElementById('fbn-search').value||'').toLowerCase().trim();
+  const filtered=approvedFBN.filter(f=>{
+    if(!q) return true;
+    return (f.name+f.requestor+f.use).toLowerCase().includes(q);
+  });
+  document.getElementById('fbn-list').innerHTML=filtered.map((f,i)=>fbnRowHTML(f,i)).join('');
+  document.getElementById('fbn-count').textContent=filtered.length+' of '+approvedFBN.length+' approved names';
+}
 </script>
 </body>
 </html>
