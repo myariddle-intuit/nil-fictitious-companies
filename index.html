@@ -130,7 +130,6 @@
     <div class="fbn-col-header">
       <span class="fbn-h-num">#</span>
       <span class="fbn-h-name">Business Name</span>
-      <span class="fbn-h-req">Requestor</span>
       <span class="fbn-h-use">Intended Use</span>
     </div>
     <div class="fbn-list" id="fbn-list"></div>
@@ -2095,7 +2094,6 @@ function fbnRowHTML(f,i){
   return`<div class="fbn-row">
     <span class="fbn-row-num">${i+1}</span>
     <span class="fbn-row-name">${esc(f.name)}<span class="fbn-badge">&#10003; Approved</span></span>
-    <span class="fbn-row-req">${esc(f.requestor)}</span>
     <span class="fbn-row-use">${esc(f.use)}</span>
   </div>`;
 }
