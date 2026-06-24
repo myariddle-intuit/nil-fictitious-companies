@@ -2316,7 +2316,14 @@ const approvedFBN=[
   {name:"Kindred Kitchen",                   use:"Mailchimp",           industry:"Food & Beverage"},
   {name:"Lily's Catering Co.",               use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
   {name:"Livi Law Services",                 use:"IES",                 industry:"Legal Services"},
-  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   owner:"Daniele Griffith", type:"Landscaping & Grounds",        email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523"},
+  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   status:"needs_review", owner:"Daniele Griffith", type:"Landscaping & Grounds — Parent Entity", email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523",
+   entities:[
+    {name:"Magnolia Tree Care & Arbor Services Co.",  desc:"tree care, trimming, arborist services"},
+    {name:"Magnolia Outdoor Living Solutions LLC",    desc:"outdoor spaces, patios, hardscaping"},
+    {name:"Magnolia Landscaping North LLC",           desc:"northern region landscaping operations"},
+    {name:"Magnolia Landscaping South LLC",           desc:"southern region landscaping operations"},
+    {name:"Magnolia Nursery & Plant Supply LLC",      desc:"plant sourcing, nursery stock, supply"}
+  ]},
   {name:"Meena Law Services",                use:"IES",                 industry:"Legal Services"},
   {name:"Melodia Institute of Music",        use:"Mailchimp",           industry:"Education"},
   {name:"Mia's Catering",                    use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
