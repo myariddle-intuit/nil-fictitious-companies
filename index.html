@@ -3117,10 +3117,11 @@ function renderBanks(){
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9CA3AF;">Credit Cards Only</span>
       <div style="flex:1;height:1px;background:#E5E7EB;"></div>
     </div>`;
+    let cardNum=0;
     filteredCards.forEach(c=>{
-      rowNum++;
+      cardNum++;
       html+=`<div class="fbn-row" style="cursor:default">
-        <span class="fbn-row-num">${rowNum}</span>
+        <span class="fbn-row-num">${cardNum}</span>
         <span class="fbn-row-name"><span>${esc(c.name)}</span></span>
         <span class="fbn-ind-tag" style="background:${CARD_COL.light};color:${CARD_COL.text}">${esc(c.industry)}</span>
         <span class="fbn-row-use">${esc(c.use)}</span>
