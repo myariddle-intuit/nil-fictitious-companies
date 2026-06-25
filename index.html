@@ -194,9 +194,16 @@
 <div id="tab-banks" class="tab-panel">
   <div class="controls">
     <input type="text" id="banks-search" placeholder="Search banks or credit cards..." oninput="renderBanks()">
+    <span class="fbn-count" id="banks-count"></span>
   </div>
   <div class="fbn-wrap">
     <p class="fbn-intro">Fictitious banks and credit cards cleared by Legal for use in Intuit demos, marketing, and product content.</p>
+    <div class="fbn-col-header">
+      <span class="fbn-h-num">#</span>
+      <span class="fbn-h-name">Bank / Card Name</span>
+      <span class="fbn-h-ind">Type</span>
+      <span class="fbn-h-use">Countries</span>
+    </div>
     <div id="banks-list"></div>
   </div>
 </div>
@@ -3035,72 +3042,90 @@ function closeConsumerModal(){ document.getElementById('consumer-modal').classLi
 
 // ── Banks & Credit Cards ────────────────────────────────────────────────────
 const banksData=[
-  {group:"NorthBridge National Bank", type:"bank", status:"Approved",
+  {name:"NorthBridge National Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",
    cards:[
-    {name:"NorthBridge Classic Card",        type:"Credit Card - Classic",   status:"Approved"},
-    {name:"NorthBridge Platinum Rewards",    type:"Credit Card - Rewards",   status:"Approved"},
-    {name:"NorthBridge Premier Travel Card", type:"Credit Card - Travel",    status:"Approved"}
+    {name:"NorthBridge Classic Card",        industry:"Credit Card - Classic",  use:"US"},
+    {name:"NorthBridge Platinum Rewards",    industry:"Credit Card - Rewards",  use:"US"},
+    {name:"NorthBridge Premier Travel Card", industry:"Credit Card - Travel",   use:"US"}
   ]},
-  {group:"Summit Bank", type:"bank", status:"Approved",
+  {name:"Summit Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",
    cards:[
-    {name:"Summit Bank Card",          type:"Credit Card - Access",   status:"Approved"},
-    {name:"Summit Bank Gold Rewards",  type:"Credit Card - Rewards",  status:"Approved"},
-    {name:"Summit Bank Pinnacle Card", type:"Credit Card - Premium",  status:"Approved"}
+    {name:"Summit Bank Card",          industry:"Credit Card - Access",  use:"US"},
+    {name:"Summit Bank Gold Rewards",  industry:"Credit Card - Rewards", use:"US"},
+    {name:"Summit Bank Pinnacle Card", industry:"Credit Card - Premium", use:"US"}
   ]},
-  {group:"Financial Institution", type:"bank", status:"Approved", cards:[]},
-  {group:"SilverOak Financial", type:"credit", status:"Not Approved",
-   cards:[
-    {name:"SilverOak Everyday Credit",    type:"Credit Card - Everyday",  status:"Approved"},
-    {name:"SilverOak CashBack Plus",      type:"Credit Card - Cashback",  status:"Approved"},
-    {name:"SilverOak Elite Reserve Card", type:"Credit Card - Premium",   status:"Approved"}
-  ]},
-  {group:"Crestline Trust Bank", type:"credit", status:"Not Approved",
-   cards:[
-    {name:"Crestline Basic Credit Card",    type:"Credit Card - Basic",    status:"Approved"},
-    {name:"Crestline Rewards Signature",    type:"Credit Card - Rewards",  status:"Approved"},
-    {name:"Crestline Premier Travel Card",  type:"Credit Card - Travel",   status:"Approved"}
-  ]},
-  {group:"BlueRiver Capital Bank", type:"credit", status:"Not Approved",
-   cards:[
-    {name:"BlueRiver Standard Card",    type:"Credit Card - Standard",  status:"Approved"},
-    {name:"BlueRiver Cashback Rewards", type:"Credit Card - Cashback",  status:"Approved"},
-    {name:"BlueRiver Luxe Card",        type:"Credit Card - Premium",   status:"Approved"}
-  ]}
+  {name:"Financial Institution", section:"bank", industry:"Financial Services", use:"US", status:"", cards:[]}
 ];
+
+const cardsOnlyData=[
+  {name:"SilverOak Everyday Credit",    industry:"Credit Card - Everyday", use:"US"},
+  {name:"SilverOak CashBack Plus",      industry:"Credit Card - Cashback", use:"US"},
+  {name:"SilverOak Elite Reserve Card", industry:"Credit Card - Premium",  use:"US"},
+  {name:"Crestline Basic Credit Card",  industry:"Credit Card - Basic",    use:"US"},
+  {name:"Crestline Rewards Signature",  industry:"Credit Card - Rewards",  use:"US"},
+  {name:"Crestline Premier Travel Card",industry:"Credit Card - Travel",   use:"US"},
+  {name:"BlueRiver Standard Card",      industry:"Credit Card - Standard", use:"US"},
+  {name:"BlueRiver Cashback Rewards",   industry:"Credit Card - Cashback", use:"US"},
+  {name:"BlueRiver Luxe Card",          industry:"Credit Card - Premium",  use:"US"}
+];
+
+const BANK_COL={bg:'#1B4F72',light:'#EDF2FB',text:'#1B4F72'};
+const CARD_COL={bg:'#6C3483',light:'#F4ECF7',text:'#6C3483'};
 
 function renderBanks(){
   const q=(document.getElementById('banks-search').value||'').toLowerCase().trim();
-  const list=document.getElementById('banks-list');
+  let rowNum=0;
   let html='';
+
+  // Bank parent rows with inline cards
   banksData.forEach(b=>{
-    const matchParent=b.group.toLowerCase().includes(q);
-    const matchCards=b.cards.some(c=>c.name.toLowerCase().includes(q)||c.type.toLowerCase().includes(q));
+    const matchParent=b.name.toLowerCase().includes(q);
+    const matchCards=b.cards.some(c=>c.name.toLowerCase().includes(q));
     if(q&&!matchParent&&!matchCards) return;
-    const approvedBadge=b.status==='Approved'
-      ?'<span style="font-size:10px;font-weight:700;color:#065F46;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:20px;padding:2px 8px;margin-left:8px;">Approved</span>'
-      :'<span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;border:1px solid #F59E0B;border-radius:20px;padding:2px 8px;margin-left:8px;">Not Approved</span>';
-    const sectionLabel=b.type==='bank'
-      ?'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-right:6px;">Bank</span>'
-      :'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-right:6px;">Credit Cards Only</span>';
-    html+=`<div style="margin:0 0 6px;padding:12px 18px;background:#fff;border:1px solid #E5E7EB;border-radius:8px;">`;
-    html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:${b.cards.length?'10px':'0'};">`;
-    html+=sectionLabel;
-    html+=`<span style="font-size:14px;font-weight:700;color:#111827;">${b.group}</span>${approvedBadge}</div>`;
+    rowNum++;
+    const badge=b.status==='ies_parent'?'<span class="badge-review">IES Parent &amp; Entities</span>':'';
+    html+=`<div class="fbn-row" style="${b.cards.length?'flex-wrap:wrap;':''}cursor:default">
+      <span class="fbn-row-num">${rowNum}</span>
+      <span class="fbn-row-name"><span>${esc(b.name)}</span>${badge}</span>
+      <span class="fbn-ind-tag" style="background:${BANK_COL.light};color:${BANK_COL.text}">National Bank</span>
+      <span class="fbn-row-use">${esc(b.use)}</span>`;
     if(b.cards.length){
+      html+=`<div style="width:100%;margin-top:8px;border-top:1px solid #F3F4F6;padding-top:6px;">`;
       b.cards.forEach(c=>{
-        const show=!q||matchParent||c.name.toLowerCase().includes(q)||c.type.toLowerCase().includes(q);
+        const show=!q||matchParent||c.name.toLowerCase().includes(q);
         if(!show) return;
-        const cBadge='<span style="font-size:10px;font-weight:700;color:#065F46;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:20px;padding:2px 8px;">Approved</span>';
-        html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 16px;border-top:1px solid #F3F4F6;">`;
-        html+=`<span style="font-size:13px;color:#374151;flex:1;">${c.name}</span>`;
-        html+=`<span style="font-size:11px;color:#9CA3AF;">${c.type}</span>`;
-        html+=`<span style="margin-left:8px;">${cBadge}</span>`;
-        html+=`</div>`;
+        html+=`<div style="display:flex;align-items:center;gap:14px;padding:5px 0 5px 28px;">
+          <span style="font-size:13px;color:#374151;flex:1;">${esc(c.name)}</span>
+          <span class="fbn-ind-tag" style="background:${CARD_COL.light};color:${CARD_COL.text}">${esc(c.industry)}</span>
+          <span class="fbn-row-use">${esc(c.use)}</span>
+        </div>`;
       });
+      html+=`</div>`;
     }
     html+=`</div>`;
   });
-  list.innerHTML=html||'<p style="color:#9CA3AF;padding:20px;">No results found.</p>';
+
+  // Credit Cards Only section divider
+  const filteredCards=cardsOnlyData.filter(c=>!q||c.name.toLowerCase().includes(q)||c.industry.toLowerCase().includes(q));
+  if(!q||filteredCards.length){
+    html+=`<div style="margin:18px 0 8px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9CA3AF;">Credit Cards Only</span>
+      <div style="flex:1;height:1px;background:#E5E7EB;"></div>
+    </div>`;
+    filteredCards.forEach(c=>{
+      rowNum++;
+      html+=`<div class="fbn-row" style="cursor:default">
+        <span class="fbn-row-num">${rowNum}</span>
+        <span class="fbn-row-name"><span>${esc(c.name)}</span></span>
+        <span class="fbn-ind-tag" style="background:${CARD_COL.light};color:${CARD_COL.text}">${esc(c.industry)}</span>
+        <span class="fbn-row-use">${esc(c.use)}</span>
+      </div>`;
+    });
+  }
+
+  const total=banksData.length+cardsOnlyData.length;
+  document.getElementById('banks-count').textContent=rowNum+' of '+total+' entries';
+  document.getElementById('banks-list').innerHTML=html||'<div class="no-results">No results found.</div>';
 }
 
 // Init consumer tab
