@@ -3110,7 +3110,7 @@ function fmtRevenue(v){
   return '$'+(Math.round(v/1000))+'K';
 }
 
-function renderFinancials(name, revenue){
+function renderFinancials(name, revenue, industry){
   const rng=seededRNG(hashStr(name+'financials'));
   // Expense ratio 52–74% of revenue
   const expRatio=0.52+rng()*0.22;
@@ -3118,32 +3118,132 @@ function renderFinancials(name, revenue){
   const netIncome=revenue-totalExp;
   const netPositive=netIncome>=0;
 
+  // Monthly figures
+  const monthRev=Math.round(revenue/12);
+  const monthExp=Math.round(totalExp/12);
+  const monthNet=monthRev-monthExp;
+  const monthNetPos=monthNet>=0;
+
+  // P&L review counts (seeded)
+  const incDeposited=3+Math.floor(rng()*14);
+  const incToReview=2+Math.floor(rng()*12);
+  const expToReview=4+Math.floor(rng()*18);
+  const prevQtrPct=Math.round((-8+rng()*20)*10)/10; // -8% to +12%
+
+  // Bank balances
+  const checking=Math.round(monthRev*(1.2+rng()*0.8));
+  const savings=Math.round(monthRev*(0.6+rng()*0.5));
+  const nbInQB=Math.round(checking*(0.85+rng()*0.12));
+  const sbInQB=Math.round(savings*(0.88+rng()*0.10));
+  const totalBank=checking+savings;
+  const ar=Math.round(revenue*0.06+rng()*revenue*0.04);
+  const cc=Math.round(totalExp*0.015+rng()*totalExp*0.01);
+
+  const finEl=document.getElementById('m-financials');
+  const contentEl=document.getElementById('m-fin-content');
+
+  // Store for CoA
+  finEl._checking=checking;
+  finEl._savings=savings;
+  finEl._ar=ar;
+  finEl._cc=cc;
+
   // Expense category breakdown — always sums to totalExp
   const catNames=['Cost of Goods / Services','Payroll & Benefits','Rent & Utilities','Marketing & Advertising','Technology & Software','G&A / Other'];
   const rawWeights=[0.30+rng()*0.15, 0.22+rng()*0.12, 0.10+rng()*0.08, 0.08+rng()*0.07, 0.05+rng()*0.05, 0.04+rng()*0.06];
   const wSum=rawWeights.reduce((a,b)=>a+b,0);
   const catAmounts=rawWeights.map(w=>Math.round(totalExp*(w/wSum)));
-  // Fix rounding difference on last item
   const diff=totalExp-catAmounts.reduce((a,b)=>a+b,0);
   catAmounts[catAmounts.length-1]+=diff;
 
-  const finEl=document.getElementById('m-financials');
-  const contentEl=document.getElementById('m-fin-content');
+  // P&L section
+  const incPct=Math.round((monthRev/Math.max(monthRev,monthExp))*100);
+  const expPct=Math.round((monthExp/Math.max(monthRev,monthExp))*100);
+  const trendColor=prevQtrPct>=0?'#15803D':'#BE123C';
+  const trendArrow=prevQtrPct>=0?'↑':'↓';
+  const plHTML=`
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Profit &amp; Loss</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Net profit · This month</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:700;color:${monthNetPos?'#15803D':'#BE123C'}">${monthNetPos?'':'-'}${fmtRevenue(Math.abs(monthNet))}</div>
+          <div style="font-size:10px;color:${trendColor};margin-top:1px">${trendArrow} ${Math.abs(prevQtrPct)}% from last quarter · <span style="color:#6B7280">${incDeposited} deposited</span></div>
+        </div>
+      </div>
+      <div style="margin-bottom:7px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600;color:#374151">Income</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;background:#DCFCE7;color:#15803D;border-radius:4px;padding:1px 6px;font-weight:600">${incToReview} to review</span>
+            <span style="font-size:11px;font-weight:600;color:#15803D">${fmtRevenue(monthRev)}</span>
+          </div>
+        </div>
+        <div style="background:#F3F4F6;border-radius:4px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${incPct}%;background:#22C55E;border-radius:4px"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600;color:#374151">Expenses</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;background:#FEF3C7;color:#92400E;border-radius:4px;padding:1px 6px;font-weight:600">${expToReview} to review</span>
+            <span style="font-size:11px;font-weight:600;color:#9A3412">${fmtRevenue(monthExp)}</span>
+          </div>
+        </div>
+        <div style="background:#F3F4F6;border-radius:4px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${expPct}%;background:#F97316;border-radius:4px"></div>
+        </div>
+      </div>
+    </div>`;
 
-  // Summary row
+  // Annual summary cards
   const summaryHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
-      <div style="background:#EFF6FF;border-radius:8px;padding:12px 14px">
-        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Annual Revenue</div>
-        <div style="font-size:18px;font-weight:700;color:#1B4F72">${fmtRevenue(revenue)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Annual Revenue</div>
+        <div style="font-size:16px;font-weight:700;color:#1B4F72">${fmtRevenue(revenue)}</div>
       </div>
-      <div style="background:#FFF7ED;border-radius:8px;padding:12px 14px">
-        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Expenses</div>
-        <div style="font-size:18px;font-weight:700;color:#9A3412">${fmtRevenue(totalExp)}</div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Total Expenses</div>
+        <div style="font-size:16px;font-weight:700;color:#9A3412">${fmtRevenue(totalExp)}</div>
       </div>
-      <div style="background:${netPositive?'#F0FDF4':'#FFF1F2'};border-radius:8px;padding:12px 14px">
-        <div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Net Income</div>
-        <div style="font-size:18px;font-weight:700;color:${netPositive?'#15803D':'#BE123C'}">${netPositive?'':'-'}${fmtRevenue(Math.abs(netIncome))}</div>
+      <div style="background:${netPositive?'#F0FDF4':'#FFF1F2'};border-radius:8px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Net Income</div>
+        <div style="font-size:16px;font-weight:700;color:${netPositive?'#15803D':'#BE123C'}">${netPositive?'':'-'}${fmtRevenue(Math.abs(netIncome))}</div>
+      </div>
+    </div>`;
+
+  // Bank accounts section
+  const bankHTML=`
+    <div style="margin-bottom:16px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Bank Accounts</div>
+        <div style="font-size:10px;color:#9CA3AF">Total: <strong style="color:#1E293B">${fmtRevenue(totalBank)}</strong></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:#fff;border-radius:6px;padding:10px 12px;border:1px solid #E9EFF6">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;color:#1E40AF">NorthBridge National Bank</span>
+            <span style="font-size:13px;font-weight:700;color:#1E293B">${fmtRevenue(checking)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:#9CA3AF">Checking · Updated today</span>
+            <span style="font-size:10px;color:#6B7280">In QuickBooks: <strong>${fmtRevenue(nbInQB)}</strong></span>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:6px;padding:10px 12px;border:1px solid #E9EFF6">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;font-weight:600;color:#065F46">Summit Bank</span>
+            <span style="font-size:13px;font-weight:700;color:#1E293B">${fmtRevenue(savings)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:#9CA3AF">Savings · Updated today</span>
+            <span style="font-size:10px;color:#6B7280">In QuickBooks: <strong>${fmtRevenue(sbInQB)}</strong></span>
+          </div>
+        </div>
       </div>
     </div>`;
 
@@ -3162,7 +3262,7 @@ function renderFinancials(name, revenue){
     </div>`;
   }).join('');
 
-  contentEl.innerHTML=summaryHTML+`<div style="margin-top:4px"><div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Expense Breakdown</div>${barsHTML}</div>`;
+  contentEl.innerHTML=plHTML+summaryHTML+bankHTML+`<div style="margin-top:4px"><div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Expense Breakdown</div>${barsHTML}</div>`;
   finEl.style.display='block';
 }
 
