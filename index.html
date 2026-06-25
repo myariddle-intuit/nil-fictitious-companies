@@ -2456,9 +2456,18 @@ function fbnRowHTML(f,i){
   const ind=f.industry||'';
   const col=FBN_IND_COLORS[ind]||{light:'#ECEFF1',text:'#455A64'};
   const nameSafe=f.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const isSimple=!f.owner;
   const clickable=f.owner?`onclick="openFBNModal('${nameSafe}')" style="cursor:pointer"`:'';
   const reviewBadge=f.status==='ies_parent'?'<span class="badge-review">IES Parent &amp; Entities</span>':'';
   const ownerTag=f.owner&&!f.status?'<span style="font-size:11px;color:#9CA3AF;font-weight:400;margin-left:8px;">'+esc(f.owner)+'</span>':'';
+  if(isSimple){
+    return`<div class="fbn-row" style="background:#F9FAFB;box-shadow:none;border:1px dashed #E5E7EB;padding:9px 18px;">
+      <span class="fbn-row-num" style="color:#C4C9D4">${i+1}</span>
+      <span class="fbn-row-name" style="font-weight:400;color:#6B7280"><span>${esc(f.name)}</span></span>
+      <span class="fbn-ind-tag" style="background:${col.light};color:${col.text};opacity:.75">${esc(ind)}</span>
+      <span class="fbn-row-use" style="color:#C4C9D4">${esc(f.use)}</span>
+    </div>`;
+  }
   return`<div class="fbn-row" ${clickable}>
     <span class="fbn-row-num">${i+1}</span>
     <span class="fbn-row-name"><span>${esc(f.name)}</span>${reviewBadge}${ownerTag}</span>
