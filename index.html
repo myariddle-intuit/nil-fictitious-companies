@@ -2082,7 +2082,7 @@ function rowHTML(c,i){
   const col=catColors[c.category]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
   const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const stateCode=(c.address.split(',')[2]||'').trim().split(' ')[0]||'';
-  const reviewBadge=c.status==='needs_review'?'<span class="badge-review">⚠ Needs Review</span>':'';
+  const reviewBadge=c.status==='ies_parent'?'<span class="badge-review">IES Parent &amp; Entities</span>':'';
   return`<div class="row" onclick="openModal('${nameSafe}')">
     <span class="row-num">${i+1}</span>
     <span class="cat-dot" style="background:${col.bg}"></span>
@@ -2294,6 +2294,73 @@ function switchTab(id){
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
 const approvedFBN=[
+  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   status:"ies_parent", owner:"Daniele Griffith", type:"Landscaping & Grounds — Parent Entity", email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523",
+   entities:[
+    {name:"Magnolia Tree Care & Arbor Services Co.",  desc:"tree care, trimming, arborist services"},
+    {name:"Magnolia Outdoor Living Solutions LLC",    desc:"outdoor spaces, patios, hardscaping"},
+    {name:"Magnolia Landscaping North LLC",           desc:"northern region landscaping operations"},
+    {name:"Magnolia Landscaping South LLC",           desc:"southern region landscaping operations"},
+    {name:"Magnolia Nursery & Plant Supply LLC",      desc:"plant sourcing, nursery stock, supply"}
+  ]},
+  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  status:"ies_parent", owner:"Kirstie Espinoza", type:"Construction & Solar — Parent Entity", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524",
+   entities:[
+    {name:"Spark Civil Infrastructure LLC",          desc:"roads, bridges, public works projects"},
+    {name:"Spark Commercial Construction Inc.",      desc:"offices, retail, mixed-use developments"},
+    {name:"Spark Solar Energy Systems Ltd.",         desc:"solar panel installation, energy systems"},
+    {name:"Spark Electrical & Power Solutions Co.",  desc:"electrical contracting, power distribution"},
+    {name:"Spark Roofing & Renewable Energy LLC",    desc:"roofing, solar rooftop, renewable integration"},
+    {name:"Spark Construction West LLC",             desc:"regional operations — western U.S."},
+    {name:"Spark Construction East LLC",             desc:"regional operations — eastern U.S."},
+    {name:"Spark Solar Maintenance & Operations LLC",desc:"solar system servicing, maintenance, monitoring"}
+  ]},
+  {name:"Horizon Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent", owner:"Marissa Dobbert",   type:"Construction Group — Parent Entity",     email:"marissa.dobbert@example.com",   phone:"(617) 555-2200", address:"100 Industrial Drive, Harbor Town, MA 02101", ssn:"400-00-3526",
+   entities:[
+    {name:"Horizon Civil Solutions LLC",        desc:"roads, bridges, heavy infrastructure"},
+    {name:"Horizon Commercial Builders Inc.",   desc:"offices, retail, large developments"},
+    {name:"Horizon Industrial & Energy Ltd.",   desc:"plants, factories, energy projects"},
+    {name:"Horizon Equipment & Logistics Co.",  desc:"machinery, transport, fleet management"},
+    {name:"Horizon Materials Supply LLC",       desc:"concrete, steel, aggregates"},
+    {name:"Horizon Construction West LLC",      desc:"regional operations — western U.S."},
+    {name:"Horizon Construction East LLC",      desc:"regional operations — eastern U.S."}
+  ]},
+  {name:"Keystone Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent", owner:"Clark Fulton",  type:"Construction Group — Parent Entity",     email:"clark.fulton@example.com",   phone:"(415) 555-1900", address:"456 Bayshore Drive, Center City, CA 32201", ssn:"400-00-3527",
+   entities:[
+    {name:"Keystone Civil Infrastructure LLC",  desc:"roads, bridges, public works projects"},
+    {name:"Keystone Commercial Builders Inc.",  desc:"office buildings, retail, mixed-use developments"},
+    {name:"Keystone Industrial & Energy Ltd.",  desc:"plants, manufacturing facilities, energy projects"},
+    {name:"Keystone Equipment & Logistics Co.", desc:"fleet, heavy machinery, transport operations"},
+    {name:"Keystone Materials & Supply LLC",    desc:"concrete, steel, aggregates, procurement"},
+    {name:"Keystone Construction West LLC",     desc:"regional operations — western U.S."},
+    {name:"Keystone Construction East LLC",     desc:"regional operations — eastern U.S."}
+  ]},
+  {name:"Ironvale Manufacturing Group", use:"NIL",       industry:"Manufacturing",  status:"ies_parent", owner:"Bennett Hart", type:"Manufacturing Group — Parent Entity",   email:"bennett.hart@example.com", phone:"(312) 555-4410", address:"88 Commerce Boulevard, Lakeside, OH 44101",  ssn:"400-00-3528",
+   entities:[
+    {name:"Ironvale Industrial Systems LLC",    desc:"core manufacturing — heavy equipment, components"},
+    {name:"Ironvale Advanced Materials Inc.",   desc:"composites, specialty materials, R&D"},
+    {name:"Ironvale Consumer Products Ltd.",    desc:"retail-facing manufactured goods"},
+    {name:"Ironvale Supply Chain & Logistics Co.", desc:"distribution, warehousing, shipping"},
+    {name:"Ironvale Manufacturing West LLC",    desc:"western U.S. production"},
+    {name:"Ironvale Manufacturing East LLC",    desc:"eastern U.S. production"},
+    {name:"Ironvale Engineering & Innovation LLC", desc:"product design, R&D, process optimization"}
+  ]},
+  {name:"ForgeWorks Industries",        use:"NIL",       industry:"Manufacturing",  status:"ies_parent", owner:"Marvin Augustin", type:"Manufacturing Group — Parent Entity",    email:"marvin.augustin@example.com",  phone:"(213) 555-7730", address:"2200 Factory Row, Westfield, CA 90007",       ssn:"400-00-3529",
+   entities:[
+    {name:"ForgeWorks Heavy Manufacturing LLC",  desc:"large-scale equipment, industrial components"},
+    {name:"ForgeWorks Precision Components Inc.",desc:"high-accuracy parts, machining, aerospace/auto supply"},
+    {name:"ForgeWorks Materials Technology Ltd.",desc:"advanced materials, metals, composites"},
+    {name:"ForgeWorks Supply Chain & Distribution Co.", desc:"logistics, warehousing, fulfillment"},
+    {name:"ForgeWorks Manufacturing West LLC",   desc:"western U.S. production facilities"},
+    {name:"ForgeWorks Manufacturing Central LLC",desc:"central U.S. production hub"},
+    {name:"ForgeWorks Research & Engineering LLC",desc:"R&D, product development, process innovation"}
+  ]},
+  {name:"Greenhaven Foundation",       use:"NIL",       industry:"Nonprofit / Social Services", status:"ies_parent", owner:"Haley Malucchi", type:"Nonprofit Organization — Parent Entity", email:"haley.malucchi@example.com",  phone:"(512) 555-6740", address:"220 Civic Commons Way, Downtown, TX 78701",  ssn:"400-00-3532",
+   entities:[
+    {name:"Greenhaven Community Development",  desc:"affordable housing, neighborhood revitalization, local economic growth"},
+    {name:"Greenhaven Health & Wellness",      desc:"community clinics, mental health services, public health outreach"},
+    {name:"Greenhaven West Region",            desc:"regional programs — western U.S."},
+    {name:"Greenhaven East Region",            desc:"regional programs — eastern U.S."},
+    {name:"Greenhaven Global Partnerships",    desc:"international aid, NGO collaborations, global outreach"}
+  ]},
   {name:"Bo's Buns",                         use:"Mailchimp",           industry:"Food & Beverage"},
   {name:"Brinnand Law Services",             use:"IES",                 industry:"Legal Services"},
   {name:"Brosnan Law Services",              use:"IES",                 industry:"Legal Services"},
@@ -2324,14 +2391,6 @@ const approvedFBN=[
   {name:"Kindred Kitchen",                   use:"Mailchimp",           industry:"Food & Beverage"},
   {name:"Lily's Catering Co.",               use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
   {name:"Livi Law Services",                 use:"IES",                 industry:"Legal Services"},
-  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   status:"needs_review", owner:"Daniele Griffith", type:"Landscaping & Grounds — Parent Entity", email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523",
-   entities:[
-    {name:"Magnolia Tree Care & Arbor Services Co.",  desc:"tree care, trimming, arborist services"},
-    {name:"Magnolia Outdoor Living Solutions LLC",    desc:"outdoor spaces, patios, hardscaping"},
-    {name:"Magnolia Landscaping North LLC",           desc:"northern region landscaping operations"},
-    {name:"Magnolia Landscaping South LLC",           desc:"southern region landscaping operations"},
-    {name:"Magnolia Nursery & Plant Supply LLC",      desc:"plant sourcing, nursery stock, supply"}
-  ]},
   {name:"Meena Law Services",                use:"IES",                 industry:"Legal Services"},
   {name:"Melodia Institute of Music",        use:"Mailchimp",           industry:"Education"},
   {name:"Mia's Catering",                    use:"QB — US, CA, EMEA, AU", industry:"Food & Beverage"},
@@ -2341,17 +2400,6 @@ const approvedFBN=[
   {name:"PH Accounting",                     use:"QuickBooks",          industry:"Financial Services"},
   {name:"Riverfront Sculpt Studio",          use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
   {name:"Rock Castle Construction & Design", use:"QuickBooks",          industry:"Construction"},
-  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  status:"needs_review", owner:"Kirstie Espinoza", type:"Construction & Solar — Parent Entity", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524",
-   entities:[
-    {name:"Spark Civil Infrastructure LLC",          desc:"roads, bridges, public works projects"},
-    {name:"Spark Commercial Construction Inc.",      desc:"offices, retail, mixed-use developments"},
-    {name:"Spark Solar Energy Systems Ltd.",         desc:"solar panel installation, energy systems"},
-    {name:"Spark Electrical & Power Solutions Co.",  desc:"electrical contracting, power distribution"},
-    {name:"Spark Roofing & Renewable Energy LLC",    desc:"roofing, solar rooftop, renewable integration"},
-    {name:"Spark Construction West LLC",             desc:"regional operations — western U.S."},
-    {name:"Spark Construction East LLC",             desc:"regional operations — eastern U.S."},
-    {name:"Spark Solar Maintenance & Operations LLC",desc:"solar system servicing, maintenance, monitoring"}
-  ]},
   {name:"The Ad Assembly",                   use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Ideahouse",                     use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Pedal Pod",                     use:"Mailchimp",           industry:"Fitness & Recreation"},
@@ -2364,54 +2412,6 @@ const approvedFBN=[
   {name:"Whimcycle",                         use:"Mailchimp",           industry:"Fitness & Recreation"},
   {name:"Woodbeck Law Services",             use:"IES",                 industry:"Legal Services"},
   {name:"X Fit",                             use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
-  {name:"Horizon Construction",  use:"IES / NIL", industry:"Construction", status:"needs_review", owner:"Marissa Dobbert",   type:"Construction Group — Parent Entity",     email:"marissa.dobbert@example.com",   phone:"(617) 555-2200", address:"100 Industrial Drive, Harbor Town, MA 02101", ssn:"400-00-3526",
-   entities:[
-    {name:"Horizon Civil Solutions LLC",        desc:"roads, bridges, heavy infrastructure"},
-    {name:"Horizon Commercial Builders Inc.",   desc:"offices, retail, large developments"},
-    {name:"Horizon Industrial & Energy Ltd.",   desc:"plants, factories, energy projects"},
-    {name:"Horizon Equipment & Logistics Co.",  desc:"machinery, transport, fleet management"},
-    {name:"Horizon Materials Supply LLC",       desc:"concrete, steel, aggregates"},
-    {name:"Horizon Construction West LLC",      desc:"regional operations — western U.S."},
-    {name:"Horizon Construction East LLC",      desc:"regional operations — eastern U.S."}
-  ]},
-  {name:"Keystone Construction",  use:"IES / NIL", industry:"Construction", status:"needs_review", owner:"Clark Fulton",  type:"Construction Group — Parent Entity",     email:"clark.fulton@example.com",   phone:"(415) 555-1900", address:"456 Bayshore Drive, Center City, CA 32201", ssn:"400-00-3527",
-   entities:[
-    {name:"Keystone Civil Infrastructure LLC",  desc:"roads, bridges, public works projects"},
-    {name:"Keystone Commercial Builders Inc.",  desc:"office buildings, retail, mixed-use developments"},
-    {name:"Keystone Industrial & Energy Ltd.",  desc:"plants, manufacturing facilities, energy projects"},
-    {name:"Keystone Equipment & Logistics Co.", desc:"fleet, heavy machinery, transport operations"},
-    {name:"Keystone Materials & Supply LLC",    desc:"concrete, steel, aggregates, procurement"},
-    {name:"Keystone Construction West LLC",     desc:"regional operations — western U.S."},
-    {name:"Keystone Construction East LLC",     desc:"regional operations — eastern U.S."}
-  ]},
-  {name:"Ironvale Manufacturing Group", use:"NIL",       industry:"Manufacturing",  status:"needs_review", owner:"Bennett Hart", type:"Manufacturing Group — Parent Entity",   email:"bennett.hart@example.com", phone:"(312) 555-4410", address:"88 Commerce Boulevard, Lakeside, OH 44101",  ssn:"400-00-3528",
-   entities:[
-    {name:"Ironvale Industrial Systems LLC",    desc:"core manufacturing — heavy equipment, components"},
-    {name:"Ironvale Advanced Materials Inc.",   desc:"composites, specialty materials, R&D"},
-    {name:"Ironvale Consumer Products Ltd.",    desc:"retail-facing manufactured goods"},
-    {name:"Ironvale Supply Chain & Logistics Co.", desc:"distribution, warehousing, shipping"},
-    {name:"Ironvale Manufacturing West LLC",    desc:"western U.S. production"},
-    {name:"Ironvale Manufacturing East LLC",    desc:"eastern U.S. production"},
-    {name:"Ironvale Engineering & Innovation LLC", desc:"product design, R&D, process optimization"}
-  ]},
-  {name:"ForgeWorks Industries",        use:"NIL",       industry:"Manufacturing",  status:"needs_review", owner:"Marvin Augustin", type:"Manufacturing Group — Parent Entity",    email:"marvin.augustin@example.com",  phone:"(213) 555-7730", address:"2200 Factory Row, Westfield, CA 90007",       ssn:"400-00-3529",
-   entities:[
-    {name:"ForgeWorks Heavy Manufacturing LLC",  desc:"large-scale equipment, industrial components"},
-    {name:"ForgeWorks Precision Components Inc.",desc:"high-accuracy parts, machining, aerospace/auto supply"},
-    {name:"ForgeWorks Materials Technology Ltd.",desc:"advanced materials, metals, composites"},
-    {name:"ForgeWorks Supply Chain & Distribution Co.", desc:"logistics, warehousing, fulfillment"},
-    {name:"ForgeWorks Manufacturing West LLC",   desc:"western U.S. production facilities"},
-    {name:"ForgeWorks Manufacturing Central LLC",desc:"central U.S. production hub"},
-    {name:"ForgeWorks Research & Engineering LLC",desc:"R&D, product development, process innovation"}
-  ]},
-  {name:"Greenhaven Foundation",       use:"NIL",       industry:"Nonprofit / Social Services", status:"needs_review", owner:"Haley Malucchi", type:"Nonprofit Organization — Parent Entity", email:"haley.malucchi@example.com",  phone:"(512) 555-6740", address:"220 Civic Commons Way, Downtown, TX 78701",  ssn:"400-00-3532",
-   entities:[
-    {name:"Greenhaven Community Development",  desc:"affordable housing, neighborhood revitalization, local economic growth"},
-    {name:"Greenhaven Health & Wellness",      desc:"community clinics, mental health services, public health outreach"},
-    {name:"Greenhaven West Region",            desc:"regional programs — western U.S."},
-    {name:"Greenhaven East Region",            desc:"regional programs — eastern U.S."},
-    {name:"Greenhaven Global Partnerships",    desc:"international aid, NGO collaborations, global outreach"}
-  ]},
 ];
 
 const FBN_IND_COLORS={
@@ -2437,7 +2437,7 @@ function fbnRowHTML(f,i){
   const col=FBN_IND_COLORS[ind]||{light:'#ECEFF1',text:'#455A64'};
   const nameSafe=f.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const clickable=f.owner?`onclick="openFBNModal('${nameSafe}')" style="cursor:pointer"`:'';
-  const reviewBadge=f.status==='needs_review'?'<span class="badge-review">⚠ Needs Review</span>':'';
+  const reviewBadge=f.status==='ies_parent'?'<span class="badge-review">IES Parent &amp; Entities</span>':'';
   const ownerTag=f.owner&&!f.status?'<span style="font-size:11px;color:#9CA3AF;font-weight:400;margin-left:8px;">'+esc(f.owner)+'</span>':'';
   return`<div class="fbn-row" ${clickable}>
     <span class="fbn-row-num">${i+1}</span>
@@ -2450,7 +2450,7 @@ function fbnRowHTML(f,i){
 function openFBNModal(name){
   const f=approvedFBN.find(x=>x.name===name);
   if(!f||!f.owner) return;
-  const reviewTag=f.status==='needs_review'?' <span class="badge-review" style="font-size:11px;vertical-align:middle">⚠ Needs Review</span>':'';
+  const reviewTag=f.status==='ies_parent'?' <span class="badge-review" style="font-size:11px;vertical-align:middle">IES Parent &amp; Entities</span>':'';
   document.getElementById('m-title').innerHTML=esc(f.name)+reviewTag;
   document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
   const revTier=f.revTier||'high';
