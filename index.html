@@ -2341,7 +2341,17 @@ const approvedFBN=[
   {name:"PH Accounting",                     use:"QuickBooks",          industry:"Financial Services"},
   {name:"Riverfront Sculpt Studio",          use:"QB — US, CA, EMEA, AU", industry:"Fitness & Recreation"},
   {name:"Rock Castle Construction & Design", use:"QuickBooks",          industry:"Construction"},
-  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  owner:"Kirstie Espinoza", type:"Construction & Solar Install", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524"},
+  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  status:"needs_review", owner:"Kirstie Espinoza", type:"Construction & Solar — Parent Entity", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524",
+   entities:[
+    {name:"Spark Civil Infrastructure LLC",          desc:"roads, bridges, public works projects"},
+    {name:"Spark Commercial Construction Inc.",      desc:"offices, retail, mixed-use developments"},
+    {name:"Spark Solar Energy Systems Ltd.",         desc:"solar panel installation, energy systems"},
+    {name:"Spark Electrical & Power Solutions Co.",  desc:"electrical contracting, power distribution"},
+    {name:"Spark Roofing & Renewable Energy LLC",    desc:"roofing, solar rooftop, renewable integration"},
+    {name:"Spark Construction West LLC",             desc:"regional operations — western U.S."},
+    {name:"Spark Construction East LLC",             desc:"regional operations — eastern U.S."},
+    {name:"Spark Solar Maintenance & Operations LLC",desc:"solar system servicing, maintenance, monitoring"}
+  ]},
   {name:"The Ad Assembly",                   use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Ideahouse",                     use:"Communications",      industry:"Marketing & Comms"},
   {name:"The Pedal Pod",                     use:"Mailchimp",           industry:"Fitness & Recreation"},
