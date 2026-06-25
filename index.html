@@ -143,6 +143,7 @@
   <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
   <div class="tab" onclick="switchTab('fbn')">Fictitious Business Names</div>
   <div class="tab" onclick="switchTab('consumer')">&#128100; Consumer Personas</div>
+  <div class="tab" onclick="switchTab('banks')">&#127974; Banks &amp; Credit Cards</div>
 </div>
 
 <!-- NIL tab -->
@@ -186,6 +187,17 @@
       <span class="fbn-h-use">Intended Use</span>
     </div>
     <div class="fbn-list" id="fbn-list"></div>
+  </div>
+</div>
+
+<!-- Banks & Credit Cards tab -->
+<div id="tab-banks" class="tab-panel">
+  <div class="controls">
+    <input type="text" id="banks-search" placeholder="Search banks or credit cards..." oninput="renderBanks()">
+  </div>
+  <div class="fbn-wrap">
+    <p class="fbn-intro">Fictitious banks and credit cards cleared by Legal for use in Intuit demos, marketing, and product content.</p>
+    <div id="banks-list"></div>
   </div>
 </div>
 
@@ -2276,11 +2288,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='consumer'));
+    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='consumer')||(i===3&&id==='banks'));
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
   document.getElementById('tab-consumer').classList.toggle('active', id==='consumer');
+  document.getElementById('tab-banks').classList.toggle('active', id==='banks');
+  if(id==='banks') renderBanks();
   if(id==='fbn'){
     const sel=document.getElementById('fbn-ind-filter');
     if(sel.options.length<=1){
@@ -3018,6 +3032,76 @@ function openConsumerModal(name){
 }
 
 function closeConsumerModal(){ document.getElementById('consumer-modal').classList.remove('open'); }
+
+// ── Banks & Credit Cards ────────────────────────────────────────────────────
+const banksData=[
+  {group:"NorthBridge National Bank", type:"bank", status:"Approved",
+   cards:[
+    {name:"NorthBridge Classic Card",        type:"Credit Card - Classic",   status:"Approved"},
+    {name:"NorthBridge Platinum Rewards",    type:"Credit Card - Rewards",   status:"Approved"},
+    {name:"NorthBridge Premier Travel Card", type:"Credit Card - Travel",    status:"Approved"}
+  ]},
+  {group:"Summit Bank", type:"bank", status:"Approved",
+   cards:[
+    {name:"Summit Bank Card",          type:"Credit Card - Access",   status:"Approved"},
+    {name:"Summit Bank Gold Rewards",  type:"Credit Card - Rewards",  status:"Approved"},
+    {name:"Summit Bank Pinnacle Card", type:"Credit Card - Premium",  status:"Approved"}
+  ]},
+  {group:"Financial Institution", type:"bank", status:"Approved", cards:[]},
+  {group:"SilverOak Financial", type:"credit", status:"Not Approved",
+   cards:[
+    {name:"SilverOak Everyday Credit",    type:"Credit Card - Everyday",  status:"Approved"},
+    {name:"SilverOak CashBack Plus",      type:"Credit Card - Cashback",  status:"Approved"},
+    {name:"SilverOak Elite Reserve Card", type:"Credit Card - Premium",   status:"Approved"}
+  ]},
+  {group:"Crestline Trust Bank", type:"credit", status:"Not Approved",
+   cards:[
+    {name:"Crestline Basic Credit Card",    type:"Credit Card - Basic",    status:"Approved"},
+    {name:"Crestline Rewards Signature",    type:"Credit Card - Rewards",  status:"Approved"},
+    {name:"Crestline Premier Travel Card",  type:"Credit Card - Travel",   status:"Approved"}
+  ]},
+  {group:"BlueRiver Capital Bank", type:"credit", status:"Not Approved",
+   cards:[
+    {name:"BlueRiver Standard Card",    type:"Credit Card - Standard",  status:"Approved"},
+    {name:"BlueRiver Cashback Rewards", type:"Credit Card - Cashback",  status:"Approved"},
+    {name:"BlueRiver Luxe Card",        type:"Credit Card - Premium",   status:"Approved"}
+  ]}
+];
+
+function renderBanks(){
+  const q=(document.getElementById('banks-search').value||'').toLowerCase().trim();
+  const list=document.getElementById('banks-list');
+  let html='';
+  banksData.forEach(b=>{
+    const matchParent=b.group.toLowerCase().includes(q);
+    const matchCards=b.cards.some(c=>c.name.toLowerCase().includes(q)||c.type.toLowerCase().includes(q));
+    if(q&&!matchParent&&!matchCards) return;
+    const approvedBadge=b.status==='Approved'
+      ?'<span style="font-size:10px;font-weight:700;color:#065F46;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:20px;padding:2px 8px;margin-left:8px;">Approved</span>'
+      :'<span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;border:1px solid #F59E0B;border-radius:20px;padding:2px 8px;margin-left:8px;">Not Approved</span>';
+    const sectionLabel=b.type==='bank'
+      ?'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-right:6px;">Bank</span>'
+      :'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-right:6px;">Credit Cards Only</span>';
+    html+=`<div style="margin:0 0 6px;padding:12px 18px;background:#fff;border:1px solid #E5E7EB;border-radius:8px;">`;
+    html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:${b.cards.length?'10px':'0'};">`;
+    html+=sectionLabel;
+    html+=`<span style="font-size:14px;font-weight:700;color:#111827;">${b.group}</span>${approvedBadge}</div>`;
+    if(b.cards.length){
+      b.cards.forEach(c=>{
+        const show=!q||matchParent||c.name.toLowerCase().includes(q)||c.type.toLowerCase().includes(q);
+        if(!show) return;
+        const cBadge='<span style="font-size:10px;font-weight:700;color:#065F46;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:20px;padding:2px 8px;">Approved</span>';
+        html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 16px;border-top:1px solid #F3F4F6;">`;
+        html+=`<span style="font-size:13px;color:#374151;flex:1;">${c.name}</span>`;
+        html+=`<span style="font-size:11px;color:#9CA3AF;">${c.type}</span>`;
+        html+=`<span style="margin-left:8px;">${cBadge}</span>`;
+        html+=`</div>`;
+      });
+    }
+    html+=`</div>`;
+  });
+  list.innerHTML=html||'<p style="color:#9CA3AF;padding:20px;">No results found.</p>';
+}
 
 // Init consumer tab
 (function initConsumer(){
