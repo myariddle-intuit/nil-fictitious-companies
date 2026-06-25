@@ -2078,8 +2078,10 @@ function openModal(name){
   document.getElementById('m-vlogo').innerHTML=makeVertSVG(c);
   document.getElementById('m-entities').style.display='none';
   document.getElementById('m-services').innerHTML=getServices(c.name,c.category).map(s=>`<span class="service-pill">${esc(s)}</span>`).join('');
-  renderFinancials(c.name, rev);
+  const expRatio=0.52+seededRNG(hashStr(c.name+'financials'))()*0.22;
+  renderFinancials(c.name, rev, c.category);
   renderTransactions(c.name, c.category, 1);
+  renderCoA(c.name, c.category, rev, rev*expRatio);
   document.getElementById('modal').classList.add('open');
 }
 
