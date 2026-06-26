@@ -293,7 +293,14 @@
       </table>
     </div>
     <div class="tx-section" id="m-coa-section" style="display:none">
-      <div class="tx-heading">Chart of Accounts</div>
+      <div class="tx-heading" style="display:flex;justify-content:space-between;align-items:center">
+        Chart of Accounts
+        <span style="display:flex;gap:6px">
+          <button id="coa-edit-btn" onclick="toggleCoaEdit()" style="padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #D1D5DB;background:#F9FAFB;color:#374151;cursor:pointer">Edit</button>
+          <button id="coa-add-btn" onclick="addCoaRow()" style="display:none;padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #A7F3D0;background:#ECFDF5;color:#065F46;cursor:pointer">+ Add Row</button>
+          <button id="coa-reset-btn" onclick="resetCoaEdits()" style="display:none;padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer">Reset</button>
+        </span>
+      </div>
       <div id="m-coa-content"></div>
     </div>
     <div class="modal-actions" style="margin-top:20px">
@@ -2570,7 +2577,7 @@ const COA_IND={
       {n:'5300',name:'Equipment Rental',det:'Skid steer, aerator, excavator',pct:.03},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA, SUI',pct:.07},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA, SUI',pct:.07},
       {n:'6100',name:'Auto',det:'Fleet trucks, fuel card',pct:.05},
       {n:'6200',name:'Insurance',det:'General liability + commercial vehicle',pct:.03},
       {n:'6300',name:'Advertising & Marketing',det:'Digital, print, uniforms',pct:.025},
@@ -2594,7 +2601,7 @@ const COA_IND={
       {n:'5300',name:'Equipment Rental',det:'Cranes, excavators, lifts',pct:.04},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA, SUI',pct:.07},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA, SUI',pct:.07},
       {n:'6100',name:'Insurance',det:'General liability, builders risk, workers comp',pct:.04},
       {n:'6200',name:'Auto',det:'Fleet vehicles, equipment fuel',pct:.03},
       {n:'6300',name:'Legal & Professional Fees',det:'Building permits, inspections',pct:.02},
@@ -2618,7 +2625,7 @@ const COA_IND={
       {n:'5300',name:'Implementation Services',det:'Project delivery labor',pct:.05},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA',pct:.06},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA',pct:.06},
       {n:'6100',name:'Sales & Marketing',det:'Digital ads, events, content',pct:.08},
       {n:'6200',name:'Legal & Professional Fees',det:'Legal, accounting',pct:.02},
       {n:'6300',name:'Insurance',det:'E&O, cyber liability',pct:.02},
@@ -2642,7 +2649,7 @@ const COA_IND={
       {n:'5300',name:'Sterilization & Sanitation',det:'Biohazard disposal, linen',pct:.02},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA',pct:.07},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA',pct:.07},
       {n:'6100',name:'Malpractice Insurance',det:'Professional liability',pct:.04},
       {n:'6200',name:'Software — EHR/EMR',det:'Electronic health records',pct:.02},
       {n:'6300',name:'Advertising & Marketing',det:'Patient acquisition, community',pct:.015},
@@ -2666,7 +2673,7 @@ const COA_IND={
       {n:'5300',name:'Packaging & Containers',det:'To-go packaging, labels',pct:.03},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA',pct:.06},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA',pct:.06},
       {n:'6100',name:'Rent & Utilities',det:'Commercial kitchen, dining space',pct:.06},
       {n:'6200',name:'Insurance',det:'General liability, liquor',pct:.02},
       {n:'6300',name:'Advertising & Marketing',det:'Social, delivery platforms, print',pct:.02},
@@ -2690,7 +2697,7 @@ const COA_IND={
       {n:'5300',name:'Equipment & Tooling',det:'Machine time, die costs',pct:.04},
     ],
     expenses:[
-      {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA',pct:.06},
+      {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA',pct:.06},
       {n:'6100',name:'Insurance',det:'Product liability, property',pct:.03},
       {n:'6200',name:'Facility & Utilities',det:'Plant operations, power',pct:.04},
       {n:'6300',name:'Marketing & Sales',det:'Trade shows, catalogs',pct:.02},
@@ -2698,6 +2705,522 @@ const COA_IND={
       {n:'6500',name:'Technology',det:'ERP, CAD, production software',pct:.015},
       {n:'6600',name:'Depreciation',det:'Heavy machinery, facilities',pct:.05},
       {n:'6700',name:'G&A / Other',det:'Miscellaneous admin',pct:.01},
+    ],
+  },
+  'Professional Services':{
+    income:[
+      {n:'4000',name:'Consulting Fees',det:'Billable advisory engagements'},
+      {n:'4100',name:'Project-Based Fees',det:'Fixed-scope deliverables'},
+      {n:'4200',name:'Retainer Income',det:'Monthly recurring engagements'},
+      {n:'4300',name:'Workshop & Training Revenue',det:'Facilitated sessions and programs'},
+      {n:'4400',name:'Speaking & Licensing',det:'IP licensing and speaking fees'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Freelance and subcontracted delivery',pct:.22},
+      {n:'5100',name:'Direct Project Costs',det:'Travel, materials, client tools',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'CRM, project management, QuickBooks',pct:.06},
+      {n:'6100',name:'Legal & Professional Fees',det:'Legal counsel, CPA',pct:.04},
+      {n:'6200',name:'Insurance',det:'E&O and general liability',pct:.03},
+      {n:'6300',name:'Advertising & Marketing',det:'Digital ads, content, events',pct:.05},
+      {n:'6400',name:'Meals & Entertainment',det:'Client dinners, networking',pct:.03},
+      {n:'6500',name:'HR & Admin',det:'Benefits admin, employer obligations',pct:.07},
+      {n:'6600',name:'Other Business Expenses',det:'Office supplies, miscellaneous',pct:.03},
+      {n:'6700',name:'Rent & Lease',det:'Office space',pct:.04},
+    ],
+  },
+  'Legal Services':{
+    income:[
+      {n:'4000',name:'Legal Fees — Hourly',det:'Billable hours, attorney time'},
+      {n:'4100',name:'Retainer Fees',det:'Ongoing client retainers'},
+      {n:'4200',name:'Contingency Fees',det:'Case outcome-based revenue'},
+      {n:'4300',name:'Document Preparation',det:'Contracts, filings, review'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Contract attorneys and paralegals',pct:.25},
+      {n:'5100',name:'Court Filing & Case Costs',det:'Filing fees, expert witnesses',pct:.05},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Practice management, legal research tools',pct:.06},
+      {n:'6100',name:'Insurance',det:'Professional liability, malpractice',pct:.05},
+      {n:'6200',name:'Legal & Professional Fees',det:'Bar dues, outside counsel',pct:.04},
+      {n:'6300',name:'Advertising & Marketing',det:'Directory listings, digital ads',pct:.04},
+      {n:'6400',name:'Meals & Entertainment',det:'Client meetings, bar events',pct:.03},
+      {n:'6500',name:'HR & Admin',det:'Staff benefits and employer obligations',pct:.07},
+      {n:'6600',name:'Rent & Lease',det:'Office space',pct:.04},
+      {n:'6700',name:'Other Business Expenses',det:'Library, supplies, miscellaneous',pct:.02},
+    ],
+  },
+  'Marketing & Comms':{
+    income:[
+      {n:'4000',name:'Campaign Management Fees',det:'Paid media and campaign execution'},
+      {n:'4100',name:'Strategy & Consulting',det:'Brand strategy, market research'},
+      {n:'4200',name:'Content Production Revenue',det:'Copywriting, design, video'},
+      {n:'4300',name:'Media Buying & Placement',det:'Ad spend pass-through and markups'},
+      {n:'4400',name:'PR & Communications',det:'Press, influencer, earned media'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Freelance creatives and strategists',pct:.20},
+      {n:'5100',name:'Supplies',det:'Print production, shoot materials',pct:.05},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Analytics, scheduling, design tools',pct:.08},
+      {n:'6100',name:'Advertising & Marketing',det:'Paid channels, sponsorships',pct:.07},
+      {n:'6200',name:'Meals & Entertainment',det:'Client meals, industry events',pct:.04},
+      {n:'6300',name:'Legal & Professional Fees',det:'Contracts, IP clearance',pct:.03},
+      {n:'6400',name:'Insurance',det:'General liability, E&O',pct:.02},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6600',name:'Supplies',det:'Office and print supplies',pct:.02},
+      {n:'6700',name:'Other Business Expenses',det:'Miscellaneous admin',pct:.02},
+    ],
+  },
+  'Retail & Product':{
+    income:[
+      {n:'4000',name:'Product Sales',det:'Direct-to-consumer revenue'},
+      {n:'4100',name:'Wholesale Revenue',det:'B2B bulk orders'},
+      {n:'4200',name:'Online Channel Revenue',det:'E-commerce, marketplace sales'},
+      {n:'4300',name:'Subscription Box Revenue',det:'Recurring curated product boxes'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'Inventory purchase cost',pct:.38},
+      {n:'5100',name:'Supplies',det:'Packaging, labels, inserts',pct:.05},
+      {n:'5200',name:'Freight & Fulfillment',det:'Shipping, warehouse fees',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'Product liability, property',pct:.02},
+      {n:'6100',name:'Advertising & Marketing',det:'Digital ads, influencer, PR',pct:.06},
+      {n:'6200',name:'Software & Tech',det:'E-commerce platform, inventory software',pct:.04},
+      {n:'6300',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.06},
+      {n:'6400',name:'Other Business Expenses',det:'Returns, miscellaneous',pct:.03},
+      {n:'6500',name:'Rent & Lease',det:'Warehouse or storage space',pct:.03},
+      {n:'6600',name:'Legal & Professional Fees',det:'CPA, business counsel',pct:.02},
+    ],
+  },
+  'Retail - Brick & Mortar':{
+    income:[
+      {n:'4000',name:'In-Store Sales',det:'Walk-in retail transactions'},
+      {n:'4100',name:'Online Order Revenue',det:'Click-and-collect, ship-to-door'},
+      {n:'4200',name:'Gift Card Redemptions',det:'Gift card revenue recognized'},
+      {n:'4300',name:'Loyalty & Promotional Revenue',det:'Promo and loyalty events'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'Inventory cost of items sold',pct:.40},
+      {n:'5100',name:'Supplies',det:'Bags, receipt paper, display materials',pct:.03},
+    ],
+    expenses:[
+      {n:'6000',name:'Rent & Lease',det:'Storefront and back-of-house space',pct:.09},
+      {n:'6100',name:'Utilities',det:'Electric, water, HVAC',pct:.04},
+      {n:'6200',name:'Insurance',det:'General liability, property',pct:.02},
+      {n:'6300',name:'Advertising & Marketing',det:'Local ads, social, promotions',pct:.04},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6500',name:'Software & Tech',det:'POS system, inventory management',pct:.03},
+      {n:'6600',name:'Other Business Expenses',det:'Shrinkage, returns, misc',pct:.02},
+    ],
+  },
+  'Automotive':{
+    income:[
+      {n:'4000',name:'Parts Sales',det:'OEM and aftermarket parts revenue'},
+      {n:'4100',name:'Labor — Repair Services',det:'Mechanical and body work'},
+      {n:'4200',name:'Diagnostics & Inspections',det:'State inspections, diagnostic fees'},
+      {n:'4300',name:'Detailing & Accessories',det:'Detailing packages, add-on accessories'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'Parts, tires, fluids',pct:.35},
+      {n:'5100',name:'Supplies',det:'Shop supplies, rags, shop consumables',pct:.05},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, garage keepers',pct:.04},
+      {n:'6100',name:'Software & Tech',det:'Shop management, diagnostic software',pct:.04},
+      {n:'6200',name:'Advertising & Marketing',det:'Local ads, digital, referral programs',pct:.04},
+      {n:'6300',name:'Auto',det:'Fleet vehicles, fuel, maintenance',pct:.04},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6500',name:'Rent & Lease',det:'Shop bay and lot lease',pct:.05},
+      {n:'6600',name:'Legal & Professional Fees',det:'Permits, compliance, accounting',pct:.02},
+      {n:'6700',name:'Other Business Expenses',det:'Miscellaneous shop expenses',pct:.02},
+    ],
+  },
+  'Home Services':{
+    income:[
+      {n:'4000',name:'Residential Service Revenue',det:'Repairs, installs, maintenance visits'},
+      {n:'4100',name:'Service Contract Revenue',det:'Annual maintenance agreements'},
+      {n:'4200',name:'Emergency Service Calls',det:'After-hours and urgent calls'},
+      {n:'4300',name:'Installation Revenue',det:'New equipment and system installs'},
+    ],
+    cogs:[
+      {n:'5000',name:'Supplies',det:'Parts, materials, consumables',pct:.18},
+      {n:'5100',name:'Equipment Rental',det:'Specialty tools, boom lifts',pct:.05},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, workers comp',pct:.05},
+      {n:'6100',name:'Software & Tech',det:'Scheduling, dispatch, QuickBooks',pct:.05},
+      {n:'6200',name:'Advertising & Marketing',det:'Online listings, yard signs, digital',pct:.06},
+      {n:'6300',name:'Legal & Professional Fees',det:'Licensing, permits, accounting',pct:.03},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, tech staff benefits',pct:.07},
+      {n:'6500',name:'Auto',det:'Service vans, fuel, maintenance',pct:.06},
+      {n:'6600',name:'Other Business Expenses',det:'Uniforms, miscellaneous',pct:.03},
+    ],
+  },
+  'Beauty & Wellness':{
+    income:[
+      {n:'4000',name:'Service Revenue — Beauty',det:'Hair, skin, nail services'},
+      {n:'4100',name:'Wellness Treatments',det:'Massage, facials, spa packages'},
+      {n:'4200',name:'Retail Product Sales',det:'Professional products sold to clients'},
+      {n:'4300',name:'Membership & Package Revenue',det:'Prepaid bundles and memberships'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'Retail product inventory',pct:.12},
+      {n:'5100',name:'Supplies',det:'Color, tools, single-use materials',pct:.08},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, professional',pct:.03},
+      {n:'6100',name:'Advertising & Marketing',det:'Social media, local ads, promotions',pct:.05},
+      {n:'6200',name:'Utilities',det:'Electric, water, salon equipment',pct:.04},
+      {n:'6300',name:'Rent & Lease',det:'Salon or booth rental',pct:.10},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6500',name:'Software & Tech',det:'Booking software, POS',pct:.04},
+      {n:'6600',name:'Other Business Expenses',det:'Licensing, miscellaneous',pct:.02},
+    ],
+  },
+  'Fitness & Recreation':{
+    income:[
+      {n:'4000',name:'Membership Dues',det:'Monthly and annual memberships'},
+      {n:'4100',name:'Personal Training Revenue',det:'1-on-1 and small group training'},
+      {n:'4200',name:'Class & Program Revenue',det:'Group fitness, specialty classes'},
+      {n:'4300',name:'Pro Shop & Retail',det:'Gear, apparel, supplements'},
+    ],
+    cogs:[
+      {n:'5000',name:'Supplies',det:'Equipment consumables, class materials',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, accident, property',pct:.04},
+      {n:'6100',name:'Advertising & Marketing',det:'Digital, referral, community events',pct:.06},
+      {n:'6200',name:'Utilities',det:'Electric, HVAC, water',pct:.07},
+      {n:'6300',name:'Software & Tech',det:'Membership management, scheduling',pct:.05},
+      {n:'6400',name:'Legal & Professional Fees',det:'Waivers, compliance, accounting',pct:.03},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, trainer benefits',pct:.08},
+      {n:'6600',name:'Rent & Lease',det:'Studio or gym lease',pct:.12},
+      {n:'6700',name:'Equipment Maintenance',det:'Machine servicing, replacements',pct:.03},
+    ],
+  },
+  'Hospitality & Travel':{
+    income:[
+      {n:'4000',name:'Room & Lodging Revenue',det:'Nightly rates, packages'},
+      {n:'4100',name:'Food & Beverage Revenue',det:'Restaurant, bar, room service'},
+      {n:'4200',name:'Events & Banquet Revenue',det:'Private events, catering'},
+      {n:'4300',name:'Travel & Tour Revenue',det:'Packages, excursions, concierge'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'F&B ingredients, amenities',pct:.22},
+      {n:'5100',name:'Supplies',det:'Linens, toiletries, housekeeping',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'Property, liability, workers comp',pct:.03},
+      {n:'6100',name:'Advertising & Marketing',det:'OTA commissions, digital, PR',pct:.07},
+      {n:'6200',name:'Utilities',det:'Electric, water, gas, internet',pct:.06},
+      {n:'6300',name:'Software & Tech',det:'PMS, booking engine, POS',pct:.04},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.08},
+      {n:'6500',name:'Rent & Lease',det:'Property lease or management fee',pct:.05},
+      {n:'6600',name:'Other Business Expenses',det:'Maintenance, refurbishment, misc',pct:.03},
+    ],
+  },
+  'Real Estate':{
+    income:[
+      {n:'4000',name:'Commission Income',det:'Buyer and seller transaction commissions'},
+      {n:'4100',name:'Property Management Fees',det:'Monthly management revenue'},
+      {n:'4200',name:'Rental Income',det:'Owned investment property revenue'},
+      {n:'4300',name:'Referral Fees',det:'Agent referral network income'},
+    ],
+    cogs:[],
+    expenses:[
+      {n:'6000',name:'Advertising & Marketing',det:'MLS, listings, digital, signage',pct:.09},
+      {n:'6100',name:'Insurance',det:'E&O, general liability',pct:.04},
+      {n:'6200',name:'Legal & Professional Fees',det:'Closing costs, title, compliance',pct:.05},
+      {n:'6300',name:'Software & Tech',det:'CRM, MLS, transaction management',pct:.05},
+      {n:'6400',name:'Auto',det:'Client transport, mileage',pct:.06},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, admin staff',pct:.07},
+      {n:'6600',name:'Other Business Expenses',det:'Staging, photography, misc',pct:.05},
+      {n:'6700',name:'Meals & Entertainment',det:'Client meals, open house events',pct:.03},
+    ],
+  },
+  'Nonprofit / Social Services':{
+    income:[
+      {n:'4000',name:'Grant Revenue',det:'Government and foundation grants'},
+      {n:'4100',name:'Donation Income',det:'Individual and corporate donations'},
+      {n:'4200',name:'Program Fees',det:'Participant fees for services'},
+      {n:'4300',name:'Event Revenue',det:'Fundraisers and community events'},
+    ],
+    cogs:[],
+    expenses:[
+      {n:'6000',name:'Supplies',det:'Program materials, office supplies',pct:.06},
+      {n:'6100',name:'Rent & Lease',det:'Office and program space',pct:.09},
+      {n:'6200',name:'Software & Tech',det:'Donor management, accounting tools',pct:.04},
+      {n:'6300',name:'Advertising & Marketing',det:'Awareness campaigns, outreach',pct:.05},
+      {n:'6400',name:'Legal & Professional Fees',det:'Compliance, filing, audit',pct:.04},
+      {n:'6500',name:'Meals & Entertainment',det:'Community events, donor stewardship',pct:.03},
+      {n:'6600',name:'Insurance',det:'General liability, D&O',pct:.03},
+      {n:'6700',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.10},
+    ],
+  },
+  'Childcare & Family Services':{
+    income:[
+      {n:'4000',name:'Tuition & Enrollment Fees',det:'Weekly and monthly childcare fees'},
+      {n:'4100',name:'Government Subsidy Revenue',det:'State and federal childcare subsidies'},
+      {n:'4200',name:'Before & After School Programs',det:'Extended care revenue'},
+      {n:'4300',name:'Enrichment & Activity Fees',det:'Art, music, STEM programs'},
+    ],
+    cogs:[],
+    expenses:[
+      {n:'6000',name:'Supplies',det:'Classroom, art, educational materials',pct:.06},
+      {n:'6100',name:'Insurance',det:'Liability, accident, property',pct:.04},
+      {n:'6200',name:'Advertising & Marketing',det:'Local ads, referrals, social media',pct:.04},
+      {n:'6300',name:'Rent & Lease',det:'Facility and outdoor play space',pct:.12},
+      {n:'6400',name:'Legal & Professional Fees',det:'Licensing, compliance, accounting',pct:.03},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.12},
+      {n:'6600',name:'Software & Tech',det:'Enrollment management, parent portal',pct:.03},
+      {n:'6700',name:'Utilities',det:'Electric, water, internet',pct:.04},
+    ],
+  },
+  'Agriculture & Farming':{
+    income:[
+      {n:'4000',name:'Crop Sales',det:'Wholesale and direct market produce'},
+      {n:'4100',name:'Livestock Revenue',det:'Cattle, poultry, and livestock sales'},
+      {n:'4200',name:'CSA & Farmers Market Revenue',det:'Community supported agriculture'},
+      {n:'4300',name:'Agritourism Revenue',det:'Farm tours, events, u-pick'},
+    ],
+    cogs:[
+      {n:'5000',name:'Cost of Goods Sold',det:'Seeds, feed, inputs, livestock purchase',pct:.30},
+      {n:'5100',name:'Supplies',det:'Fertilizer, chemicals, irrigation',pct:.08},
+      {n:'5200',name:'Equipment Rental',det:'Tractors, harvesting equipment',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Auto',det:'Farm trucks, fuel, vehicle maintenance',pct:.05},
+      {n:'6100',name:'Insurance',det:'Crop insurance, liability, property',pct:.05},
+      {n:'6200',name:'HR & Admin',det:'Seasonal labor, employer obligations',pct:.10},
+      {n:'6300',name:'Legal & Professional Fees',det:'Land, compliance, accounting',pct:.02},
+      {n:'6400',name:'Other Business Expenses',det:'Storage, permits, miscellaneous',pct:.02},
+    ],
+  },
+  'Pet Services':{
+    income:[
+      {n:'4000',name:'Grooming Revenue',det:'Baths, cuts, nail trims'},
+      {n:'4100',name:'Boarding & Daycare Revenue',det:'Overnight and daily care'},
+      {n:'4200',name:'Training Revenue',det:'Obedience and behavior classes'},
+      {n:'4300',name:'Veterinary Services',det:'Exams, vaccines, treatments'},
+    ],
+    cogs:[
+      {n:'5000',name:'Supplies',det:'Grooming products, kennels, treats',pct:.10},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, animal bailee',pct:.04},
+      {n:'6100',name:'Advertising & Marketing',det:'Online listings, social media, referrals',pct:.06},
+      {n:'6200',name:'Software & Tech',det:'Booking, client management, POS',pct:.04},
+      {n:'6300',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.08},
+      {n:'6400',name:'Rent & Lease',det:'Facility or kennel space',pct:.09},
+      {n:'6500',name:'Other Business Expenses',det:'Licensing, miscellaneous',pct:.03},
+      {n:'6600',name:'Legal & Professional Fees',det:'Compliance, permits, accounting',pct:.02},
+    ],
+  },
+  'Entertainment & Events':{
+    income:[
+      {n:'4000',name:'Event Production Revenue',det:'Concerts, corporate events, festivals'},
+      {n:'4100',name:'Ticketing & Door Revenue',det:'Ticket sales and admission'},
+      {n:'4200',name:'Sponsorship Income',det:'Brand and corporate sponsorships'},
+      {n:'4300',name:'Venue & Rental Revenue',det:'Space rental for events'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Performers, crew, staff',pct:.22},
+      {n:'5100',name:'Supplies',det:'Event materials, decor, signage',pct:.05},
+      {n:'5200',name:'Equipment Rental',det:'Sound, lighting, staging',pct:.08},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'Event liability, cancellation',pct:.04},
+      {n:'6100',name:'Advertising & Marketing',det:'Promotion, social, PR',pct:.07},
+      {n:'6200',name:'Meals & Entertainment',det:'Client hospitality, green room',pct:.03},
+      {n:'6300',name:'HR & Admin',det:'Employer obligations, admin staff',pct:.06},
+      {n:'6400',name:'Legal & Professional Fees',det:'Permits, licensing, contracts',pct:.03},
+      {n:'6500',name:'Other Business Expenses',det:'Travel, miscellaneous',pct:.02},
+    ],
+  },
+  'Video Production & Media':{
+    income:[
+      {n:'4000',name:'Video Production Revenue',det:'Commercial, documentary, branded video'},
+      {n:'4100',name:'Post-Production & Editing',det:'Color, audio mix, VFX'},
+      {n:'4200',name:'Licensing & Distribution',det:'Content rights and syndication'},
+      {n:'4300',name:'Social & Digital Content',det:'Short-form, social video packages'},
+    ],
+    cogs:[
+      {n:'5000',name:'Equipment Rental',det:'Cameras, lighting, rigs',pct:.10},
+      {n:'5100',name:'Contract Labor',det:'Crew, editors, voice talent',pct:.18},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Editing suite, storage, project management',pct:.08},
+      {n:'6100',name:'Supplies',det:'Media cards, gels, grip equipment',pct:.04},
+      {n:'6200',name:'Insurance',det:'Equipment, E&O, liability',pct:.04},
+      {n:'6300',name:'Advertising & Marketing',det:'Portfolio, reel distribution, PR',pct:.04},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.06},
+      {n:'6500',name:'Other Business Expenses',det:'Location fees, travel, miscellaneous',pct:.04},
+    ],
+  },
+  'Photography & Creative Media':{
+    income:[
+      {n:'4000',name:'Photography Session Fees',det:'Portraits, weddings, events'},
+      {n:'4100',name:'Commercial Photography',det:'Product, architectural, editorial'},
+      {n:'4200',name:'Print & Product Sales',det:'Albums, wall art, digital packages'},
+      {n:'4300',name:'Licensing Revenue',det:'Stock and image rights licensing'},
+    ],
+    cogs:[
+      {n:'5000',name:'Equipment Rental',det:'Specialty lenses, lighting, backdrops',pct:.07},
+      {n:'5100',name:'Supplies',det:'Albums, prints, media cards',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Editing software, gallery platforms, CRM',pct:.07},
+      {n:'6100',name:'Insurance',det:'Equipment, liability',pct:.03},
+      {n:'6200',name:'Advertising & Marketing',det:'Portfolio site, social ads, bridal shows',pct:.07},
+      {n:'6300',name:'HR & Admin',det:'Second shooters, admin obligations',pct:.06},
+      {n:'6400',name:'Legal & Professional Fees',det:'Contracts, copyright, accounting',pct:.02},
+      {n:'6500',name:'Other Business Expenses',det:'Travel, studio, miscellaneous',pct:.04},
+    ],
+  },
+  'Transportation & Logistics':{
+    income:[
+      {n:'4000',name:'Freight & Delivery Revenue',det:'Per-load and route-based billing'},
+      {n:'4100',name:'Logistics Management Fees',det:'3PL and coordination services'},
+      {n:'4200',name:'Last-Mile Delivery',det:'Final delivery network revenue'},
+      {n:'4300',name:'Freight Brokerage',det:'Load-matching and brokerage commissions'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Drivers and freight subcontractors',pct:.28},
+      {n:'5100',name:'Fuel',det:'Fleet fuel cost',pct:.10},
+    ],
+    expenses:[
+      {n:'6000',name:'Auto',det:'Vehicle maintenance, repairs, registration',pct:.07},
+      {n:'6100',name:'Insurance',det:'Commercial auto, cargo, liability',pct:.07},
+      {n:'6200',name:'Software & Tech',det:'TMS, GPS tracking, dispatch tools',pct:.05},
+      {n:'6300',name:'Legal & Professional Fees',det:'DOT compliance, permits, accounting',pct:.03},
+      {n:'6400',name:'HR & Admin',det:'Employer obligations, driver benefits',pct:.08},
+      {n:'6500',name:'Other Business Expenses',det:'Tolls, parking, miscellaneous',pct:.02},
+    ],
+  },
+  'Education':{
+    income:[
+      {n:'4000',name:'Tuition Revenue',det:'Course and program enrollment fees'},
+      {n:'4100',name:'Workshop & Seminar Fees',det:'Short-format learning programs'},
+      {n:'4200',name:'Online Course Revenue',det:'Self-paced digital content'},
+      {n:'4300',name:'Certification Fees',det:'Exam and credentialing revenue'},
+    ],
+    cogs:[],
+    expenses:[
+      {n:'6000',name:'Supplies',det:'Curriculum, print, classroom materials',pct:.06},
+      {n:'6100',name:'Insurance',det:'General liability, accident',pct:.03},
+      {n:'6200',name:'Software & Tech',det:'LMS, video platform, student tools',pct:.08},
+      {n:'6300',name:'Advertising & Marketing',det:'Enrollment campaigns, social',pct:.07},
+      {n:'6400',name:'Rent & Lease',det:'Classroom or facility space',pct:.09},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, instructor benefits',pct:.12},
+      {n:'6600',name:'Legal & Professional Fees',det:'Accreditation, compliance, accounting',pct:.03},
+      {n:'6700',name:'Other Business Expenses',det:'Miscellaneous admin',pct:.02},
+    ],
+  },
+  'Arts & Galleries':{
+    income:[
+      {n:'4000',name:'Artwork Sales',det:'Original paintings, sculpture, mixed media'},
+      {n:'4100',name:'Exhibition & Show Revenue',det:'Admission and gallery events'},
+      {n:'4200',name:'Commission Revenue',det:'Custom commissioned works'},
+      {n:'4300',name:'Licensing & Print Revenue',det:'Reproductions, prints, licensing'},
+    ],
+    cogs:[
+      {n:'5000',name:'Supplies',det:'Canvas, paints, materials, framing',pct:.10},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'Fine art, liability',pct:.04},
+      {n:'6100',name:'Advertising & Marketing',det:'Gallery shows, digital, PR',pct:.08},
+      {n:'6200',name:'Rent & Lease',det:'Gallery or studio space',pct:.10},
+      {n:'6300',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6400',name:'Other Business Expenses',det:'Shipping, crating, miscellaneous',pct:.05},
+      {n:'6500',name:'Legal & Professional Fees',det:'Contracts, IP, accounting',pct:.03},
+    ],
+  },
+  'Arts & Creative':{
+    income:[
+      {n:'4000',name:'Creative Services Revenue',det:'Design, illustration, custom art'},
+      {n:'4100',name:'Licensing & Royalties',det:'IP and design licensing'},
+      {n:'4200',name:'Workshop & Class Revenue',det:'Taught sessions and instruction'},
+      {n:'4300',name:'Product & Print Sales',det:'Merchandise, prints, digital files'},
+    ],
+    cogs:[
+      {n:'5000',name:'Supplies',det:'Art materials, print stock, packaging',pct:.08},
+      {n:'5100',name:'Equipment Rental',det:'Studio space, specialty equipment',pct:.05},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'Liability, equipment',pct:.03},
+      {n:'6100',name:'Software & Tech',det:'Design software, portfolio tools',pct:.07},
+      {n:'6200',name:'HR & Admin',det:'Employer obligations, contractor admin',pct:.06},
+      {n:'6300',name:'Advertising & Marketing',det:'Social, portfolio, shows',pct:.06},
+      {n:'6400',name:'Other Business Expenses',det:'Shipping, travel, miscellaneous',pct:.04},
+      {n:'6500',name:'Legal & Professional Fees',det:'IP, contracts, accounting',pct:.02},
+    ],
+  },
+  'Accounting Firm':{
+    income:[
+      {n:'4000',name:'Tax Preparation Fees',det:'Individual and business tax returns'},
+      {n:'4100',name:'Bookkeeping Services',det:'Monthly and quarterly bookkeeping'},
+      {n:'4200',name:'Advisory & CFO Services',det:'Financial planning, fractional CFO'},
+      {n:'4300',name:'Audit & Assurance',det:'Compiled and reviewed financials'},
+      {n:'4400',name:'Payroll Processing Fees',det:'Managed payroll services'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Seasonal staff, contract accountants',pct:.15},
+    ],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Tax software, QuickBooks ProAdvisor, portal',pct:.08},
+      {n:'6100',name:'Insurance',det:'Professional liability, E&O',pct:.04},
+      {n:'6200',name:'Legal & Professional Fees',det:'CPA licensing, legal, peer review',pct:.04},
+      {n:'6300',name:'Advertising & Marketing',det:'Referral programs, digital',pct:.04},
+      {n:'6400',name:'Meals & Entertainment',det:'Client lunches, events',pct:.03},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.08},
+      {n:'6600',name:'Rent & Lease',det:'Office space',pct:.05},
+      {n:'6700',name:'Other Business Expenses',det:'CPE, dues, miscellaneous',pct:.03},
+    ],
+  },
+  'Financial Services':{
+    income:[
+      {n:'4000',name:'Advisory Fees',det:'Investment and wealth management'},
+      {n:'4100',name:'Transaction & Brokerage Fees',det:'Trade commissions and spreads'},
+      {n:'4200',name:'Lending & Interest Income',det:'Loan origination and interest'},
+      {n:'4300',name:'Insurance Premium Revenue',det:'Policy premiums and renewals'},
+    ],
+    cogs:[],
+    expenses:[
+      {n:'6000',name:'Software & Tech',det:'Trading platforms, CRM, compliance tools',pct:.07},
+      {n:'6100',name:'Insurance',det:'E&O, D&O, cyber',pct:.05},
+      {n:'6200',name:'Legal & Professional Fees',det:'Regulatory, compliance, legal',pct:.07},
+      {n:'6300',name:'Advertising & Marketing',det:'Client acquisition, seminars',pct:.05},
+      {n:'6400',name:'Meals & Entertainment',det:'Client events, prospecting',pct:.04},
+      {n:'6500',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.10},
+      {n:'6600',name:'Rent & Lease',det:'Office space',pct:.06},
+      {n:'6700',name:'Other Business Expenses',det:'Licensing fees, miscellaneous',pct:.03},
+    ],
+  },
+  'Construction-Entities':{
+    income:[
+      {n:'4000',name:'General Contracting Revenue',det:'Prime and GC billings'},
+      {n:'4100',name:'Subcontract Revenue',det:'Specialty trade work'},
+      {n:'4200',name:'Change Order Revenue',det:'Scope additions and modifications'},
+      {n:'4300',name:'Equipment & Material Billings',det:'Reimbursable pass-throughs'},
+    ],
+    cogs:[
+      {n:'5000',name:'Contract Labor',det:'Trade subcontractors and labor',pct:.32},
+      {n:'5100',name:'Supplies',det:'Lumber, concrete, materials',pct:.15},
+      {n:'5200',name:'Equipment Rental',det:'Heavy equipment, lifts, tools',pct:.06},
+    ],
+    expenses:[
+      {n:'6000',name:'Insurance',det:'General liability, builders risk, workers comp',pct:.04},
+      {n:'6100',name:'Legal & Professional Fees',det:'Permits, compliance, lien waivers',pct:.03},
+      {n:'6200',name:'Auto',det:'Fleet trucks, equipment fuel',pct:.04},
+      {n:'6300',name:'HR & Admin',det:'Employer obligations, staff benefits',pct:.07},
+      {n:'6400',name:'Software & Tech',det:'Project management, estimating tools',pct:.03},
+      {n:'6500',name:'Advertising & Marketing',det:'Bids, proposals, digital presence',pct:.02},
+      {n:'6600',name:'Other Business Expenses',det:'Miscellaneous site expenses',pct:.02},
     ],
   },
 };
@@ -2715,7 +3238,7 @@ COA_IND['default']={
     {n:'5200',name:'Direct Project Costs',det:'Travel, materials, tools',pct:.05},
   ],
   expenses:[
-    {n:'6000',name:'Payroll Taxes',det:'Employer FICA, FUTA',pct:.07},
+    {n:'6000',name:'HR & Admin Expenses',det:'Employer FICA, FUTA',pct:.07},
     {n:'6100',name:'Rent & Utilities',det:'Office space',pct:.05},
     {n:'6200',name:'Insurance',det:'General liability, E&O',pct:.02},
     {n:'6300',name:'Advertising & Marketing',det:'Digital, events, content',pct:.03},
@@ -2870,7 +3393,18 @@ function renderCoA(name, industry, revenue, totalExp){
   </div>`;
 
   const coaEl=document.getElementById('m-coa-section');
+  // Check for saved CoA edits
+  const _savedCoa=localStorage.getItem('nil_coa_'+name);
+  if(_savedCoa){
+    document.getElementById('m-coa-content').innerHTML=_savedCoa;
+    coaEl.style.display='block';
+    const _coaEditBtn=document.getElementById('coa-edit-btn');
+    if(_coaEditBtn&&_coaEditBtn.dataset.active==='1') applyCoaEditMode(true);
+    return;
+  }
   document.getElementById('m-coa-content').innerHTML=html;
+  const _coaEditBtn2=document.getElementById('coa-edit-btn');
+  if(_coaEditBtn2&&_coaEditBtn2.dataset.active==='1') applyCoaEditMode(true);
   coaEl.style.display='block';
 }
 
@@ -3056,6 +3590,100 @@ function resetTxEdits(){
   const rev=getRevenue(modalCompany.name,modalCompany.revTier||'low',modalCompany.category||modalCompany.industry);
   const totalExp=Math.round(rev*(0.52+seededRNG(hashStr(modalCompany.name+'financials'))()*0.22));
   renderTransactions(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
+}
+
+function applyCoaEditMode(on){
+  const content=document.getElementById('m-coa-content');
+  if(!content) return;
+  content.querySelectorAll('tbody tr').forEach(row=>{
+    // Only make data rows editable (not section headers or total rows)
+    const cells=row.querySelectorAll('td');
+    if(cells.length>=4&&row.querySelectorAll('[colspan]').length===0){
+      cells.forEach(td=>{td.contentEditable=on?'true':'false';});
+      if(on) row.style.background='#FAFFF5';
+      else row.style.background='';
+    }
+    // Add/remove delete button
+    if(on){
+      if(!row.querySelector('.coa-del-btn')){
+        const delTd=document.createElement('td');
+        delTd.style.cssText='padding:0 4px;width:24px';
+        delTd.innerHTML='<button class="coa-del-btn" onclick="deleteCoaRow(this)" style="background:none;border:none;color:#EF4444;font-size:14px;cursor:pointer;line-height:1" title="Delete row">✕</button>';
+        row.insertBefore(delTd,row.firstChild);
+      }
+    } else {
+      row.querySelectorAll('.coa-del-btn').forEach(b=>b.closest('td').remove());
+    }
+  });
+}
+
+function saveCoaEdits(){
+  const content=document.getElementById('m-coa-content');
+  if(!content||!modalCompany) return;
+  localStorage.setItem('nil_coa_'+modalCompany.name, content.innerHTML);
+}
+
+function toggleCoaEdit(){
+  const btn=document.getElementById('coa-edit-btn');
+  const resetBtn=document.getElementById('coa-reset-btn');
+  const addBtn=document.getElementById('coa-add-btn');
+  const isActive=btn.dataset.active==='1';
+  if(isActive){
+    saveCoaEdits();
+    btn.dataset.active='0';
+    btn.textContent='Edit';
+    btn.style.cssText='padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #D1D5DB;background:#F9FAFB;color:#374151;cursor:pointer';
+    resetBtn.style.display='none';
+    addBtn.style.display='none';
+    applyCoaEditMode(false);
+  } else {
+    btn.dataset.active='1';
+    btn.textContent='Save';
+    btn.style.cssText='padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #6EE7B7;background:#ECFDF5;color:#065F46;cursor:pointer';
+    resetBtn.style.display='';
+    addBtn.style.display='';
+    applyCoaEditMode(true);
+  }
+}
+
+function deleteCoaRow(btn){
+  const row=btn.closest('tr');
+  if(row) row.remove();
+  saveCoaEdits();
+}
+
+function addCoaRow(){
+  const content=document.getElementById('m-coa-content');
+  if(!content) return;
+  const tbody=content.querySelector('tbody');
+  if(!tbody) return;
+  const tr=document.createElement('tr');
+  tr.style.background='#FAFFF5';
+  tr.innerHTML=`<td style="padding:0 4px;width:24px"><button class="coa-del-btn" onclick="deleteCoaRow(this)" style="background:none;border:none;color:#EF4444;font-size:14px;cursor:pointer;line-height:1">✕</button></td>
+    <td contenteditable="true" style="padding:8px 12px;font-size:11.5px;color:#9CA3AF;width:52px">6999</td>
+    <td contenteditable="true" style="padding:8px 12px;font-size:12px;font-weight:500">New Account</td>
+    <td contenteditable="true" style="padding:8px 12px;font-size:11.5px;color:#6B7280">Expense</td>
+    <td contenteditable="true" style="padding:8px 12px;text-align:right;font-size:12px;font-weight:600;color:#1B1F26">$0</td>
+    <td contenteditable="true" style="padding:8px 12px;text-align:right;font-size:11px;color:#9CA3AF">—</td>`;
+  tbody.appendChild(tr);
+  tr.querySelectorAll('[contenteditable]')[1].focus();
+}
+
+function resetCoaEdits(){
+  if(!modalCompany) return;
+  if(!confirm('Reset CoA edits for '+modalCompany.name+'?')) return;
+  localStorage.removeItem('nil_coa_'+modalCompany.name);
+  const btn=document.getElementById('coa-edit-btn');
+  btn.dataset.active='0';
+  btn.textContent='Edit';
+  btn.style.cssText='padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #D1D5DB;background:#F9FAFB;color:#374151;cursor:pointer';
+  document.getElementById('coa-reset-btn').style.display='none';
+  document.getElementById('coa-add-btn').style.display='none';
+  applyCoaEditMode(false);
+  // Re-render
+  const rev=getRevenue(modalCompany.name,modalCompany.revTier||modalCompany.tier||'low',modalCompany.category||modalCompany.industry);
+  const totalExp=Math.round(rev*(0.52+seededRNG(hashStr(modalCompany.name+'financials'))()*0.22));
+  renderCoA(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
 }
 
 // Auto-clear any localStorage tx saves containing deprecated categories
