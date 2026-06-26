@@ -270,7 +270,7 @@
       <div id="m-fin-content"></div>
     </div>
     <div class="tx-section">
-      <div class="tx-heading" style="display:flex;justify-content:space-between;align-items:center">Bank Transactions<span id="m-tx-balance" style="font-size:12px;font-weight:600;color:#1E293B"></span></div>
+      <div class="tx-heading">Snapshot of Transactions</div>
       <table class="tx-table" style="font-size:12px">
         <thead><tr>
           <th style="width:90px">Date</th>
@@ -3675,18 +3675,7 @@ function renderTransactions(name, category, revenue, totalExp){
     return catColors[c]||catColors['default'];
   }
 
-  // Total cash = sum of all transaction amounts; split to checking/savings so accounts add up
-  const txTotal=dedupedTxns.reduce((sum,t)=>sum+t.amount,0);
-  const _nbAmt=Math.round(txTotal*0.65);
-  const _sbAmt=txTotal-_nbAmt;
-  const _fmtN=n=>'$'+n.toLocaleString()+'.00';
-  const _el=id=>document.getElementById(id);
-  if(_el('m-tx-balance')) _el('m-tx-balance').textContent=_fmtN(txTotal);
-  if(_el('m-bank-total')) _el('m-bank-total').textContent=_fmtN(txTotal);
-  if(_el('m-bank-checking')) _el('m-bank-checking').textContent=_fmtN(_nbAmt);
-  if(_el('m-bank-savings')) _el('m-bank-savings').textContent=_fmtN(_sbAmt);
-  if(_el('m-bank-nb-qb')) _el('m-bank-nb-qb').textContent=_fmtN(_nbAmt);
-  if(_el('m-bank-sb-qb')) _el('m-bank-sb-qb').textContent=_fmtN(_sbAmt);
+
   document.getElementById('m-tx').innerHTML=dedupedTxns.map(t=>`
     <tr>
       <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${t.dateStr}</td>
