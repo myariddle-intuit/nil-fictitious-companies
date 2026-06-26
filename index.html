@@ -3594,7 +3594,7 @@ function renderTransactions(name, category, revenue, totalExp){
   const monthRev=Math.round(revenue/12);
   const monthExp=Math.round(totalExp/12);
 
-  const usedVendors=new Set();
+  const usedItems=new Set();
   for(let i=0;i<22;i++){
     const sept1=new Date('2026-09-01');
     const sept17=new Date('2026-09-17');
@@ -3618,11 +3618,11 @@ function renderTransactions(name, category, revenue, totalExp){
       const allPairs=tmpl.vendors.map((v,idx)=>({v,it:tmpl.items[idx],cat:tmpl.cats?tmpl.cats[idx]:null}));
       const validPairs=allPairs.filter(p=>p.v!==name);
       const basePairs=validPairs.length>0?validPairs:allPairs;
-      // Prefer vendors not yet used; fall back to full pool if all exhausted
-      const unusedPairs=basePairs.filter(p=>!usedVendors.has(p.v));
+      // Prefer items not yet used; fall back to full pool if all exhausted
+      const unusedPairs=basePairs.filter(p=>!usedItems.has(p.it));
       const pairs=unusedPairs.length>0?unusedPairs:basePairs;
       const pair=pairs[Math.floor(rng()*pairs.length)];
-      usedVendors.add(pair.v);
+      usedItems.add(pair.it);
       const vendor=pair.v;
       const item=pair.it;
       const cat=pair.cat||expCats[Math.floor(rng()*expCats.length)];
