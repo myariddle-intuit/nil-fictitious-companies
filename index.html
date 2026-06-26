@@ -141,6 +141,7 @@
 </div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
+  <div class="tab" onclick="switchTab('ies')">&#127970; IES Businesses</div>
   <div class="tab" onclick="switchTab('fbn')">&#127970; Fictitious Business Names</div>
   <div class="tab" onclick="switchTab('consumer')">&#128100; Consumer Personas</div>
   <div class="tab" onclick="switchTab('banks')">&#127974; Banks &amp; Credit Cards</div>
@@ -166,6 +167,26 @@
       <span class="col-h-state">State</span>
     </div>
     <div class="list" id="list"></div>
+  </div>
+</div>
+
+<!-- IES Businesses tab -->
+<div id="tab-ies" class="tab-panel">
+  <div class="controls">
+    <input type="text" id="ies-search" placeholder="Search IES parent companies or entities..." oninput="renderIES()">
+    <span class="count" id="ies-count"></span>
+  </div>
+  <div class="list-wrap">
+    <div class="col-header">
+      <span class="col-h-num">#</span>
+      <span class="col-h-dot"></span>
+      <span class="col-h-name">Parent Company</span>
+      <span class="col-h-owner">Owner</span>
+      <span class="col-h-cat">Industry</span>
+      <span class="col-h-type">Entities</span>
+      <span class="col-h-state">State</span>
+    </div>
+    <div class="list" id="ies-list"></div>
   </div>
 </div>
 
@@ -2245,6 +2266,7 @@ function renderList(){
   const hasNLSignal=!!(state||categories.length||nameSearch);
 
   const filtered=companies.filter(c=>{
+    if(c.status==='ies_parent') return false;
     const blob=(c.name+' '+c.owner+' '+c.category+' '+c.type+' '+c.address).toLowerCase();
     const addrState=(c.address.split(',')[2]||'').trim().split(' ')[0];
 
@@ -2295,6 +2317,41 @@ function renderList(){
   document.getElementById('count').textContent=label;
 }
 
+function renderIES(){
+  const q=(document.getElementById('ies-search').value||'').toLowerCase().trim();
+  const iesCos=companies.filter(c=>c.status==='ies_parent');
+  const filtered=q?iesCos.filter(c=>{
+    const entityNames=(c.entities||[]).map(e=>e.name+' '+e.desc).join(' ');
+    const blob=(c.name+' '+c.owner+' '+c.industry+' '+c.type+' '+entityNames).toLowerCase();
+    return blob.includes(q);
+  }):iesCos;
+
+  document.getElementById('ies-count').textContent=filtered.length+' of '+iesCos.length+' IES companies';
+  document.getElementById('ies-list').innerHTML=filtered.length
+    ?filtered.map((c,i)=>iesRowHTML(c,i)).join('')
+    :'<div class="no-results">No results found.</div>';
+}
+
+function iesRowHTML(c,i){
+  const col=catColors[c.category]||catColors[c.industry]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
+  const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const stateCode=(c.address.split(',')[2]||'').trim().split(' ')[0]||'';
+  const entityCount=(c.entities||[]).length;
+  const entityList=(c.entities||[]).map(e=>`<span style="display:inline-block;background:#F3F4F6;border-radius:4px;padding:2px 8px;margin:2px 3px 2px 0;font-size:10.5px;color:#374151">${esc(e.name)}</span>`).join('');
+  return`<div style="background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:8px;overflow:hidden">
+    <div class="row" style="cursor:pointer" onclick="openModal('${nameSafe}')">
+      <span class="row-num">${i+1}</span>
+      <span class="cat-dot" style="background:${col.bg}"></span>
+      <span class="row-name"><span>${esc(c.name)}</span> <span class="badge-review">IES Parent &amp; Entities</span></span>
+      <span class="row-owner">${esc(c.owner)}</span>
+      <span class="row-cat" style="background:${col.light};color:${col.text}">${esc(c.industry||c.category)}</span>
+      <span class="row-type" style="color:#6B7280;font-size:11px">${entityCount} entit${entityCount===1?'y':'ies'}</span>
+      <span class="row-state">${esc(stateCode)}</span>
+    </div>
+    <div style="padding:8px 18px 12px 52px">${entityList}</div>
+  </div>`;
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
 (function init(){
   const cats=[...new Set(companies.map(c=>c.category))].sort();
@@ -2308,12 +2365,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='consumer')||(i===3&&id==='banks'));
+    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='ies')||(i===2&&id==='fbn')||(i===3&&id==='consumer')||(i===4&&id==='banks'));
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
+  document.getElementById('tab-ies').classList.toggle('active', id==='ies');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
   document.getElementById('tab-consumer').classList.toggle('active', id==='consumer');
   document.getElementById('tab-banks').classList.toggle('active', id==='banks');
+  if(id==='ies') renderIES();
   if(id==='banks') renderBanks();
   if(id==='fbn'){
     const sel=document.getElementById('fbn-ind-filter');
