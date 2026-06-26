@@ -3421,10 +3421,10 @@ function generateTransactions(name, category, count=20, revMult=1){
   const methods=['ACH Transfer','Check','Wire Transfer','Corporate Card','ACH Transfer','ACH Transfer','Check','Corporate Card'];
   const txns=[];
   for(let i=0;i<count;i++){
-    const jan1=new Date('2026-01-01');
-    const maxDays=Math.max(1,Math.floor((now-jan1)/86400000));
-    const daysAgo=Math.floor(rng()*maxDays);
-    const d=new Date(jan1.getTime()+daysAgo*86400000);
+    const sept1=new Date('2026-09-01');
+    const sept17=new Date('2026-09-17');
+    const rangeMs=sept17-sept1;
+    const d=new Date(sept1.getTime()+Math.floor(rng()*rangeMs));
     const dateStr=months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
     let vIdx=Math.floor(rng()*tmpl.vendors.length);
     const vendor=tmpl.vendors[vIdx];
@@ -3598,10 +3598,10 @@ function renderTransactions(name, category, revenue, totalExp){
 
   const usedVendors=new Set();
   for(let i=0;i<22;i++){
-    const jan1=new Date('2026-01-01');
-    const maxDays=Math.max(1,Math.floor((now-jan1)/86400000));
-    const daysAgo=Math.floor(rng()*maxDays);
-    const d=new Date(jan1.getTime()+daysAgo*86400000);
+    const sept1=new Date('2026-09-01');
+    const sept17=new Date('2026-09-17');
+    const rangeMs=sept17-sept1;
+    const d=new Date(sept1.getTime()+Math.floor(rng()*rangeMs));
     const dateStr=months[d.getMonth()]+' '+String(d.getDate()).padStart(2,' ')+', '+d.getFullYear();
 
     const isIncome=rng()<0.35; // ~35% income rows
