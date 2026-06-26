@@ -145,6 +145,7 @@
   <div class="tab" onclick="switchTab('ies')">&#127970; IES Businesses</div>
   <div class="tab" onclick="switchTab('consumer')">&#128100; Consumer Personas</div>
   <div class="tab" onclick="switchTab('banks')">&#127974; Banks &amp; Credit Cards</div>
+  <div class="tab" onclick="switchTab('cars')">&#128663; Vehicles</div>
 </div>
 
 <!-- NIL tab -->
@@ -205,6 +206,24 @@
       <span class="fbn-h-use">Intended Use</span>
     </div>
     <div class="fbn-list" id="fbn-list"></div>
+  </div>
+</div>
+
+<!-- Vehicles tab -->
+<div id="tab-cars" class="tab-panel">
+  <div class="controls">
+    <input type="text" id="cars-search" placeholder="Search by make, model, or type..." oninput="renderCars()">
+    <span class="fbn-count" id="cars-count"></span>
+  </div>
+  <div class="fbn-wrap">
+    <p class="fbn-intro">Fictitious vehicle makes and models cleared for use in external marketing.</p>
+    <div class="fbn-col-header">
+      <span class="fbn-h-num">#</span>
+      <span class="fbn-h-name">Make / Model</span>
+      <span class="fbn-h-ind">Vehicle Type</span>
+      <span class="fbn-h-use">Segment</span>
+    </div>
+    <div id="cars-list"></div>
   </div>
 </div>
 
@@ -2377,15 +2396,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='ies')||(i===3&&id==='consumer')||(i===4&&id==='banks'));
+    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='ies')||(i===3&&id==='consumer')||(i===4&&id==='banks')||(i===5&&id==='cars'));
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-ies').classList.toggle('active', id==='ies');
   document.getElementById('tab-fbn').classList.toggle('active', id==='fbn');
   document.getElementById('tab-consumer').classList.toggle('active', id==='consumer');
   document.getElementById('tab-banks').classList.toggle('active', id==='banks');
+  document.getElementById('tab-cars').classList.toggle('active', id==='cars');
   if(id==='ies') renderIES();
   if(id==='banks') renderBanks();
+  if(id==='cars') renderCars();
   if(id==='fbn'){
     const sel=document.getElementById('fbn-ind-filter');
     if(sel.options.length<=1){
@@ -4846,6 +4867,90 @@ function renderBanks(){
   const total=banksData.length+cardsOnlyData.length;
   document.getElementById('banks-count').textContent=rowNum+' of '+total+' entries';
   document.getElementById('banks-list').innerHTML=html||'<div class="no-results">No results found.</div>';
+}
+
+// ── Vehicles ────────────────────────────────────────────────────────────────
+const carsData=[
+  {make:"Varro", segment:"Mainstream", models:[
+    {model:"Trek",     type:"SUV"},
+    {model:"Lena",     type:"Compact Sedan"},
+    {model:"Crest",    type:"Midsize Sedan"},
+    {model:"Trailway", type:"Midsize SUV"},
+    {model:"Ranger",   type:"Crossover"}
+  ]},
+  {make:"Crestview", segment:"Mainstream", models:[
+    {model:"Solo",      type:"Subcompact"},
+    {model:"Vela",      type:"Compact Sedan"},
+    {model:"Vela SE",   type:"Midsize Sedan"},
+    {model:"Summit",    type:"3-Row SUV"},
+    {model:"Ridge",     type:"Wagon / Crossover"},
+    {model:"Crossline", type:"Compact SUV"},
+    {model:"Terrain",   type:"Compact SUV"},
+    {model:"Vista",     type:"Midsize SUV"}
+  ]},
+  {make:"Apex", segment:"Luxury / Electric", models:[
+    {model:"Series 3",  type:"Luxury Sedan"},
+    {model:"Crossline", type:"Luxury SUV"},
+    {model:"Sedan",     type:"Entry Luxury Sedan"},
+    {model:"EV Sport",  type:"Electric SUV"},
+    {model:"EV Sedan",  type:"Electric Sedan"},
+    {model:"EV6",       type:"Electric Crossover"}
+  ]},
+  {make:"Forge", segment:"Trucks / Utility", models:[
+    {model:"Haul 1500", type:"Full-Size Truck"},
+    {model:"Peak",      type:"Full-Size Truck"},
+    {model:"Hauler",    type:"Full-Size Truck"},
+    {model:"Scout",     type:"Compact SUV"},
+    {model:"Venture",   type:"Midsize SUV"},
+    {model:"Glide",     type:"Sedan"},
+    {model:"Crossway",  type:"Compact Crossover"}
+  ]}
+];
+
+const CAR_SEGMENT_COLORS={
+  'Mainstream':       {bg:'#EDF2FB', text:'#1B4F72'},
+  'Luxury / Electric':{bg:'#F4ECF7', text:'#6C3483'},
+  'Trucks / Utility': {bg:'#FEF9ED', text:'#7D6608'}
+};
+
+function renderCars(){
+  const q=(document.getElementById('cars-search').value||'').toLowerCase().trim();
+  let html='';
+  let totalModels=0;
+  let shownModels=0;
+
+  carsData.forEach(brand=>{
+    const matchMake=brand.make.toLowerCase().includes(q)||brand.segment.toLowerCase().includes(q);
+    const matchedModels=brand.models.filter(m=>
+      !q||matchMake||m.model.toLowerCase().includes(q)||m.type.toLowerCase().includes(q)
+    );
+    if(q&&!matchMake&&!matchedModels.length) return;
+
+    totalModels+=brand.models.length;
+    const col=CAR_SEGMENT_COLORS[brand.segment]||{bg:'#F3F4F6',text:'#374151'};
+
+    // Section header row for the make
+    html+=`<div style="margin:18px 0 6px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#1A1A2E;">${esc(brand.make)}</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${col.bg};color:${col.text};font-weight:700;">${esc(brand.segment)}</span>
+      <div style="flex:1;height:1px;background:#E5E7EB;"></div>
+    </div>`;
+
+    const modelsToShow=q&&!matchMake?matchedModels:brand.models;
+    modelsToShow.forEach((m,i)=>{
+      shownModels++;
+      html+=`<div class="fbn-row" style="cursor:default">
+        <span class="fbn-row-num">${i+1}</span>
+        <span class="fbn-row-name"><span style="font-weight:600;color:#1A1A2E;">${esc(brand.make)}</span><span style="font-weight:400;color:#6B7280;margin-left:6px;">${esc(m.model)}</span></span>
+        <span class="fbn-ind-tag" style="background:${col.bg};color:${col.text}">${esc(m.type)}</span>
+        <span class="fbn-row-use" style="color:${col.text};font-weight:600">${esc(brand.segment)}</span>
+      </div>`;
+    });
+  });
+
+  const totalAll=carsData.reduce((sum,b)=>sum+b.models.length,0);
+  document.getElementById('cars-count').textContent=(q?shownModels:totalAll)+' of '+totalAll+' models';
+  document.getElementById('cars-list').innerHTML=html||'<div class="no-results">No results found.</div>';
 }
 
 // Init consumer tab
