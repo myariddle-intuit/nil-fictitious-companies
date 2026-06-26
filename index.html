@@ -3594,7 +3594,10 @@ function renderTransactions(name, category, revenue, totalExp){
   const monthRev=Math.round(revenue/12);
   const monthExp=Math.round(totalExp/12);
 
-  const usedItems=new Set();
+  // Shuffle expense pairs so items cycle in order — no repeats until all used
+  const _allPairs0=(TX[category]||TX['default']).vendors.map((v,vi)=>({v,it:(TX[category]||TX['default']).items[vi],cat:(TX[category]||TX['default']).cats?.(vi)}));
+  const _shuffled=[..._allPairs0].sort(()=>seededRNG(hashStr(name+category+'shuffle'))()*2-1);
+  let _pairIdx=0;
   for(let i=0;i<22;i++){
     const sept1=new Date('2026-09-01');
     const sept17=new Date('2026-09-17');
@@ -3615,14 +3618,9 @@ function renderTransactions(name, category, revenue, totalExp){
       const amtStr='$'+amount.toLocaleString()+'.00';
       txns.push({date:d,dateStr,desc:'Invoice #'+invoiceNum,fromTo:client,cat,catType:'income',amount,amtStr});
     } else {
-      const allPairs=tmpl.vendors.map((v,idx)=>({v,it:tmpl.items[idx],cat:tmpl.cats?tmpl.cats[idx]:null}));
-      const validPairs=allPairs.filter(p=>p.v!==name);
-      const basePairs=validPairs.length>0?validPairs:allPairs;
-      // Prefer items not yet used; fall back to full pool if all exhausted
-      const unusedPairs=basePairs.filter(p=>!usedItems.has(p.it));
-      const pairs=unusedPairs.length>0?unusedPairs:basePairs;
-      const pair=pairs[Math.floor(rng()*pairs.length)];
-      usedItems.add(pair.it);
+      // Cycle through shuffled pairs — wraps around only after all items shown once
+      const pair=_shuffled[_pairIdx%_shuffled.length];
+      _pairIdx++;
       const vendor=pair.v;
       const item=pair.it;
       const cat=pair.cat||expCats[Math.floor(rng()*expCats.length)];
