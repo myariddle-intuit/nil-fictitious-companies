@@ -2339,7 +2339,7 @@ function iesRowHTML(c,i){
   const entityCount=(c.entities||[]).length;
   const entityList=(c.entities||[]).map(e=>`<span style="display:inline-block;background:#F3F4F6;border-radius:4px;padding:2px 8px;margin:2px 3px 2px 0;font-size:10.5px;color:#374151">${esc(e.name)}</span>`).join('');
   return`<div style="background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:8px;overflow:hidden">
-    <div class="row" style="cursor:pointer" onclick="openModal('${nameSafe}')">
+    <div class="row" style="cursor:pointer" onclick="openFBNModal('${nameSafe}')">
       <span class="row-num">${i+1}</span>
       <span class="cat-dot" style="background:${col.bg}"></span>
       <span class="row-name"><span>${esc(c.name)}</span> <span class="badge-review">IES Parent &amp; Entities</span></span>
