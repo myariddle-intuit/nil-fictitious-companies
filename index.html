@@ -3198,7 +3198,7 @@ function getServices(name, category, count=5){
 
 function getRevenue(name, tier, category){
   const rng=seededRNG(hashStr(name+'annualrev'));
-  if(tier==='ies_parent') return 10000000+Math.floor(rng()*10000000); // $10M–$20M
+  if(tier==='ies_parent') return 10000000+Math.floor(rng()*5000000); // $10M–$15M
   const REV_RANGES={
     // User-specified ranges
     'Professional Services':       [200000,1500000],
