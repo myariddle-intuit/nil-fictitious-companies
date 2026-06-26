@@ -3141,10 +3141,16 @@ const TX={
     min:80,max:5500
   },
   'Manufacturing':{
-    vendors:['Raw Material Supply Corp.','ForgeWorks Precision Components Inc.','Heavy Equipment Leasing Co.','Ironvale Supply Chain & Logistics Co.','Safety Gear Supply','Knight Insurance Group','City Utility Services','Howland HR Solutions'],
-    items:['Raw material bulk order','Fabrication parts & precision components','Heavy machinery lease payment','Outbound freight & logistics contract','Workplace safety equipment & PPE','Manufacturing & product liability insurance','Monthly electric & gas — production facility','Payroll processing & workforce compliance'],
-    cats:['Cost of Goods Sold','Cost of Goods Sold','Equipment Rental','Other Business Expenses','Supplies','Insurance','Utilities','Payroll Expenses'],
+    vendors:['Goods Hardware Supply','Midwest Parts & Components LLC','Heavy Equipment Leasing Co.','Sterling Fleet Services','Safety Gear Supply','Knight Insurance Group','City Utility Services','Howland HR Solutions'],
+    items:['Raw material & bulk supply order','Fabrication parts & component stock','Heavy machinery lease payment','Outbound freight & logistics contract','Workplace safety equipment & PPE','Manufacturing & product liability insurance','Monthly electric & gas — production facility','HR & workforce administration'],
+    cats:['Cost of Goods Sold','Cost of Goods Sold','Equipment Rental','Other Business Expenses','Supplies','Insurance','Utilities','Other Business Expenses'],
     min:500,max:42000
+  },
+  'Nonprofit / Social Services':{
+    vendors:['Goods Hardware Supply','Howland HR Solutions','City Utility Services','Vu Digital Works','Cotton Communications','Draper Legal Partners','Bunzel Catering','Knight Insurance Group'],
+    items:['Program supplies & materials','Staff payroll & benefits administration','Office rent & utilities','Donor management & grant platform','Community outreach & marketing','Annual audit & compliance services','Board & donor event catering','General liability & nonprofit insurance'],
+    cats:['Supplies','Payroll Expenses','Rent & Lease','Software & Tech','Advertising & Marketing','Legal & Professional Fees','Meals & Entertainment','Insurance'],
+    min:200,max:18000
   }
 }
 TX['default']=TX['Professional Services'];
@@ -3494,6 +3500,7 @@ const INCOME_CATS={
   'Retail & Product':['Wholesale Product Order','Bulk Purchase Order','Online Store Sale','B2B Supply Agreement','Custom Order Fulfillment'],
   'Retail - Brick & Mortar':['In-Store Product Sale','Wholesale Bulk Order','Custom Product Order','Gift Card & Store Credit','Product Consignment Sale'],
   'Manufacturing':['Custom Parts Production Order','Assembly Contract','OEM Supply Agreement','Quality Inspection Contract','Manufacturing Retainer'],
+  'Nonprofit / Social Services':['Government Grant Award','Corporate Sponsorship','Foundation Grant Disbursement','Program Service Revenue','Donor Contribution'],
   'default':['Consulting Engagement','Monthly Retainer','Project Completion','Advisory Services','Contract Services']
 };
 
@@ -3586,7 +3593,9 @@ const CLIENT_COMPAT={
   'Video Production & Media':['Professional Services','Technology','Financial Services','Healthcare','Real Estate','Hospitality & Travel','Entertainment & Events','Retail & Product','Retail - Brick & Mortar','Nonprofit / Social Services','Education','Food & Beverage','Construction'],
   'Transportation & Logistics':['Construction','Construction-Entities','Agriculture & Farming','Retail & Product','Retail - Brick & Mortar','Food & Beverage','Healthcare','Technology','Professional Services','Transportation & Logistics'],
   'Education':['Professional Services','Healthcare','Technology','Nonprofit / Social Services','Financial Services','Construction','Entertainment & Events','Hospitality & Travel'],
-  'Landscaping':['Real Estate','Construction','Construction-Entities','Hospitality & Travel','Healthcare','Education','Nonprofit / Social Services','Retail - Brick & Mortar','Food & Beverage','Agriculture & Farming']
+  'Landscaping':['Real Estate','Construction','Construction-Entities','Hospitality & Travel','Healthcare','Education','Nonprofit / Social Services','Retail - Brick & Mortar','Food & Beverage','Agriculture & Farming'],
+  'Manufacturing':['Retail & Product','Construction','Construction-Entities','Healthcare','Technology','Automotive','Transportation & Logistics','Food & Beverage','Agriculture & Farming','Real Estate'],
+  'Nonprofit / Social Services':['Financial Services','Professional Services','Healthcare','Education','Technology','Real Estate','Construction','Hospitality & Travel','Entertainment & Events']
 };
 
 
