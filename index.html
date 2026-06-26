@@ -3176,15 +3176,19 @@ function renderFinancials(name, revenue, industry){
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
         <div>
           <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Profit &amp; Loss</div>
-          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Net profit · This month</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Monthly snapshot — income minus expenses this month</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:20px;font-weight:700;color:${monthNetPos?'#15803D':'#BE123C'}">${monthNetPos?'':'-'}${fmtRevenue(Math.abs(monthNet))}</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Net profit this month</div>
         </div>
       </div>
       <div style="margin-bottom:7px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:11px;font-weight:600;color:#374151">Income</span>
+          <div>
+            <span style="font-size:11px;font-weight:600;color:#374151">Income</span>
+            <span style="font-size:10px;color:#9CA3AF;margin-left:5px">This month</span>
+          </div>
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;font-weight:600;color:#15803D">${fmtRevenue(monthRev)}</span>
           </div>
@@ -3195,7 +3199,10 @@ function renderFinancials(name, revenue, industry){
       </div>
       <div style="margin-bottom:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:11px;font-weight:600;color:#374151">Expenses</span>
+          <div>
+            <span style="font-size:11px;font-weight:600;color:#374151">Expenses</span>
+            <span style="font-size:10px;color:#9CA3AF;margin-left:5px">This month</span>
+          </div>
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;font-weight:600;color:#9A3412">${fmtRevenue(monthExp)}</span>
           </div>
@@ -3208,6 +3215,10 @@ function renderFinancials(name, revenue, industry){
 
   // Annual summary cards
   const summaryHTML=`
+    <div style="margin-bottom:4px">
+      <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Annual Summary</div>
+      <div style="font-size:10px;color:#9CA3AF;margin-top:1px;margin-bottom:8px">Full-year totals — revenue earned, costs incurred, and what's left as profit</div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
       <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
         <div style="font-size:9px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Annual Revenue</div>
@@ -3227,7 +3238,10 @@ function renderFinancials(name, revenue, industry){
   const bankHTML=`
     <div style="margin-bottom:16px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-        <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Bank Accounts</div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em">Bank Accounts</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:1px">Current balances — what's in the bank right now, not tied to a time period</div>
+        </div>
         <div style="font-size:11px;color:#6B7280">Total Cash Balance: <strong style="color:#1E293B;font-size:12px">${fmtRevenue(totalBank)}</strong></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
