@@ -270,7 +270,7 @@
       <div id="m-fin-content"></div>
     </div>
     <div class="tx-section">
-      <div class="tx-heading">Bank Transactions</div>
+      <div class="tx-heading" style="display:flex;justify-content:space-between;align-items:center">Bank Transactions<span id="m-tx-balance" style="font-size:12px;font-weight:600;color:#1E293B"></span></div>
       <table class="tx-table" style="font-size:12px">
         <thead><tr>
           <th style="width:90px">Date</th>
@@ -3277,6 +3277,7 @@ function renderFinancials(name, revenue, industry){
   const contentEl=document.getElementById('m-fin-content');
 
   // Store for CoA
+  finEl._totalBank=totalBank;
   finEl._checking=checking;
   finEl._savings=savings;
   finEl._ar=ar;
@@ -3670,6 +3671,10 @@ function renderTransactions(name, category, revenue, totalExp){
     return catColors[c]||catColors['default'];
   }
 
+  const _finElTx=document.getElementById('m-financials');
+  const _txBal=_finElTx&&_finElTx._totalBank?'$'+_finElTx._totalBank.toLocaleString()+'.00':'';
+  const _txBalEl=document.getElementById('m-tx-balance');
+  if(_txBalEl) _txBalEl.textContent=_txBal;
   document.getElementById('m-tx').innerHTML=dedupedTxns.map(t=>`
     <tr>
       <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${t.dateStr}</td>
