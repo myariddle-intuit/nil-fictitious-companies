@@ -2922,7 +2922,7 @@ const TX={
   'Healthcare':{
     vendors:['Medical Supply Associates','Pharmaceutical Supply Enterprises','Vu Digital Works','Knight Insurance Group','Mitchell Workforce Training','Kleinsorge Cleaning Services','Harvey Diagnostics Inc.','City Utility Services','Sterilization Services LLC','Medical Equipment Industries'],
     items:['Disposable exam supplies & gloves','Pharmaceutical & medication restocking','EHR & practice management software','Medical malpractice insurance premium','HIPAA compliance & staff training','Clinic sanitation & biohazard disposal','Lab reagents & diagnostic supplies','Monthly electric & water — clinic','Autoclave & sterilizer service','Exam room equipment & furniture'],
-    cats:['Supplies','Cost of Goods Sold','Software & Tech','Insurance','Legal & Professional Fees','Supplies','Supplies','Utilities','Legal & Professional Fees','Other Business Expenses'],
+    cats:['Supplies','Cost of Goods Sold','Software & Tech','Insurance','Legal & Professional Fees','Other Business Expenses','Supplies','Utilities','Legal & Professional Fees','Other Business Expenses'],
     min:120,max:12000
   },
   'Food & Beverage':{
@@ -3000,13 +3000,13 @@ const TX={
   'Beauty & Wellness':{
     vendors:['Professional Beauty Supply Co.','Kleinsorge Cleaning Services','Vu Digital Works','Knight Insurance Group','Cotton Communications','Okawa Apparel Co.','City Utility Services','Professional Beauty Supply Co.'],
     items:['Salon color products & retail inventory','Salon sanitation & linen laundering','Appointment booking & scheduling software','Salon professional liability insurance','Social media & client loyalty marketing','Staff uniforms & aprons','Monthly electric & water — salon','Essential oils, wax & treatment supplies'],
-    cats:['Cost of Goods Sold','Supplies','Software & Tech','Insurance','Advertising & Marketing','Payroll Expenses','Utilities','Cost of Goods Sold'],
+    cats:['Cost of Goods Sold','Other Business Expenses','Software & Tech','Insurance','Advertising & Marketing','Payroll Expenses','Utilities','Cost of Goods Sold'],
     min:80,max:4500
   },
   'Fitness & Recreation':{
     vendors:['Brinnand Sporting Goods','Vu Digital Works','Kleinsorge Cleaning Services','Knight Insurance Group','Cotton Communications','Okawa Apparel Co.','City Utility Services','Mitchell Workforce Training'],
     items:['Exercise equipment & fitness accessories','Member management & scheduling software','Gym cleaning & disinfectant service','Fitness facility & trainer insurance','Digital marketing & membership campaigns','Staff & trainer uniforms','Monthly electric & water — gym','Personal trainer CPR & certification renewal'],
-    cats:['Supplies','Software & Tech','Supplies','Insurance','Advertising & Marketing','Payroll Expenses','Utilities','Legal & Professional Fees'],
+    cats:['Supplies','Software & Tech','Other Business Expenses','Insurance','Advertising & Marketing','Payroll Expenses','Utilities','Legal & Professional Fees'],
     min:100,max:9000
   },
   'Landscaping':{
@@ -3024,13 +3024,13 @@ const TX={
   'Nonprofit / Social Services':{
     vendors:['Cotton Communications','Vu Digital Works','Mitchell Workforce Training','North Event Productions','Knight Insurance Group','Bunzel Catering','Howland HR Solutions','Kleinsorge Cleaning Services'],
     items:['Program outreach & awareness materials','Donor management & grant tracking software','Staff & volunteer compliance training','Fundraising event setup & AV services','Nonprofit general liability insurance','Program food pantry & meal service','Staff background checks & HR compliance','Facility cleaning & maintenance'],
-    cats:['Advertising & Marketing','Software & Tech','Legal & Professional Fees','Contract Labor','Insurance','Cost of Goods Sold','Legal & Professional Fees','Supplies'],
+    cats:['Advertising & Marketing','Software & Tech','Legal & Professional Fees','Contract Labor','Insurance','Cost of Goods Sold','Legal & Professional Fees','Other Business Expenses'],
     min:50,max:4500
   },
   'Childcare & Family Services':{
     vendors:['Kleinsorge Cleaning Services','Goods Hardware Supply','Bunzel Catering','Eftekhari Cybersecurity','Knight Insurance Group','Mitchell Workforce Training','City Utility Services','Iuliano Learning Center'],
     items:['Child-safe facility cleaning & sanitation','Outdoor play equipment & classroom supplies','Nutritious meal & snack catering','Child safety monitoring & access control','Childcare liability insurance','Staff CPR, first aid & background checks','Monthly electric & gas — childcare facility','Age-appropriate curriculum materials'],
-    cats:['Supplies','Supplies','Cost of Goods Sold','Software & Tech','Insurance','Legal & Professional Fees','Utilities','Supplies'],
+    cats:['Other Business Expenses','Supplies','Cost of Goods Sold','Software & Tech','Insurance','Legal & Professional Fees','Utilities','Supplies'],
     min:80,max:5000
   },
   'Agriculture & Farming':{
@@ -3042,7 +3042,7 @@ const TX={
   'Pet Services':{
     vendors:['Tang Pet Supply Co.','Wang Veterinary Clinic','Kleinsorge Cleaning Services','Vu Digital Works','Knight Insurance Group','Cotton Communications','Goods Hardware Supply'],
     items:['Grooming tools, shampoo & product restock','Veterinary supplies & medications','Facility sanitation & kennel cleaning','Pet grooming scheduling & booking software','Pet business liability insurance','Social media & local advertising','Kennel hardware, crates & bedding supplies'],
-    cats:['Supplies','Supplies','Supplies','Software & Tech','Insurance','Advertising & Marketing','Other Business Expenses'],
+    cats:['Supplies','Supplies','Other Business Expenses','Software & Tech','Insurance','Advertising & Marketing','Other Business Expenses'],
     min:80,max:4500
   },
   'Entertainment & Events':{
@@ -3066,7 +3066,7 @@ const TX={
   'Hospitality & Travel':{
     vendors:['Kleinsorge Cleaning Services','Daron Specialty Foods','Myers HVAC & Mechanical','Vu Digital Works','Knight Insurance Group','Siong Event Planning','City Utility Services','Bunzel Catering'],
     items:['Hotel linen, towel & room supply restock','Food & beverage distributor order','HVAC, plumbing & facility maintenance','Property management & booking system','Hospitality liability insurance','Banquet & event coordination support','Monthly electric, gas & water — hotel','Catering & kitchen food service'],
-    cats:['Supplies','Cost of Goods Sold','Other Business Expenses','Software & Tech','Insurance','Contract Labor','Utilities','Cost of Goods Sold'],
+    cats:['Other Business Expenses','Cost of Goods Sold','Other Business Expenses','Software & Tech','Insurance','Contract Labor','Utilities','Cost of Goods Sold'],
     min:200,max:14000
   },
   'Marketing & Comms':{
@@ -3399,32 +3399,38 @@ const EXPENSE_CATS={
   'default':['Cost of Services','Payroll Expenses','Rent & Utilities','Advertising & Marketing','Technology','Insurance','Legal & Professional Fees','Other Business Expenses']
 };
 const INCOME_CATS={
-  'Landscaping':['Landscape Maintenance','Design & Installation','Tree Care','Nursery Sales','Commercial Contract'],
-  'Construction':['Contract Revenue','Project Billing','Change Order Revenue','Retainer','Project Completion'],
-  'Construction-Entities':['Contract Revenue','Project Billing','Change Order Revenue','Retainer','Subcontract Revenue'],
-  'Technology':['Software Revenue','Service Contract','Project Revenue','Licensing','Retainer'],
-  'Healthcare':['Patient Services','Insurance Reimbursement','Telehealth','Lab Services','Preventive Care'],
-  'Food & Beverage':['Food Sales','Beverage Sales','Catering Revenue','Event Revenue','Wholesale'],
-  'Financial Services':['Advisory Fees','Management Fees','Retainer','Transaction Fees','Consulting'],
-  'Accounting Firm':['Tax Services','Audit Services','Advisory Fees','Bookkeeping Retainer','Payroll Services'],
-  'Fitness & Recreation':['Training Package','Group Class Revenue','Coaching Retainer','Corporate Wellness','Athletic Program'],
-  'Beauty & Wellness':['Service Revenue','Treatment Package','Product Sales','Membership Revenue','Package Revenue'],
-  'Pet Services':['Grooming Service','Boarding Fee','Veterinary Revenue','Training Revenue','Daycare Revenue'],
-  'Photography & Creative Media':['Shoot Revenue','Licensing Fees','Editing Retainer','Package Revenue','Session Fee'],
-  'Home Services':['Service Revenue','Project Invoice','Maintenance Contract','Repair Revenue','Installation Fee'],
-  'Automotive':['Repair Revenue','Service Revenue','Parts & Labor','Fleet Contract','Diagnostic Fee'],
-  'Real Estate':['Commission Revenue','Referral Fee','Property Management Fee','Consulting Fee','Transaction Revenue'],
-  'Entertainment & Events':['Event Revenue','Performance Fee','Production Revenue','Venue Rental','Event Package'],
-  'Childcare & Family Services':['Tuition Revenue','Enrollment Fee','Program Revenue','Drop-in Care','After-school Revenue'],
-  'Agriculture & Farming':['Crop Sales','Livestock Revenue','CSA Subscription','Wholesale Produce','Farm Contract'],
-  'Education':['Tuition Revenue','Program Enrollment','Workshop Revenue','Curriculum License','Certification Fee'],
-  'Hospitality & Travel':['Room Revenue','Event Venue Fee','Catering Revenue','Package Revenue','Group Booking'],
-  'Transportation & Logistics':['Freight Revenue','Delivery Contract','Fleet Service Fee','Logistics Revenue','Route Contract'],
-  'Nonprofit / Social Services':['Program Revenue','Grant Income','Donation Revenue','Event Revenue','Service Fee'],
-  'Professional Services':['Consulting Fees','Project Revenue','Retainer Income','Advisory Fee','Contract Revenue'],
-  'Legal Services':['Legal Fees','Retainer Income','Contingency Fee','Advisory Fee','Contract Review'],
-  'Marketing & Comms':['Campaign Revenue','Retainer Income','Project Fee','Strategy Revenue','Creative Services'],
-  'default':['Service Revenue','Project Revenue','Retainer Income','Consulting Fees','Contract Revenue']
+  'Landscaping':['Monthly Maintenance Contract','Landscape Design & Installation','Tree Care & Trimming Service','Seasonal Planting & Sod Install','Commercial Grounds Contract'],
+  'Construction':['Project Phase Completion','Commercial Build-Out Contract','Site Preparation & Grading','Change Order — Scope Addition','Structural Framing Contract'],
+  'Construction-Entities':['Civil Infrastructure Contract','Design-Build Agreement','Commercial Development Phase','Subcontract Services','Engineering & Site Coordination'],
+  'Technology':['Custom Software Development','Managed IT Services','Cloud Migration Project','API Integration Contract','Cybersecurity Assessment'],
+  'Healthcare':['Wellness Exam & Consultation','Lab Diagnostic Panel','Telehealth Session Fee','Preventive Care Package','Specialist Consultation'],
+  'Food & Beverage':['Corporate Catering Order','Private Event Dining','Wholesale Food Supply Order','Seasonal Menu Package','Beverage Service Contract'],
+  'Financial Services':['Portfolio Advisory Fee','Financial Planning Engagement','Investment Management Fee','Quarterly Review Retainer','Tax Strategy Consultation'],
+  'Accounting Firm':['Annual Tax Preparation','Audit & Assurance Engagement','Monthly Bookkeeping Retainer','Payroll Processing Contract','CFO Advisory Services'],
+  'Fitness & Recreation':['Personal Training Package','Group Fitness Membership','Corporate Wellness Program','Performance Coaching Retainer','Athletic Program Enrollment'],
+  'Beauty & Wellness':['Full Service Appointment','Wellness Treatment Package','Monthly Membership Plan','Bridal & Event Package','Product Retail Order'],
+  'Pet Services':['Full Grooming Appointment','Overnight Boarding Stay','Obedience Training Package','Weekly Daycare Pass','Wellness Exam Visit'],
+  'Photography & Creative Media':['Brand Photography Session','Event Coverage Package','Photo Editing Retainer','Commercial Shoot Contract','Stock Image License'],
+  'Home Services':['Plumbing Repair & Service','Electrical Upgrade Project','HVAC Installation Contract','Remodel & Renovation Phase','Handyman Service Call'],
+  'Automotive':['Engine Repair & Diagnostics','Brake & Suspension Service','Detailing Package','Fleet Maintenance Contract','Pre-Purchase Inspection'],
+  'Real Estate':['Buyer Representation Commission','Seller Closing Commission','Property Management Fee','Lease Negotiation Fee','Referral Commission'],
+  'Entertainment & Events':['Live Event Production Contract','Talent Booking & Management','AV & Lighting Design','Festival Coordination','Corporate Event Package'],
+  'Childcare & Family Services':['Monthly Tuition Installment','After-School Program Fee','Summer Camp Enrollment','Drop-In Care Session','Family Program Package'],
+  'Agriculture & Farming':['Seasonal Harvest Delivery','CSA Box Subscription','Wholesale Produce Order','Farm Supply Contract','Crop Consulting Services'],
+  'Education':['Monthly Tuition Installment','Workshop Enrollment Fee','Private Tutoring Package','Curriculum License','Corporate Training Program'],
+  'Hospitality & Travel':['Room Block Booking','Event Venue Rental','Banquet & Catering Package','Group Travel Arrangement','Corporate Retreat Package'],
+  'Transportation & Logistics':['Freight Shipment Contract','Last-Mile Delivery Route','Fleet Management Agreement','Warehousing Monthly Fee','Cross-Country Logistics Run'],
+  'Nonprofit / Social Services':['Program Services Fee','Sponsored Event Package','Corporate Partnership Agreement','Client Services Contract','Community Program Enrollment'],
+  'Professional Services':['Strategy Consulting Engagement','Process Improvement Project','Executive Advisory Retainer','Stakeholder Workshop Series','Organizational Assessment'],
+  'Legal Services':['Monthly Retainer Agreement','Litigation Support','Contract Drafting & Review','Entity Formation Services','Compliance Advisory Fee'],
+  'Marketing & Comms':['Digital Campaign Contract','Brand Strategy Engagement','Social Media Management Retainer','PR Campaign Contract','Content Creation Package'],
+  'Arts & Galleries':['Artwork Commission','Gallery Exhibition Placement','Corporate Art Consulting','Print License Agreement','Curated Collection Install'],
+  'Arts & Creative':['Custom Illustration Project','Brand Identity Package','Print Collateral Design','Motion Design Contract','Creative Direction Retainer'],
+  'Video Production & Media':['Commercial Video Production','Social Media Content Series','Documentary Project','Post-Production Retainer','Live Stream Package'],
+  'Retail & Product':['Wholesale Product Order','Bulk Purchase Order','Online Store Sale','B2B Supply Agreement','Custom Order Fulfillment'],
+  'Retail - Brick & Mortar':['In-Store Product Sale','Wholesale Bulk Order','Custom Product Order','Gift Card & Store Credit','Product Consignment Sale'],
+  'Manufacturing':['Custom Parts Production Order','Assembly Contract','OEM Supply Agreement','Quality Inspection Contract','Manufacturing Retainer'],
+  'default':['Consulting Engagement','Monthly Retainer','Project Completion','Advisory Services','Contract Services']
 };
 
 // Client name fragments for income transactions (seeded)
