@@ -273,7 +273,13 @@
       Transaction and CoA data for guidance not absolute accuracy — vet for your story before using exactly as is.
     </div>
     <div class="tx-section">
-      <div class="tx-heading">Snapshot of Transactions</div>
+      <div class="tx-heading" style="display:flex;justify-content:space-between;align-items:center">
+        Snapshot of Transactions
+        <span style="display:flex;gap:6px">
+          <button id="tx-edit-btn" onclick="toggleTxEdit()" style="padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #D1D5DB;background:#F9FAFB;color:#374151;cursor:pointer">Edit</button>
+          <button id="tx-reset-btn" onclick="resetTxEdits()" style="display:none;padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer">Reset</button>
+        </span>
+      </div>
       <table class="tx-table" style="font-size:12px">
         <thead><tr>
           <th style="width:90px">Date</th>
@@ -2871,6 +2877,7 @@ function renderCoA(name, industry, revenue, totalExp){
 function openFBNModal(name){
   const f=approvedFBN.find(x=>x.name===name);
   if(!f||!f.owner) return;
+  modalCompany=f;
   const reviewTag=f.status==='ies_parent'?' <span class="badge-review" style="font-size:11px;vertical-align:middle">IES Parent &amp; Entities</span>':'';
   document.getElementById('m-title').innerHTML=esc(f.name)+reviewTag;
   document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
@@ -2938,6 +2945,87 @@ function renderFBN(){
     ? filtered.map((f,i)=>fbnRowHTML(f,i)).join('')
     : '<div class="no-results">No results found. Try different keywords.</div>';
   document.getElementById('fbn-count').textContent=label;
+}
+
+// ── Editable Transactions ─────────────────────────────────────────────────
+function applyEditMode(on){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody) return;
+  tbody.querySelectorAll('tr').forEach(row=>{
+    const cells=row.querySelectorAll('td');
+    // date, desc, fromTo, cat span, amount
+    [0,1,2,4].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
+    const catSpan=cells[3]?cells[3].querySelector('span'):null;
+    if(catSpan) catSpan.contentEditable=on?'true':'false';
+    if(on){
+      row.style.background='#FAFFF5';
+      cells.forEach(td=>{td.style.outline='';});
+    } else {
+      row.style.background='';
+    }
+  });
+}
+
+function saveTxEdits(){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody||!modalCompany) return;
+  const edits={};
+  tbody.querySelectorAll('tr').forEach(row=>{
+    const idx=row.dataset.idx;
+    const cells=row.querySelectorAll('td');
+    edits[idx]={
+      date:cells[0]?cells[0].textContent.trim():'',
+      desc:cells[1]?cells[1].textContent.trim():'',
+      fromTo:cells[2]?cells[2].textContent.trim():'',
+      cat:cells[3]?cells[3].textContent.trim():'',
+      amt:cells[4]?cells[4].textContent.trim():''
+    };
+  });
+  localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
+}
+
+function toggleTxEdit(){
+  const btn=document.getElementById('tx-edit-btn');
+  const resetBtn=document.getElementById('tx-reset-btn');
+  const isActive=btn.dataset.active==='1';
+  if(isActive){
+    // Save & exit edit mode
+    saveTxEdits();
+    btn.dataset.active='0';
+    btn.textContent='Edit';
+    btn.style.background='#F9FAFB';
+    btn.style.color='#374151';
+    btn.style.borderColor='#D1D5DB';
+    resetBtn.style.display='none';
+    applyEditMode(false);
+  } else {
+    // Enter edit mode
+    btn.dataset.active='1';
+    btn.textContent='Save';
+    btn.style.background='#ECFDF5';
+    btn.style.color='#065F46';
+    btn.style.borderColor='#6EE7B7';
+    resetBtn.style.display='';
+    applyEditMode(true);
+  }
+}
+
+function resetTxEdits(){
+  if(!modalCompany) return;
+  if(!confirm('Reset all transaction edits for '+modalCompany.name+'?')) return;
+  localStorage.removeItem('nil_tx_'+modalCompany.name);
+  const btn=document.getElementById('tx-edit-btn');
+  btn.dataset.active='0';
+  btn.textContent='Edit';
+  btn.style.background='#F9FAFB';
+  btn.style.color='#374151';
+  btn.style.borderColor='#D1D5DB';
+  document.getElementById('tx-reset-btn').style.display='none';
+  applyEditMode(false);
+  // Re-render to restore defaults
+  const rev=getRevenue(modalCompany.name,modalCompany.revTier||'low',modalCompany.category||modalCompany.industry);
+  const totalExp=Math.round(rev*(0.52+seededRNG(hashStr(modalCompany.name+'financials'))()*0.22));
+  renderTransactions(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
 }
 
 // Run FBN render after all data is declared — also populate industry dropdown
@@ -3689,16 +3777,110 @@ function renderTransactions(name, category, revenue, totalExp){
   }
 
 
-  document.getElementById('m-tx').innerHTML=dedupedTxns.map(t=>`
-    <tr>
-      <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${t.dateStr}</td>
-      <td class="tx-desc" style="font-size:12px;max-width:200px">${esc(t.desc)}</td>
-      <td class="tx-vendor" style="font-size:11.5px;color:#6B7280">${esc(t.fromTo)}</td>
-      <td style="font-size:11px;white-space:nowrap"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;${getCatStyle(t.catType,t.cat)}">${esc(t.cat)}</span></td>
-      <td class="tx-amount" style="font-weight:700;color:${t.catType==='income'?'#1A7A0D':'#1B1F26'}">${t.catType==='income'?'+':'−'}${t.amtStr}</td>
-    </tr>`).join('');
+  // Apply any saved edits from localStorage
+  const _savedEdits=localStorage.getItem('nil_tx_'+name);
+  const _edits=_savedEdits?JSON.parse(_savedEdits):{};
+  document.getElementById('m-tx').innerHTML=dedupedTxns.map((t,ri)=>{
+    const ov=_edits[ri]||{};
+    const date=ov.date||t.dateStr;
+    const desc=ov.desc||t.desc;
+    const fromTo=ov.fromTo||t.fromTo;
+    const cat=ov.cat||t.cat;
+    const amt=ov.amt||(t.catType==='income'?'+':'−')+t.amtStr;
+    return`<tr data-idx="${ri}">
+      <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${esc(date)}</td>
+      <td class="tx-desc" style="font-size:12px;max-width:200px">${esc(desc)}</td>
+      <td class="tx-vendor" style="font-size:11.5px;color:#6B7280">${esc(fromTo)}</td>
+      <td style="font-size:11px;white-space:nowrap"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;${getCatStyle(t.catType,t.cat)}">${esc(cat)}</span></td>
+      <td class="tx-amount" style="font-weight:700;color:${t.catType==='income'?'#1A7A0D':'#1B1F26'}">${amt}</td>
+    </tr>`;
+  }).join('');
+  // Restore edit mode state if was active
+  const _editBtn=document.getElementById('tx-edit-btn');
+  if(_editBtn&&_editBtn.dataset.active==='1') applyEditMode(true);
 }
 
+
+// ── Editable Transactions ─────────────────────────────────────────────────
+function applyEditMode(on){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody) return;
+  tbody.querySelectorAll('tr').forEach(row=>{
+    const cells=row.querySelectorAll('td');
+    // date, desc, fromTo, cat span, amount
+    [0,1,2,4].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
+    const catSpan=cells[3]?cells[3].querySelector('span'):null;
+    if(catSpan) catSpan.contentEditable=on?'true':'false';
+    if(on){
+      row.style.background='#FAFFF5';
+      cells.forEach(td=>{td.style.outline='';});
+    } else {
+      row.style.background='';
+    }
+  });
+}
+
+function saveTxEdits(){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody||!modalCompany) return;
+  const edits={};
+  tbody.querySelectorAll('tr').forEach(row=>{
+    const idx=row.dataset.idx;
+    const cells=row.querySelectorAll('td');
+    edits[idx]={
+      date:cells[0]?cells[0].textContent.trim():'',
+      desc:cells[1]?cells[1].textContent.trim():'',
+      fromTo:cells[2]?cells[2].textContent.trim():'',
+      cat:cells[3]?cells[3].textContent.trim():'',
+      amt:cells[4]?cells[4].textContent.trim():''
+    };
+  });
+  localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
+}
+
+function toggleTxEdit(){
+  const btn=document.getElementById('tx-edit-btn');
+  const resetBtn=document.getElementById('tx-reset-btn');
+  const isActive=btn.dataset.active==='1';
+  if(isActive){
+    // Save & exit edit mode
+    saveTxEdits();
+    btn.dataset.active='0';
+    btn.textContent='Edit';
+    btn.style.background='#F9FAFB';
+    btn.style.color='#374151';
+    btn.style.borderColor='#D1D5DB';
+    resetBtn.style.display='none';
+    applyEditMode(false);
+  } else {
+    // Enter edit mode
+    btn.dataset.active='1';
+    btn.textContent='Save';
+    btn.style.background='#ECFDF5';
+    btn.style.color='#065F46';
+    btn.style.borderColor='#6EE7B7';
+    resetBtn.style.display='';
+    applyEditMode(true);
+  }
+}
+
+function resetTxEdits(){
+  if(!modalCompany) return;
+  if(!confirm('Reset all transaction edits for '+modalCompany.name+'?')) return;
+  localStorage.removeItem('nil_tx_'+modalCompany.name);
+  const btn=document.getElementById('tx-edit-btn');
+  btn.dataset.active='0';
+  btn.textContent='Edit';
+  btn.style.background='#F9FAFB';
+  btn.style.color='#374151';
+  btn.style.borderColor='#D1D5DB';
+  document.getElementById('tx-reset-btn').style.display='none';
+  applyEditMode(false);
+  // Re-render to restore defaults
+  const rev=getRevenue(modalCompany.name,modalCompany.revTier||'low',modalCompany.category||modalCompany.industry);
+  const totalExp=Math.round(rev*(0.52+seededRNG(hashStr(modalCompany.name+'financials'))()*0.22));
+  renderTransactions(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
+}
 
 // Run FBN render after all data is declared — also populate industry dropdown
 (function initFBN(){
