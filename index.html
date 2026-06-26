@@ -2319,21 +2319,21 @@ function renderList(){
 
 function renderIES(){
   const q=(document.getElementById('ies-search').value||'').toLowerCase().trim();
-  const iesCos=companies.filter(c=>c.status==='ies_parent');
-  const filtered=q?iesCos.filter(c=>{
-    const entityNames=(c.entities||[]).map(e=>e.name+' '+e.desc).join(' ');
-    const blob=(c.name+' '+c.owner+' '+c.industry+' '+c.type+' '+entityNames).toLowerCase();
+  const iesCos=approvedFBN.filter(f=>f.status==='ies_parent');
+  const filtered=q?iesCos.filter(f=>{
+    const entityNames=(f.entities||[]).map(e=>e.name+' '+e.desc).join(' ');
+    const blob=(f.name+' '+(f.owner||'')+' '+(f.industry||'')+' '+(f.type||'')+' '+entityNames).toLowerCase();
     return blob.includes(q);
   }):iesCos;
 
   document.getElementById('ies-count').textContent=filtered.length+' of '+iesCos.length+' IES companies';
   document.getElementById('ies-list').innerHTML=filtered.length
-    ?filtered.map((c,i)=>iesRowHTML(c,i)).join('')
+    ?filtered.map((f,i)=>iesRowHTML(f,i)).join('')
     :'<div class="no-results">No results found.</div>';
 }
 
 function iesRowHTML(c,i){
-  const col=catColors[c.category]||catColors[c.industry]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
+  const col=FBN_IND_COLORS[c.industry]||catColors[c.category]||{bg:'#455A64',light:'#ECEFF1',text:'#455A64'};
   const nameSafe=c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   const stateCode=(c.address.split(',')[2]||'').trim().split(' ')[0]||'';
   const entityCount=(c.entities||[]).length;
