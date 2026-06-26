@@ -2382,14 +2382,14 @@ function switchTab(id){
 
 // ── Approved Fictitious Business Names ────────────────────────────────────
 const approvedFBN=[
-  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   status:"ies_parent", owner:"Daniele Griffith", type:"Landscaping & Grounds — Parent Entity", email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523",
+  {name:"Magnolia Landscaping",              use:"NIL",                 industry:"Landscaping",   status:"ies_parent",revTier:"ies_parent", owner:"Daniele Griffith", type:"Landscaping & Grounds — Parent Entity", email:"daniele.griffith@example.com", phone:"(312) 555-1851", address:"1 Appleseed Court, Downtown, FL 32212",            ssn:"400-00-3523",
    entities:[
     {name:"Magnolia Tree Care & Arbor Services Co.",  desc:"tree care, trimming, arborist services"},
     {name:"Magnolia Landscaping North LLC",           desc:"northern region landscaping operations"},
     {name:"Magnolia Landscaping South LLC",           desc:"southern region landscaping operations"},
     {name:"Magnolia Nursery & Plant Supply LLC",      desc:"plant sourcing, nursery stock, supply"}
   ]},
-  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  status:"ies_parent", owner:"Kirstie Espinoza", type:"Construction & Solar — Parent Entity", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524",
+  {name:"Spark Construction & Solar",        use:"QuickBooks / NIL",    industry:"Construction",  status:"ies_parent",revTier:"ies_parent", owner:"Kirstie Espinoza", type:"Construction & Solar — Parent Entity", email:"kirstie.espinoza@example.com",   phone:"(212) 555-1888", address:"456 Broadway, Uptown, CA 90298",                   ssn:"400-00-3524",
    entities:[
     {name:"Spark Civil Infrastructure LLC",          desc:"roads, bridges, public works projects"},
     {name:"Spark Commercial Construction Inc.",      desc:"offices, retail, mixed-use developments"},
@@ -2400,7 +2400,7 @@ const approvedFBN=[
     {name:"Spark Construction East LLC",             desc:"regional operations — eastern U.S."},
     {name:"Spark Solar Maintenance & Operations LLC",desc:"solar system servicing, maintenance, monitoring"}
   ]},
-  {name:"Horizon Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent", owner:"Marissa Dobbert",   type:"Construction Group — Parent Entity",     email:"marissa.dobbert@example.com",   phone:"(617) 555-2200", address:"100 Industrial Drive, Harbor Town, MA 02101", ssn:"400-00-3526",
+  {name:"Horizon Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent",revTier:"ies_parent", owner:"Marissa Dobbert",   type:"Construction Group — Parent Entity",     email:"marissa.dobbert@example.com",   phone:"(617) 555-2200", address:"100 Industrial Drive, Harbor Town, MA 02101", ssn:"400-00-3526",
    entities:[
     {name:"Horizon Civil Solutions LLC",        desc:"roads, bridges, heavy infrastructure"},
     {name:"Horizon Commercial Builders Inc.",   desc:"offices, retail, large developments"},
@@ -2410,7 +2410,7 @@ const approvedFBN=[
     {name:"Horizon Construction West LLC",      desc:"regional operations — western U.S."},
     {name:"Horizon Construction East LLC",      desc:"regional operations — eastern U.S."}
   ]},
-  {name:"Keystone Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent", owner:"Clark Fulton",  type:"Construction Group — Parent Entity",     email:"clark.fulton@example.com",   phone:"(415) 555-1900", address:"456 Bayshore Drive, Center City, CA 32201", ssn:"400-00-3527",
+  {name:"Keystone Construction",  use:"IES / NIL", industry:"Construction", status:"ies_parent",revTier:"ies_parent", owner:"Clark Fulton",  type:"Construction Group — Parent Entity",     email:"clark.fulton@example.com",   phone:"(415) 555-1900", address:"456 Bayshore Drive, Center City, CA 32201", ssn:"400-00-3527",
    entities:[
     {name:"Keystone Civil Infrastructure LLC",  desc:"roads, bridges, public works projects"},
     {name:"Keystone Commercial Builders Inc.",  desc:"office buildings, retail, mixed-use developments"},
@@ -2420,7 +2420,7 @@ const approvedFBN=[
     {name:"Keystone Construction West LLC",     desc:"regional operations — western U.S."},
     {name:"Keystone Construction East LLC",     desc:"regional operations — eastern U.S."}
   ]},
-  {name:"Ironvale Manufacturing Group", use:"NIL",       industry:"Manufacturing",  status:"ies_parent", owner:"Bennett Hart", type:"Manufacturing Group — Parent Entity",   email:"bennett.hart@example.com", phone:"(312) 555-4410", address:"88 Commerce Boulevard, Lakeside, OH 44101",  ssn:"400-00-3528",
+  {name:"Ironvale Manufacturing Group", use:"NIL",       industry:"Manufacturing",  status:"ies_parent",revTier:"ies_parent", owner:"Bennett Hart", type:"Manufacturing Group — Parent Entity",   email:"bennett.hart@example.com", phone:"(312) 555-4410", address:"88 Commerce Boulevard, Lakeside, OH 44101",  ssn:"400-00-3528",
    entities:[
     {name:"Ironvale Industrial Systems LLC",    desc:"core manufacturing — heavy equipment, components"},
     {name:"Ironvale Advanced Materials Inc.",   desc:"composites, specialty materials, R&D"},
@@ -2430,7 +2430,7 @@ const approvedFBN=[
     {name:"Ironvale Manufacturing East LLC",    desc:"eastern U.S. production"},
     {name:"Ironvale Engineering & Innovation LLC", desc:"product design, R&D, process optimization"}
   ]},
-  {name:"ForgeWorks Industries",        use:"NIL",       industry:"Manufacturing",  status:"ies_parent", owner:"Marvin Augustin", type:"Manufacturing Group — Parent Entity",    email:"marvin.augustin@example.com",  phone:"(213) 555-7730", address:"2200 Factory Row, Riverfield, CA 90007",       ssn:"400-00-3529",
+  {name:"ForgeWorks Industries",        use:"NIL",       industry:"Manufacturing",  status:"ies_parent",revTier:"ies_parent", owner:"Marvin Augustin", type:"Manufacturing Group — Parent Entity",    email:"marvin.augustin@example.com",  phone:"(213) 555-7730", address:"2200 Factory Row, Riverfield, CA 90007",       ssn:"400-00-3529",
    entities:[
     {name:"ForgeWorks Heavy Manufacturing LLC",  desc:"large-scale equipment, industrial components"},
     {name:"ForgeWorks Precision Components Inc.",desc:"high-accuracy parts, machining, aerospace/auto supply"},
@@ -2440,7 +2440,7 @@ const approvedFBN=[
     {name:"ForgeWorks Manufacturing Central LLC",desc:"central U.S. production hub"},
     {name:"ForgeWorks Research & Engineering LLC",desc:"R&D, product development, process innovation"}
   ]},
-  {name:"Greenhaven Foundation",       use:"NIL",       industry:"Nonprofit / Social Services", status:"ies_parent", owner:"Haley Malucchi", type:"Nonprofit Organization — Parent Entity", email:"haley.malucchi@example.com",  phone:"(512) 555-6740", address:"220 Civic Commons Way, Downtown, TX 78701",  ssn:"400-00-3532",
+  {name:"Greenhaven Foundation",       use:"NIL",       industry:"Nonprofit / Social Services", status:"ies_parent",revTier:"ies_parent", owner:"Haley Malucchi", type:"Nonprofit Organization — Parent Entity", email:"haley.malucchi@example.com",  phone:"(512) 555-6740", address:"220 Civic Commons Way, Downtown, TX 78701",  ssn:"400-00-3532",
    entities:[
     {name:"Greenhaven Community Development",  desc:"affordable housing, neighborhood revitalization, local economic growth"},
     {name:"Greenhaven Health & Wellness",      desc:"community clinics, mental health services, public health outreach"},
@@ -3198,6 +3198,7 @@ function getServices(name, category, count=5){
 
 function getRevenue(name, tier, category){
   const rng=seededRNG(hashStr(name+'annualrev'));
+  if(tier==='ies_parent') return 10000000+Math.floor(rng()*10000000); // $10M–$20M
   const REV_RANGES={
     // User-specified ranges
     'Professional Services':       [200000,1500000],
@@ -3872,13 +3873,13 @@ function closeConsumerModal(){ document.getElementById('consumer-modal').classLi
 
 // ── Banks & Credit Cards ────────────────────────────────────────────────────
 const banksData=[
-  {name:"NorthBridge National Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",
+  {name:"NorthBridge National Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",revTier:"ies_parent",
    cards:[
     {name:"NorthBridge Classic Card",        industry:"Credit Card - Classic",  use:"US"},
     {name:"NorthBridge Platinum Rewards",    industry:"Credit Card - Rewards",  use:"US"},
     {name:"NorthBridge Premier Travel Card", industry:"Credit Card - Travel",   use:"US"}
   ]},
-  {name:"Summit Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",
+  {name:"Summit Bank", section:"bank", industry:"Financial Services", use:"US", status:"ies_parent",revTier:"ies_parent",
    cards:[
     {name:"Summit Bank Card",          industry:"Credit Card - Access",  use:"US"},
     {name:"Summit Bank Gold Rewards",  industry:"Credit Card - Rewards", use:"US"},
