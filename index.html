@@ -3283,7 +3283,7 @@ function renderFinancials(name, revenue, industry){
     </div>`;
   }).join('');
 
-  contentEl.innerHTML=plHTML+summaryHTML+bankHTML+`<div style="margin-top:4px"><div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Expense Breakdown</div>${barsHTML}</div>`;
+  contentEl.innerHTML=summaryHTML+plHTML+bankHTML+`<div style="margin-top:4px"><div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Expense Breakdown</div>${barsHTML}</div>`;
   finEl.style.display='block';
 }
 
