@@ -3264,9 +3264,12 @@ function renderFinancials(name, revenue, industry){
   const expToReview=4+Math.floor(rng()*18);
   const prevQtrPct=Math.round((-8+rng()*20)*10)/10; // -8% to +12%
 
-  // Bank balances
-  const checking=Math.round(monthRev*(1.2+rng()*0.8));
-  const savings=Math.round(monthRev*(0.6+rng()*0.5));
+  // Bank balances — total cash = 3–6 months of operating expenses
+  const cashMonths=3+rng()*3; // 3 to 6 months
+  const totalCash=Math.round(monthExp*cashMonths);
+  const checkingPct=0.55+rng()*0.2; // checking holds 55–75% of cash
+  const checking=Math.round(totalCash*checkingPct);
+  const savings=totalCash-checking;
   const nbInQB=Math.round(checking*(0.85+rng()*0.12));
   const sbInQB=Math.round(savings*(0.88+rng()*0.10));
   const totalBank=checking+savings;
