@@ -3035,6 +3035,18 @@ function resetTxEdits(){
   renderTransactions(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
 }
 
+// Auto-clear any localStorage tx saves containing deprecated categories
+(function purgeStaleEdits(){
+  const bad=['Payroll Expenses'];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('nil_tx_')){
+      const val=localStorage.getItem(k)||'';
+      if(bad.some(b=>val.includes(b))) localStorage.removeItem(k);
+    }
+  }
+})();
+
 // Run FBN render after all data is declared — also populate industry dropdown
 (function initFBN(){
   const inds=[...new Set(approvedFBN.map(f=>f.industry))].sort();
@@ -3896,6 +3908,18 @@ function resetTxEdits(){
   const totalExp=Math.round(rev*(0.52+seededRNG(hashStr(modalCompany.name+'financials'))()*0.22));
   renderTransactions(modalCompany.name,modalCompany.category||modalCompany.industry,rev,totalExp);
 }
+
+// Auto-clear any localStorage tx saves containing deprecated categories
+(function purgeStaleEdits(){
+  const bad=['Payroll Expenses'];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('nil_tx_')){
+      const val=localStorage.getItem(k)||'';
+      if(bad.some(b=>val.includes(b))) localStorage.removeItem(k);
+    }
+  }
+})();
 
 // Run FBN render after all data is declared — also populate industry dropdown
 (function initFBN(){
