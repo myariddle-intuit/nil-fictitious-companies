@@ -2953,13 +2953,14 @@ function applyEditMode(on){
   if(!tbody) return;
   tbody.querySelectorAll('tr').forEach(row=>{
     const cells=row.querySelectorAll('td');
-    // date, desc, fromTo, cat span, amount
-    [0,1,2,4].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
-    const catSpan=cells[3]?cells[3].querySelector('span'):null;
+    // del, date, desc, fromTo, cat span, amount (del cell is index 0 now)
+    const delCell=row.querySelector('.tx-del-cell');
+    if(delCell) delCell.style.display=on?'':'none';
+    [1,2,3,5].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
+    const catSpan=cells[4]?cells[4].querySelector('span'):null;
     if(catSpan) catSpan.contentEditable=on?'true':'false';
     if(on){
       row.style.background='#FAFFF5';
-      cells.forEach(td=>{td.style.outline='';});
     } else {
       row.style.background='';
     }
@@ -2974,14 +2975,20 @@ function saveTxEdits(){
     const idx=row.dataset.idx;
     const cells=row.querySelectorAll('td');
     edits[idx]={
-      date:cells[0]?cells[0].textContent.trim():'',
-      desc:cells[1]?cells[1].textContent.trim():'',
-      fromTo:cells[2]?cells[2].textContent.trim():'',
-      cat:cells[3]?cells[3].textContent.trim():'',
-      amt:cells[4]?cells[4].textContent.trim():''
+      date:cells[1]?cells[1].textContent.trim():'',
+      desc:cells[2]?cells[2].textContent.trim():'',
+      fromTo:cells[3]?cells[3].textContent.trim():'',
+      cat:cells[4]?cells[4].textContent.trim():'',
+      amt:cells[5]?cells[5].textContent.trim():''
     };
   });
   localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
+}
+
+function deleteTxRow(btn){
+  const row=btn.closest('tr');
+  if(row) row.remove();
+  saveTxEdits();
 }
 
 function toggleTxEdit(){
@@ -3788,6 +3795,7 @@ function renderTransactions(name, category, revenue, totalExp){
     const cat=ov.cat||t.cat;
     const amt=ov.amt||(t.catType==='income'?'+':'−')+t.amtStr;
     return`<tr data-idx="${ri}">
+      <td class="tx-del-cell" style="display:none;width:24px;padding:0 4px"><button onclick="deleteTxRow(this)" style="background:none;border:none;color:#EF4444;font-size:14px;cursor:pointer;line-height:1" title="Delete row">✕</button></td>
       <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${esc(date)}</td>
       <td class="tx-desc" style="font-size:12px;max-width:200px">${esc(desc)}</td>
       <td class="tx-vendor" style="font-size:11.5px;color:#6B7280">${esc(fromTo)}</td>
@@ -3807,13 +3815,14 @@ function applyEditMode(on){
   if(!tbody) return;
   tbody.querySelectorAll('tr').forEach(row=>{
     const cells=row.querySelectorAll('td');
-    // date, desc, fromTo, cat span, amount
-    [0,1,2,4].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
-    const catSpan=cells[3]?cells[3].querySelector('span'):null;
+    // del, date, desc, fromTo, cat span, amount (del cell is index 0 now)
+    const delCell=row.querySelector('.tx-del-cell');
+    if(delCell) delCell.style.display=on?'':'none';
+    [1,2,3,5].forEach(i=>{if(cells[i]) cells[i].contentEditable=on?'true':'false';});
+    const catSpan=cells[4]?cells[4].querySelector('span'):null;
     if(catSpan) catSpan.contentEditable=on?'true':'false';
     if(on){
       row.style.background='#FAFFF5';
-      cells.forEach(td=>{td.style.outline='';});
     } else {
       row.style.background='';
     }
@@ -3828,14 +3837,20 @@ function saveTxEdits(){
     const idx=row.dataset.idx;
     const cells=row.querySelectorAll('td');
     edits[idx]={
-      date:cells[0]?cells[0].textContent.trim():'',
-      desc:cells[1]?cells[1].textContent.trim():'',
-      fromTo:cells[2]?cells[2].textContent.trim():'',
-      cat:cells[3]?cells[3].textContent.trim():'',
-      amt:cells[4]?cells[4].textContent.trim():''
+      date:cells[1]?cells[1].textContent.trim():'',
+      desc:cells[2]?cells[2].textContent.trim():'',
+      fromTo:cells[3]?cells[3].textContent.trim():'',
+      cat:cells[4]?cells[4].textContent.trim():'',
+      amt:cells[5]?cells[5].textContent.trim():''
     };
   });
   localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
+}
+
+function deleteTxRow(btn){
+  const row=btn.closest('tr');
+  if(row) row.remove();
+  saveTxEdits();
 }
 
 function toggleTxEdit(){
