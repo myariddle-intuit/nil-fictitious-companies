@@ -174,19 +174,16 @@
 <div id="tab-ies" class="tab-panel">
   <div class="controls">
     <input type="text" id="ies-search" placeholder="Search IES parent companies or entities..." oninput="renderIES()">
-    <span class="count" id="ies-count"></span>
+    <span class="fbn-count" id="ies-count"></span>
   </div>
-  <div class="list-wrap">
-    <div class="col-header">
-      <span class="col-h-num">#</span>
-      <span class="col-h-dot"></span>
-      <span class="col-h-name">Parent Company</span>
-      <span class="col-h-owner">Owner</span>
-      <span class="col-h-cat">Industry</span>
-      <span class="col-h-type">Entities</span>
-      <span class="col-h-state">State</span>
+  <div class="fbn-wrap">
+    <div class="fbn-col-header">
+      <span class="fbn-h-num">#</span>
+      <span class="fbn-h-name">Business Name</span>
+      <span class="fbn-h-ind">Industry</span>
+      <span class="fbn-h-use">Use</span>
     </div>
-    <div class="list" id="ies-list"></div>
+    <div class="fbn-list" id="ies-list"></div>
   </div>
 </div>
 
@@ -2899,10 +2896,9 @@ function openFBNModal(name){
   } else {
     entitiesEl.style.display='none';
   }
+  const fbnTotalExp=Math.round(rev*(0.52+seededRNG(hashStr(f.name+'financials'))()*0.22));
   renderFinancials(f.name, rev, f.industry);
   renderTransactions(f.name, f.industry, rev, fbnTotalExp);
-  const _finEl=document.getElementById('m-financials');
-  const fbnTotalExp=Math.round(rev*(0.52+seededRNG(hashStr(f.name+'financials'))()*0.22));
   renderCoA(f.name, f.industry, rev, fbnTotalExp);
   document.getElementById('modal').classList.add('open');
 }
