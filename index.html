@@ -277,6 +277,7 @@
         Snapshot of Transactions
         <span style="display:flex;gap:6px">
           <button id="tx-edit-btn" onclick="toggleTxEdit()" style="padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #D1D5DB;background:#F9FAFB;color:#374151;cursor:pointer">Edit</button>
+          <button id="tx-add-btn" onclick="addTxRow()" style="display:none;padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #A7F3D0;background:#ECFDF5;color:#065F46;cursor:pointer">+ Add Row</button>
           <button id="tx-reset-btn" onclick="resetTxEdits()" style="display:none;padding:3px 10px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer">Reset</button>
         </span>
       </div>
@@ -2985,6 +2986,26 @@ function saveTxEdits(){
   localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
 }
 
+function addTxRow(){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody) return;
+  const newIdx='new_'+Date.now();
+  const tr=document.createElement('tr');
+  tr.dataset.idx=newIdx;
+  tr.style.background='#FAFFF5';
+  tr.innerHTML=`
+    <td class="tx-del-cell" style="width:24px;padding:0 4px"><button onclick="deleteTxRow(this)" style="background:none;border:none;color:#EF4444;font-size:14px;cursor:pointer;line-height:1" title="Delete row">✕</button></td>
+    <td contenteditable="true" class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">Sep , 2026</td>
+    <td contenteditable="true" class="tx-desc" style="font-size:12px;max-width:200px">Description</td>
+    <td contenteditable="true" class="tx-vendor" style="font-size:11.5px;color:#6B7280">Vendor</td>
+    <td style="font-size:11px;white-space:nowrap"><span contenteditable="true" style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;background:#F3F4F6;color:#374151">Category</span></td>
+    <td contenteditable="true" class="tx-amount" style="font-weight:700;color:#1B1F26">−$0.00</td>`;
+  tbody.appendChild(tr);
+  // Focus the date cell
+  const dateCell=tr.querySelector('.tx-date');
+  if(dateCell){dateCell.focus();const r=document.createRange();r.selectNodeContents(dateCell);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+}
+
 function deleteTxRow(btn){
   const row=btn.closest('tr');
   if(row) row.remove();
@@ -3004,6 +3025,7 @@ function toggleTxEdit(){
     btn.style.color='#374151';
     btn.style.borderColor='#D1D5DB';
     resetBtn.style.display='none';
+    document.getElementById('tx-add-btn').style.display='none';
     applyEditMode(false);
   } else {
     // Enter edit mode
@@ -3013,6 +3035,7 @@ function toggleTxEdit(){
     btn.style.color='#065F46';
     btn.style.borderColor='#6EE7B7';
     resetBtn.style.display='';
+    document.getElementById('tx-add-btn').style.display='';
     applyEditMode(true);
   }
 }
@@ -3859,6 +3882,26 @@ function saveTxEdits(){
   localStorage.setItem('nil_tx_'+modalCompany.name, JSON.stringify(edits));
 }
 
+function addTxRow(){
+  const tbody=document.getElementById('m-tx');
+  if(!tbody) return;
+  const newIdx='new_'+Date.now();
+  const tr=document.createElement('tr');
+  tr.dataset.idx=newIdx;
+  tr.style.background='#FAFFF5';
+  tr.innerHTML=`
+    <td class="tx-del-cell" style="width:24px;padding:0 4px"><button onclick="deleteTxRow(this)" style="background:none;border:none;color:#EF4444;font-size:14px;cursor:pointer;line-height:1" title="Delete row">✕</button></td>
+    <td contenteditable="true" class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">Sep , 2026</td>
+    <td contenteditable="true" class="tx-desc" style="font-size:12px;max-width:200px">Description</td>
+    <td contenteditable="true" class="tx-vendor" style="font-size:11.5px;color:#6B7280">Vendor</td>
+    <td style="font-size:11px;white-space:nowrap"><span contenteditable="true" style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;background:#F3F4F6;color:#374151">Category</span></td>
+    <td contenteditable="true" class="tx-amount" style="font-weight:700;color:#1B1F26">−$0.00</td>`;
+  tbody.appendChild(tr);
+  // Focus the date cell
+  const dateCell=tr.querySelector('.tx-date');
+  if(dateCell){dateCell.focus();const r=document.createRange();r.selectNodeContents(dateCell);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+}
+
 function deleteTxRow(btn){
   const row=btn.closest('tr');
   if(row) row.remove();
@@ -3878,6 +3921,7 @@ function toggleTxEdit(){
     btn.style.color='#374151';
     btn.style.borderColor='#D1D5DB';
     resetBtn.style.display='none';
+    document.getElementById('tx-add-btn').style.display='none';
     applyEditMode(false);
   } else {
     // Enter edit mode
@@ -3887,6 +3931,7 @@ function toggleTxEdit(){
     btn.style.color='#065F46';
     btn.style.borderColor='#6EE7B7';
     resetBtn.style.display='';
+    document.getElementById('tx-add-btn').style.display='';
     applyEditMode(true);
   }
 }
