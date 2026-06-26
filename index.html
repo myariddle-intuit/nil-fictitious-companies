@@ -2089,9 +2089,10 @@ function openModal(name){
   document.getElementById('m-entities').style.display='none';
   document.getElementById('m-services').innerHTML=getServices(c.name,c.category).map(s=>`<span class="service-pill">${esc(s)}</span>`).join('');
   const expRatio=0.52+seededRNG(hashStr(c.name+'financials'))()*0.22;
+  const totalExp=Math.round(rev*expRatio);
   renderFinancials(c.name, rev, c.category);
   renderTransactions(c.name, c.category, 1);
-  renderCoA(c.name, c.category, rev, rev*expRatio);
+  renderCoA(c.name, c.category, rev, totalExp);
   document.getElementById('modal').classList.add('open');
 }
 
@@ -2843,7 +2844,8 @@ function openFBNModal(name){
   renderFinancials(f.name, rev, f.industry);
   renderTransactions(f.name, f.industry, revMult);
   const _finEl=document.getElementById('m-financials');
-  renderCoA(f.name, f.industry, rev, rev*(0.52+seededRNG(hashStr(f.name+'financials'))()*0.22));
+  const fbnTotalExp=Math.round(rev*(0.52+seededRNG(hashStr(f.name+'financials'))()*0.22));
+  renderCoA(f.name, f.industry, rev, fbnTotalExp);
   document.getElementById('modal').classList.add('open');
 }
 
