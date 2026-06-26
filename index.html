@@ -3630,6 +3630,16 @@ function renderTransactions(name, category, revenue, totalExp){
       txns.push({date:d,dateStr,desc:item,fromTo:vendor,cat,catType:'expense',amount,amtStr});
     }
   }
+  // Deduplicate invoice numbers — increment any collision by 1
+  const usedInvoiceNums=new Set();
+  txns.forEach(t=>{
+    if(t.catType!=='income') return;
+    while(usedInvoiceNums.has(t.desc)){
+      const num=parseInt(t.desc.replace('Invoice #',''))+1;
+      t.desc='Invoice #'+num;
+    }
+    usedInvoiceNums.add(t.desc);
+  });
   // Remove duplicate expense descriptions — keep first occurrence of each
   const seenDescs=new Set();
   const dedupedTxns=txns.filter(t=>{
