@@ -3015,8 +3015,8 @@ const TX={
   },
   'Professional Services':{
     vendors:['Vu Digital Works','Bhargava Cloud Systems','Arvizu & Associates','Knight Insurance Group','Cotton Communications','Johnson Cafe Group','Woodbeck Accounting','Howland HR Solutions'],
-    items:['CRM & project management software','Video conferencing & collaboration suite','Annual tax compliance & accounting services','Business liability insurance','Business card printing & marketing materials','Client lunch — strategy session','Bookkeeping & payroll tax filing','Payroll processing & HR administration'],
-    cats:['Software & Tech','Software & Tech','Legal & Professional Fees','Insurance','Advertising & Marketing','Meals & Entertainment','Legal & Professional Fees','Payroll Expenses'],
+    items:['CRM & project management software','Video conferencing & collaboration suite','Tax compliance & accounting services','Business liability insurance','Marketing campaign design & placement','Client lunch — strategy session','Bookkeeping & accounting services','HR consulting & administration services'],
+    cats:['Software & Tech','Software & Tech','Legal & Professional Fees','Insurance','Advertising & Marketing','Meals & Entertainment','Legal & Professional Fees','Other Business Expenses'],
     min:100,max:6500
   },
   'Legal Services':{
@@ -3479,7 +3479,7 @@ const INCOME_CATS={
   'Hospitality & Travel':['Room Block Booking','Event Venue Rental','Banquet & Catering Package','Group Travel Arrangement','Corporate Retreat Package'],
   'Transportation & Logistics':['Freight Shipment Contract','Last-Mile Delivery Route','Fleet Management Agreement','Warehousing Monthly Fee','Cross-Country Logistics Run'],
   'Nonprofit / Social Services':['Program Services Fee','Sponsored Event Package','Corporate Partnership Agreement','Client Services Contract','Community Program Enrollment'],
-  'Professional Services':['Strategy Consulting Engagement','Process Improvement Project','Executive Advisory Retainer','Stakeholder Workshop Series','Organizational Assessment'],
+  'Professional Services':['Strategy Consulting Engagement','Process Improvement Project','Client Advisory Retainer','Stakeholder Workshop Series','Strategic Planning Engagement'],
   'Legal Services':['Monthly Retainer Agreement','Litigation Support','Contract Drafting & Review','Entity Formation Services','Compliance Advisory Fee'],
   'Marketing & Comms':['Digital Campaign Contract','Brand Strategy Engagement','Social Media Management Retainer','PR Campaign Contract','Content Creation Package'],
   'Arts & Galleries':['Artwork Commission','Gallery Exhibition Placement','Corporate Art Consulting','Print License Agreement','Curated Collection Install'],
@@ -3596,6 +3596,7 @@ function renderTransactions(name, category, revenue, totalExp){
   const monthRev=Math.round(revenue/12);
   const monthExp=Math.round(totalExp/12);
 
+  const usedVendors=new Set();
   for(let i=0;i<22;i++){
     const jan1=new Date('2026-01-01');
     const maxDays=Math.max(1,Math.floor((now-jan1)/86400000));
@@ -3618,8 +3619,12 @@ function renderTransactions(name, category, revenue, totalExp){
     } else {
       const allPairs=tmpl.vendors.map((v,idx)=>({v,it:tmpl.items[idx],cat:tmpl.cats?tmpl.cats[idx]:null}));
       const validPairs=allPairs.filter(p=>p.v!==name);
-      const pairs=validPairs.length>0?validPairs:allPairs;
+      const basePairs=validPairs.length>0?validPairs:allPairs;
+      // Prefer vendors not yet used; fall back to full pool if all exhausted
+      const unusedPairs=basePairs.filter(p=>!usedVendors.has(p.v));
+      const pairs=unusedPairs.length>0?unusedPairs:basePairs;
       const pair=pairs[Math.floor(rng()*pairs.length)];
+      usedVendors.add(pair.v);
       const vendor=pair.v;
       const item=pair.it;
       const cat=pair.cat||expCats[Math.floor(rng()*expCats.length)];
