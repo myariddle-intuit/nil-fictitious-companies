@@ -3595,7 +3595,7 @@ function renderTransactions(name, category, revenue, totalExp){
   const monthExp=Math.round(totalExp/12);
 
   // Shuffle expense pairs so items cycle in order — no repeats until all used
-  const _allPairs0=(TX[category]||TX['default']).vendors.map((v,vi)=>({v,it:(TX[category]||TX['default']).items[vi],cat:(TX[category]||TX['default']).cats?.(vi)}));
+  const _allPairs0=(TX[category]||TX['default']).vendors.map((v,vi)=>({v,it:(TX[category]||TX['default']).items[vi],cat:(TX[category]||TX['default']).cats?.[vi]}));
   const _shuffled=[..._allPairs0].sort(()=>seededRNG(hashStr(name+category+'shuffle'))()*2-1);
   let _pairIdx=0;
   for(let i=0;i<22;i++){
