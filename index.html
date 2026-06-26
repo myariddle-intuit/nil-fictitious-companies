@@ -3013,7 +3013,7 @@ const TX={
   },
   'Professional Services':{
     vendors:['Vu Digital Works','Bhargava Cloud Systems','Arvizu & Associates','Knight Insurance Group','Cotton Communications','Johnson Cafe Group','Woodbeck Accounting','Howland HR Solutions'],
-    items:['CRM & project management software','Video conferencing & collaboration suite','Tax compliance & accounting services','Business liability insurance','Marketing campaign design & placement','Client lunch — strategy session','Bookkeeping & accounting services','HR consulting & administration services'],
+    items:['CRM & project management software','Video conferencing & collaboration suite','Business strategy & consulting services','Business liability insurance','Marketing campaign design & placement','Client lunch — strategy session','Bookkeeping & accounting services','HR consulting & administration services'],
     cats:['Software & Tech','Software & Tech','Legal & Professional Fees','Insurance','Advertising & Marketing','Meals & Entertainment','Legal & Professional Fees','Other Business Expenses'],
     min:100,max:6500
   },
@@ -3630,7 +3630,15 @@ function renderTransactions(name, category, revenue, totalExp){
       txns.push({date:d,dateStr,desc:item,fromTo:vendor,cat,catType:'expense',amount,amtStr});
     }
   }
-  txns.sort((a,b)=>b.date-a.date);
+  // Remove duplicate expense descriptions — keep first occurrence of each
+  const seenDescs=new Set();
+  const dedupedTxns=txns.filter(t=>{
+    if(t.catType==='income') return true;
+    if(seenDescs.has(t.desc)) return false;
+    seenDescs.add(t.desc);
+    return true;
+  });
+  dedupedTxns.sort((a,b)=>b.date-a.date);
 
   const catColors={
     income:'background:#EBF9E8;color:#1A7A0D',
@@ -3658,7 +3666,7 @@ function renderTransactions(name, category, revenue, totalExp){
     return catColors[c]||catColors['default'];
   }
 
-  document.getElementById('m-tx').innerHTML=txns.map(t=>`
+  document.getElementById('m-tx').innerHTML=dedupedTxns.map(t=>`
     <tr>
       <td class="tx-date" style="color:#9CA3AF;font-size:11.5px;white-space:nowrap">${t.dateStr}</td>
       <td class="tx-desc" style="font-size:12px;max-width:200px">${esc(t.desc)}</td>
