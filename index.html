@@ -2328,7 +2328,7 @@ function renderIES(){
 
   document.getElementById('ies-count').textContent=filtered.length+' of '+iesCos.length+' IES companies';
   document.getElementById('ies-list').innerHTML=filtered.length
-    ?filtered.map((f,i)=>iesRowHTML(f,i)).join('')
+    ?filtered.map((f,i)=>fbnRowHTML(f,i)).join('')
     :'<div class="no-results">No results found.</div>';
 }
 
