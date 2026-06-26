@@ -141,8 +141,8 @@
 </div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('nil')">&#9733; NIL Businesses</div>
-  <div class="tab" onclick="switchTab('ies')">&#127970; IES Businesses</div>
   <div class="tab" onclick="switchTab('fbn')">&#127970; Fictitious Business Names</div>
+  <div class="tab" onclick="switchTab('ies')">&#127970; IES Businesses</div>
   <div class="tab" onclick="switchTab('consumer')">&#128100; Consumer Personas</div>
   <div class="tab" onclick="switchTab('banks')">&#127974; Banks &amp; Credit Cards</div>
 </div>
@@ -2365,7 +2365,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── Tabs ───────────────────────────────────────────────────────────────────
 function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='ies')||(i===2&&id==='fbn')||(i===3&&id==='consumer')||(i===4&&id==='banks'));
+    t.classList.toggle('active',(i===0&&id==='nil')||(i===1&&id==='fbn')||(i===2&&id==='ies')||(i===3&&id==='consumer')||(i===4&&id==='banks'));
   });
   document.getElementById('tab-nil').classList.toggle('active', id==='nil');
   document.getElementById('tab-ies').classList.toggle('active', id==='ies');
@@ -2915,6 +2915,8 @@ function renderFBN(){
   const matchedIndustry=Object.keys(FBN_IND_COLORS).find(ind=>q.includes(ind.toLowerCase()));
 
   const filtered=approvedFBN.filter(f=>{
+    // Exclude IES parent companies — they live in the IES Businesses tab
+    if(f.status==='ies_parent') return false;
     // Dropdown industry filter
     if(indFilter && f.industry!==indFilter) return false;
     // NL industry match
@@ -2928,7 +2930,8 @@ function renderFBN(){
   });
 
   // Result label
-  let label=filtered.length+' of '+approvedFBN.length+' approved names';
+  const fbnTotal=approvedFBN.filter(f=>f.status!=='ies_parent').length;
+  let label=filtered.length+' of '+fbnTotal+' approved names';
   if(matchedIndustry||indFilter){
     const ind=matchedIndustry||indFilter;
     label=filtered.length+' result'+(filtered.length!==1?'s':'')+' — '+ind;
