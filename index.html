@@ -2076,7 +2076,7 @@ function openModal(name){
   if(!modalCompany)return;
   const c=modalCompany;
   document.getElementById('m-title').textContent=c.name;
-  const rev=getRevenue(c.name,'low');
+  const rev=getRevenue(c.name,'low',c.category);
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${c.email}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${c.phone}</span></div>
@@ -2817,7 +2817,7 @@ function openFBNModal(name){
   document.getElementById('m-title').innerHTML=esc(f.name)+reviewTag;
   document.getElementById('m-sub').textContent=f.owner+' · '+f.type+' · '+f.industry;
   const revTier=f.revTier||'high';
-  const rev=getRevenue(f.name,revTier);
+  const rev=getRevenue(f.name,revTier,f.industry);
   document.getElementById('m-contact').innerHTML=`
     <div class="contact-field"><span class="contact-label">Email</span><span class="contact-value">${esc(f.email)}</span></div>
     <div class="contact-field"><span class="contact-label">Phone</span><span class="contact-value">${esc(f.phone)}</span></div>
@@ -3110,8 +3110,46 @@ function getServices(name, category, count=5){
   return picked;
 }
 
-function getRevenue(name, tier){
+function getRevenue(name, tier, category){
   const rng=seededRNG(hashStr(name+'annualrev'));
+  const REV_RANGES={
+    // User-specified ranges
+    'Professional Services':       [200000,1500000],
+    'Legal Services':              [200000,1500000],
+    'Marketing & Comms':           [200000,1500000],
+    'Food & Beverage':             [500000,1500000],
+    'Retail & Product':            [500000,1000000],
+    'Retail - Brick & Mortar':     [500000,1000000],
+    'Construction':                [1000000,2000000],
+    'Construction-Entities':       [1000000,2000000],
+    'Landscaping':                 [1000000,2000000],
+    // Reasonable defaults for remaining categories
+    'Technology':                  [300000,2000000],
+    'Healthcare':                  [300000,1200000],
+    'Accounting Firm':             [200000,1000000],
+    'Financial Services':          [500000,2000000],
+    'Arts & Galleries':            [100000,600000],
+    'Arts & Creative':             [100000,600000],
+    'Photography & Creative Media':[100000,500000],
+    'Automotive':                  [300000,1000000],
+    'Home Services':               [200000,800000],
+    'Beauty & Wellness':           [150000,600000],
+    'Fitness & Recreation':        [200000,800000],
+    'Hospitality & Travel':        [400000,2000000],
+    'Real Estate':                 [300000,1500000],
+    'Nonprofit / Social Services': [100000,800000],
+    'Childcare & Family Services': [150000,500000],
+    'Agriculture & Farming':       [200000,1000000],
+    'Pet Services':                [100000,500000],
+    'Entertainment & Events':      [200000,1000000],
+    'Video Production & Media':    [150000,700000],
+    'Transportation & Logistics':  [500000,2000000],
+    'Education':                   [200000,800000],
+  };
+  if(category && REV_RANGES[category]){
+    const [min,max]=REV_RANGES[category];
+    return min+Math.floor(rng()*(max-min));
+  }
   if(tier==='high') return 1000000+Math.floor(rng()*4000000);
   return 100000+Math.floor(rng()*850000);
 }
